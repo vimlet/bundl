@@ -17,9 +17,11 @@ module.exports.processOutput = config => {
     let outputEntry = config.output[outputPath];
     let outputParent = path.dirname(outputPath);
     let paths = (await glob.files(Object.keys(outputEntry.input))).map(entry => entry.file); 
+    // Join input file content
     let content = (await readFiles(paths)).reduce((total, current, index, array) => {
       return total + current.toString() + (index < (array.length - 1) ? "\n" : "");
     }, "");
+    // Write content to output file
     if(!await exists(outputParent)){
       await mkdir(outputParent);
     }
