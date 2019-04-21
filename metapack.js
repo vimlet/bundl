@@ -1,5 +1,3 @@
-console.log("Metapack!");
-
 module.exports = {
   "output": {
     "test/build.js" : {
