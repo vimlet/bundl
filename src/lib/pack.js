@@ -24,7 +24,6 @@ function filesByPattern(matches) {
   return Promise.all(files);
 };
 
-// TODO enforce output order!!!
 module.exports.processOutput = config => {
   Object.keys(config.output).map(async outputPath => {
     // Read input files by match
@@ -32,6 +31,7 @@ module.exports.processOutput = config => {
     let outputParent = path.dirname(outputPath);
     let inputsObject = outputEntry.input;
     let inputPatterns = Object.keys(inputsObject).filter(entry => outputEntry.input[entry]);
+    // TODO enforce glob order!!!
     let inputMatches = await glob.files(inputPatterns);
     let files = await filesByPattern(inputMatches);
     // Apply per file use filter
