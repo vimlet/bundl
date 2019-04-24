@@ -31,7 +31,6 @@ module.exports.processOutput = config => {
     let outputParent = path.dirname(outputPath);
     let inputsObject = outputEntry.input;
     let inputPatterns = Object.keys(inputsObject).filter(entry => outputEntry.input[entry]);
-    // TODO enforce glob order!!!
     let inputMatches = await glob.files(inputPatterns);
     let files = await filesByPattern(inputMatches);
     // Apply per file use filter
