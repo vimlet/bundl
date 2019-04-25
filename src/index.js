@@ -15,7 +15,7 @@ if (fs.existsSync(configPath)) {
 }
 
 // Metapack prototyping!
-pack.processOutput(config);
+pack.build(config);
 
 // Command mode
 if (!module.parent) {

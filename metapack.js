@@ -1,6 +1,6 @@
 module.exports = {
   "output": {
-    "test/build.js" : {
+    "test/build.{{hash}}.js" : {
       "input": {
         "test/input/a.js": {
           use: function(entry){

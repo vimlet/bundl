@@ -1,4 +1,5 @@
 const glob = require("@vimlet/commons-glob");
+const md5 = require("md5");
 const fs = require("fs");
 const path = require("path");
 const promisify = require("util").promisify;
@@ -24,7 +25,10 @@ function filesByPattern(matches) {
   return Promise.all(files);
 };
 
-module.exports.processOutput = config => {
+module.exports.build = config => {
+  var hashedFiles = {};
+
+  config.hashLength = "hashLength" in config ? config.hashLength : 7;
   Object.keys(config.output).map(async outputPath => {
     // Read input files by match
     let outputEntry = config.output[outputPath];
@@ -52,11 +56,16 @@ module.exports.processOutput = config => {
         content: content
       }).content;
     }
+    // Enable hashing support
+    if(outputPath.includes("{{hash}}")) {
+        var hash = md5(content).substring(0, config.hashLength);
+        outputPath = outputPath.replace("{{hash}}", hash);
+    }
     // Write content to output file
     if(!await exists(outputParent)){
       await mkdir(outputParent);
     }
-    writeFile(outputPath, content);
+    await writeFile(outputPath, content);
     console.log(`-> ${outputPath}`);
   });
 };
