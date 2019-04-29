@@ -1,4 +1,5 @@
 const glob = require("@vimlet/commons-glob");
+const meta = require("@vimlet/meta");
 const md5 = require("md5");
 const fs = require("fs");
 const path = require("path");
@@ -7,6 +8,8 @@ const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const exists = promisify(fs.exists);
 const mkdir = promisify(fs.mkdir);
+const parse = promisify(meta.parse);
+const rimraf = require("rimraf");
 
 function filesByPattern(matches) {
   var files = [];
@@ -26,20 +29,28 @@ function filesByPattern(matches) {
 };
 
 module.exports.build = config => {
-  var hashedFiles = {};
-
+  var hashes = {};
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
-  Object.keys(config.output).map(async outputPath => {
+  config.clean = "clean" in config ? config.clean : true;
+  config.basedir = "basedir" in config ? config.basedir : "";
+
+  // Clean basedir before build
+  if (config.clean && config.basedir != "" && fs.existsSync(config.basedir)) {
+    rimraf.sync(config.basedir);
+  }
+
+  Object.keys(config.output).map(async outputKey => {
     // Read input files by match
-    let outputEntry = config.output[outputPath];
-    let outputParent = path.dirname(outputPath);
+    let outputPath = path.join(config.basedir, outputKey).replace(/\\/g, "/");
+    let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
+    let outputEntry = config.output[outputKey];    
     let inputsObject = outputEntry.input;
     let inputPatterns = Object.keys(inputsObject).filter(entry => outputEntry.input[entry]);
     let inputMatches = await glob.files(inputPatterns);
     let files = await filesByPattern(inputMatches);
     // Apply per file use filter
     files = files.map(file => {
-      if(inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
+      if (inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
         return inputsObject[file.match].use(file);
       }
       return file;
@@ -50,20 +61,36 @@ module.exports.build = config => {
       return total + current.content.toString() + (index < (array.length - 1) ? "\n" : "");
     }, "");
     // Apply per output use filter
-    if(outputEntry.use) {
+    if (outputEntry.use) {
       content = outputEntry.use({
         file: outputPath,
         content: content
       }).content;
     }
     // Enable hashing support
-    if(outputPath.includes("{{hash}}")) {
-        var hash = md5(content).substring(0, config.hashLength);
-        outputPath = outputPath.replace("{{hash}}", hash);
+    if (outputKey.includes("{{hash}}")) {
+      let hash = md5(content).substring(0, config.hashLength);
+      hashes[outputPath] = hash;
+      if (outputEntry.id) {
+        hashes[outputEntry.id] = hash;
+      }
+      outputPath = outputPath.replace("{{hash}}", hash);
+    }
+    // Meta parse per output file
+    if (outputEntry.parse) {
+      content = await parse(content, {
+        data: {
+          hashes: hashes
+        }
+      });
     }
     // Write content to output file
-    if(!await exists(outputParent)){
-      await mkdir(outputParent);
+    if (!await exists(outputParent)) {
+      try {
+        await mkdir(outputParent);
+      } catch (error) {
+        // Ignore error since sibling files will try to create the same directory
+      }
     }
     await writeFile(outputPath, content);
     console.log(`-> ${outputPath}`);
