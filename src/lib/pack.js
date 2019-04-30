@@ -11,6 +11,17 @@ const mkdir = promisify(fs.mkdir);
 const parse = promisify(meta.parse);
 const rimraf = require("rimraf");
 
+meta.sandbox = {
+  "hash": function (id) {
+    if (this.data.hashParse && this.data.hashes && this.data.hashes[id]) {
+      this.echo(this.data.hashes[id]);
+    } else {
+      ;
+      this.echo(`<% hash('${id}') %>`)
+    }
+  }
+};
+
 function filesByPattern(matches) {
   var files = [];
   matches.map(match => {
@@ -28,7 +39,7 @@ function filesByPattern(matches) {
   return Promise.all(files);
 };
 
-module.exports.build = config => {
+module.exports.build = async config => {
   var hashes = {};
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
   config.clean = "clean" in config ? config.clean : true;
@@ -39,61 +50,104 @@ module.exports.build = config => {
     rimraf.sync(config.basedir);
   }
 
-  Object.keys(config.output).map(async outputKey => {
-    // Read input files by match
-    let outputPath = path.join(config.basedir, outputKey).replace(/\\/g, "/");
-    let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
-    let outputEntry = config.output[outputKey];    
-    let inputsObject = outputEntry.input;
-    let inputPatterns = Object.keys(inputsObject).filter(entry => outputEntry.input[entry]);
-    let inputMatches = await glob.files(inputPatterns);
-    let files = await filesByPattern(inputMatches);
-    // Apply per file use filter
-    files = files.map(file => {
-      if (inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
-        return inputsObject[file.match].use(file);
-      }
-      return file;
-    });
-    // Join input file content
-    let content = files.reduce((total, current, index, array) => {
-      // TODO current should be handled as a promise
-      return total + current.content.toString() + (index < (array.length - 1) ? "\n" : "");
-    }, "");
-    // Apply per output use filter
-    if (outputEntry.use) {
-      content = outputEntry.use({
-        file: outputPath,
-        content: content
-      }).content;
-    }
-    // Enable hashing support
-    if (outputKey.includes("{{hash}}")) {
-      let hash = md5(content).substring(0, config.hashLength);
-      hashes[outputPath] = hash;
-      if (outputEntry.id) {
-        hashes[outputEntry.id] = hash;
-      }
-      outputPath = outputPath.replace("{{hash}}", hash);
-    }
-    // Meta parse per output file
-    if (outputEntry.parse) {
-      content = await parse(content, {
-        data: {
-          hashes: hashes
+  var processPromises = [];
+  var storePromises = [];
+
+  Object.keys(config.output).map(outputKey => {
+
+    var process = async () => {
+      // Read input files by match
+      let outputPath = path.join(config.basedir, outputKey).replace(/\\/g, "/");
+      let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
+      let outputEntry = config.output[outputKey];
+      let inputsObject = outputEntry.input;
+      let inputPatterns = Object.keys(inputsObject).filter(entry => outputEntry.input[entry]);
+      let inputMatches = await glob.files(inputPatterns);
+      let files = await filesByPattern(inputMatches);
+      // Apply per file use filter
+      files = files.map(file => {
+        if (inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
+          return inputsObject[file.match].use(file);
         }
+        return file;
       });
-    }
-    // Write content to output file
-    if (!await exists(outputParent)) {
-      try {
-        await mkdir(outputParent);
-      } catch (error) {
-        // Ignore error since sibling files will try to create the same directory
+      // Join input file content
+      let content = files.reduce((total, current, index, array) => {
+        // TODO current should be handled as a promise
+        return total + current.content.toString() + (index < (array.length - 1) ? "\n" : "");
+      }, "");
+      // Apply per output use filter
+      if (outputEntry.use) {
+        content = outputEntry.use({
+          file: outputPath,
+          content: content
+        }).content;
       }
-    }
-    await writeFile(outputPath, content);
-    console.log(`-> ${outputPath}`);
+      // Meta parse per output file
+      if (outputEntry.parse) {
+        content = await parse(content, {
+          data: {
+            hashes: hashes
+          }
+        });
+      }
+      // Enable hashing support
+      if (outputKey.includes("{{hash}}")) {
+        let hash = md5(content).substring(0, config.hashLength);
+        hashes[outputPath] = hash;
+        if (outputEntry.id) {
+          hashes[outputEntry.id] = hash;
+        }
+        outputPath = outputPath.replace("{{hash}}", hash);
+      }
+
+      // Return result
+      let result = {
+        parse: outputEntry.parse,
+        outputParent: outputParent,
+        outputPath: outputPath,
+        content: content
+      };
+
+      return result;
+    };
+
+    // Store process promise
+    processPromises.push(process());
   });
+
+  let processResults = await Promise.all(processPromises);
+
+  processResults.map(result => {
+    var store = async () => {
+      // Late parse for hashing purposes per output file
+      if (result.parse) {
+        result.content = await parse(result.content, {
+          data: {
+            hashParse: true,
+            hashes: hashes
+          }
+        });
+      }
+
+      // // Write content to output file
+      if (!await exists(result.outputParent)) {
+        try {
+          await mkdir(result.outputParent);
+        } catch (error) {
+          // Ignore error since sibling files will try to create the same directory
+        }
+      }
+      await writeFile(result.outputPath, result.content);
+      console.log(`-> ${result.outputPath}`);
+
+      return result;
+    };
+
+    storePromises.push(store());
+  });
+
+  // Wait to hash and store all files
+  await Promise.all(storePromises);
 };
 
