@@ -1,6 +1,7 @@
 module.exports = {
   "basedir": "test/output",
   "clean": true,
+  "watch": "test/input",
   "output": {
     "build.{{hash}}.js": {
       "id": "build",

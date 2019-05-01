@@ -57,6 +57,7 @@ async function writeResult(result) {
 }
 
 module.exports.build = async config => {
+  console.log("Build started...");
   let hashes = {};
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
   config.clean = "clean" in config ? config.clean : true;
@@ -118,5 +119,6 @@ module.exports.build = async config => {
 
   // Wait to late operations completion
   await Promise.all(latePromises);
+  console.log("Build completed!");
 };
 
