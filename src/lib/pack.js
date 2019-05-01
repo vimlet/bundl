@@ -1,5 +1,4 @@
 const glob = require("@vimlet/commons-glob");
-const meta = require("@vimlet/meta");
 const md5 = require("md5");
 const fs = require("fs");
 const path = require("path");
@@ -8,21 +7,15 @@ const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const exists = promisify(fs.exists);
 const mkdir = promisify(fs.mkdir);
-const parse = promisify(meta.parse);
 const rimraf = require("rimraf");
+const transform = require("./transform");
 
-meta.sandbox = {
-  "hash": function (id) {
-    if (this.data.hashParse && this.data.hashes && this.data.hashes[id]) {
-      this.echo(this.data.hashes[id]);
-    } else {
-      ;
-      this.echo(`<% hash('${id}') %>`)
-    }
-  }
-};
+async function getInputMatches(outputEntry, inputsObject) {
+  let inputPatterns = Object.keys(inputsObject).filter(entry => outputEntry.input[entry]);
+  return await glob.files(inputPatterns);
+}
 
-function filesByPattern(matches) {
+function filesByMatches(matches) {
   var files = [];
   matches.map(match => {
     files.push(new Promise((resolve, reject) => {
@@ -39,6 +32,30 @@ function filesByPattern(matches) {
   return Promise.all(files);
 };
 
+function handleOutputHash(config, hashes, content, outputKey, outputEntry, outputPath) {
+  if (outputKey.includes("{{hash}}")) {
+    let hash = md5(content).substring(0, config.hashLength);
+    hashes[outputPath] = hash;
+    if (outputEntry.id) {
+      hashes[outputEntry.id] = hash;
+    }
+    outputPath = outputPath.replace("{{hash}}", hash);
+  }
+  return outputPath;
+}
+
+async function writeResult(result) {
+  if (!await exists(result.outputParent)) {
+    try {
+      await mkdir(result.outputParent);
+    } catch (error) {
+      // Ignore error since sibling files will try to create the same directory
+    }
+  }
+  await writeFile(result.outputPath, result.content);
+  console.log(`-> ${result.outputPath}`);
+}
+
 module.exports.build = async config => {
   var hashes = {};
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
@@ -46,60 +63,30 @@ module.exports.build = async config => {
   config.basedir = "basedir" in config ? config.basedir : "";
 
   // Clean basedir before build
-  if (config.clean && config.basedir != "" && fs.existsSync(config.basedir)) {
+  if (config.clean && config.basedir != "" && await exists(config.basedir)) {
     rimraf.sync(config.basedir);
   }
 
   var processPromises = [];
-  var storePromises = [];
+  var latePromises = [];
 
   Object.keys(config.output).map(outputKey => {
-
     var process = async () => {
       // Read input files by match
       let outputPath = path.join(config.basedir, outputKey).replace(/\\/g, "/");
       let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
       let outputEntry = config.output[outputKey];
       let inputsObject = outputEntry.input;
-      let inputPatterns = Object.keys(inputsObject).filter(entry => outputEntry.input[entry]);
-      let inputMatches = await glob.files(inputPatterns);
-      let files = await filesByPattern(inputMatches);
-      // Apply per file use filter
-      files = files.map(file => {
-        if (inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
-          return inputsObject[file.match].use(file);
-        }
-        return file;
-      });
-      // Join input file content
-      let content = files.reduce((total, current, index, array) => {
-        // TODO current should be handled as a promise
-        return total + current.content.toString() + (index < (array.length - 1) ? "\n" : "");
-      }, "");
-      // Apply per output use filter
-      if (outputEntry.use) {
-        content = outputEntry.use({
-          file: outputPath,
-          content: content
-        }).content;
-      }
-      // Meta parse per output file
-      if (outputEntry.parse) {
-        content = await parse(content, {
-          data: {
-            hashes: hashes
-          }
-        });
-      }
+      let files = await filesByMatches(await getInputMatches(outputEntry, inputsObject));
+      files = transform.processInputUse(inputsObject, files);
+
+      // Process content
+      let content = transform.processInputJoin(files);      
+      content = transform.processOutputUse(outputEntry, outputPath, content);
+      content = await transform.processOutputMeta(outputEntry, hashes, content);
+      
       // Enable hashing support
-      if (outputKey.includes("{{hash}}")) {
-        let hash = md5(content).substring(0, config.hashLength);
-        hashes[outputPath] = hash;
-        if (outputEntry.id) {
-          hashes[outputEntry.id] = hash;
-        }
-        outputPath = outputPath.replace("{{hash}}", hash);
-      }
+      outputPath = handleOutputHash(config, hashes, content, outputKey, outputEntry, outputPath);
 
       // Return result
       let result = {
@@ -116,38 +103,20 @@ module.exports.build = async config => {
     processPromises.push(process());
   });
 
+  // Once all files are processed apply start late operations
   let processResults = await Promise.all(processPromises);
-
   processResults.map(result => {
-    var store = async () => {
-      // Late parse for hashing purposes per output file
-      if (result.parse) {
-        result.content = await parse(result.content, {
-          data: {
-            hashParse: true,
-            hashes: hashes
-          }
-        });
-      }
-
-      // // Write content to output file
-      if (!await exists(result.outputParent)) {
-        try {
-          await mkdir(result.outputParent);
-        } catch (error) {
-          // Ignore error since sibling files will try to create the same directory
-        }
-      }
-      await writeFile(result.outputPath, result.content);
-      console.log(`-> ${result.outputPath}`);
-
+    var late = async () => {
+      // Use meta to replace hashes
+      result = await transform.processLateMetaHash(hashes, result);
+      // Write results to disk
+      await writeResult(result);
       return result;
     };
-
-    storePromises.push(store());
+    latePromises.push(late());
   });
 
-  // Wait to hash and store all files
-  await Promise.all(storePromises);
+  // Wait to late operations completion
+  await Promise.all(latePromises);
 };
 
