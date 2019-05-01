@@ -16,7 +16,7 @@ async function getInputMatches(outputEntry, inputsObject) {
 }
 
 function filesByMatches(matches) {
-  var files = [];
+  let files = [];
   matches.map(match => {
     files.push(new Promise((resolve, reject) => {
       readFile(match.file)
@@ -57,7 +57,7 @@ async function writeResult(result) {
 }
 
 module.exports.build = async config => {
-  var hashes = {};
+  let hashes = {};
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
   config.clean = "clean" in config ? config.clean : true;
   config.basedir = "basedir" in config ? config.basedir : "";
@@ -67,11 +67,11 @@ module.exports.build = async config => {
     rimraf.sync(config.basedir);
   }
 
-  var processPromises = [];
-  var latePromises = [];
+  let processPromises = [];
+  let latePromises = [];
 
   Object.keys(config.output).map(outputKey => {
-    var process = async () => {
+    let process = async () => {
       // Read input files by match
       let outputPath = path.join(config.basedir, outputKey).replace(/\\/g, "/");
       let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
@@ -106,7 +106,7 @@ module.exports.build = async config => {
   // Once all files are processed apply start late operations
   let processResults = await Promise.all(processPromises);
   processResults.map(result => {
-    var late = async () => {
+    let late = async () => {
       // Use meta to replace hashes
       result = await transform.processLateMetaHash(hashes, result);
       // Write results to disk

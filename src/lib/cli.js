@@ -1,31 +1,31 @@
-var cli = require("@vimlet/cli").instantiate();
+const cli = require("@vimlet/cli").instantiate();
+const path = require("path");
+const fs = require("fs");
+const pack = require("./pack");
 
-module.exports = function() {
+module.exports = function () {
+  let configPath = path.join(process.cwd(), "metapack.js");
 
-  function list(value) {
-    var result = value.split(",");
-    for (var i = 0; i < result.length; i++) {
-      result[i] = result[i].trim();
-    }
-    return result;
-  }
-  
   cli
-    .value("-i", "--include", "Include patterns", list)
-    .value("-e", "--exclude", "Exclude patterns", list)
-    .value("-o", "--output", "Output path")
-    .flag("-c", "--clean", "Clean output directory")
-    .value("-w", "--watch", "Keeps watching for changes")
+    .value("-c", "--config", "Defines the configuration file path")
     .flag("-h", "--help", "Shows help")
     .parse(process.argv);
-  
+
+
   if (cli.result) {
-   
+    if (cli.result.help) {
+      cli.printHelp();
+    } else {
+      if (cli.result.config) {
+        configPath = cli.result.config;
+      }
+      if (fs.existsSync(configPath)) {
+        let config = require(configPath);
+        pack.build(config);
+      } else {
+        console.log("Config file metapack.js not found, please create one!");
+        process.exit(1);
+      }   
+    }    
   }
-  
-  if (cli.result.help) {
-    cli.printHelp();
-  }
-
-
 };
