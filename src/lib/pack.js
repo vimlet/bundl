@@ -1,158 +1,49 @@
-const glob = require("@vimlet/commons-glob");
-const md5 = require("md5");
-const fs = require("fs");
-const path = require("path");
-const promisify = require("util").promisify;
-const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-const exists = promisify(fs.exists);
-const mkdir = promisify(fs.mkdir);
-const rimraf = require("rimraf");
+const clean = require("./clean");
 const transform = require("./transform");
 const copy = require("./copy");
-
-async function getInputMatches(outputEntry, inputsObject) {
-  let inputPatterns = Object.keys(inputsObject).filter(entry => outputEntry.input[entry]);
-  return await glob.files(inputPatterns);
-}
-
-function filesByMatches(matches) {
-  let files = [];
-  matches.map(match => {
-    files.push(new Promise((resolve, reject) => {
-      readFile(match.file)
-        .then(content => {
-          match.content = content;
-          resolve(match);
-        })
-        .catch(error => {
-          reject(error);
-        });
-    }));
-  });
-  return Promise.all(files);
-};
-
-function handleOutputHash(config, hashes, content, outputKey, outputEntry, outputPath) {
-  if (outputKey.includes("{{hash}}")) {
-    let hash = md5(content).substring(0, config.hashLength);
-    hashes[outputPath] = hash;
-    if (outputEntry.id) {
-      hashes[outputEntry.id] = hash;
-    }
-    outputPath = outputPath.replace("{{hash}}", hash);
-  }
-  return outputPath;
-}
-
-async function writeResult(result) {
-  if (!await exists(result.outputParent)) {
-    try {
-      await mkdir(result.outputParent);
-    } catch (error) {
-      // Ignore error since sibling files will try to create the same directory
-    }
-  }
-  await writeFile(result.outputPath, result.content);
-  console.log(`-> ${result.outputPath}`);
-}
+const late = require("./late");
 
 module.exports.build = async config => {
   console.log("Build started...");
-  let hashes = {};
+
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
   config.clean = "clean" in config ? config.clean : true;
   config.basedir = "basedir" in config ? config.basedir : "";
 
-  // Clean basedir before build
-  if (config.clean && config.basedir != "" && await exists(config.basedir)) {
-    rimraf.sync(config.basedir);
-  }
+  let hashes = {};
+  let processOutputPromises = [];
 
-  let processPromises = [];
-  let latePromises = [];
+  // Clean baseDir
+  await clean(config);
 
+  // Process copy and transform actions
   Object.keys(config.output).map(outputKey => {
-    var isCopy = outputKey.includes("**");
-
-    let process = async () => {
-      // Read input files by match
-      let outputPath = path.join(config.basedir, outputKey).replace(/\\/g, "/");
-      let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
-      let outputEntry = config.output[outputKey];
-      let inputsObject = outputEntry.input;
-      let files = await filesByMatches(await getInputMatches(outputEntry, inputsObject));
-      files = transform.processInputUse(inputsObject, files);
-
-
-      // Process content
-      let content = transform.processInputJoin(files);
-      content = transform.processOutputUse(outputEntry, outputPath, content);
-      content = await transform.processOutputMeta(outputEntry, hashes, content);
-
-      // Enable hashing support
-      outputPath = handleOutputHash(config, hashes, content, outputKey, outputEntry, outputPath);
-
-      // Return result
-      let result = {
-        parse: outputEntry.parse,
-        outputParent: outputParent,
-        outputPath: outputPath,
-        content: content
-      };
-
-      return result;
-    };
-
-
-    let copyProcess = async () => {
-      let outputBase = path.join(config.basedir, outputKey.replace("**", "")).replace(/\\/g, "/");
-      let outputEntry = config.output[outputKey];
-      let inputsObject = outputEntry.input;
-
-      let files = await filesByMatches(await getInputMatches(outputEntry, inputsObject));
-
-      files.map(file => {
-        processPromises.push(new Promise((resolve, reject) => {
-          let subPath = file.match.substring(path.dirname(file.pattern).length + 1);
-          let outputPath = path.join(outputBase, subPath).replace(/\\/g, "/");
-          let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
-  
-          let result = {
-            parse: outputEntry.parse,
-            outputParent: outputParent,
-            outputPath: outputPath,
-            content: file.content
-          };  
-
-          resolve(result);
-        }));
-      });
-    };
-
-    // Store process promise
+    var isCopy = outputKey.endsWith("**");
     if (isCopy) {
-      copyProcess();
+      processOutputPromises.push(copy.process(config, outputKey));
     } else {
-      processPromises.push(process());
+      processOutputPromises.push(transform.process(config, outputKey, hashes));
     }
   });
 
-  // Once all files are processed apply start late operations
-  let processResults = await Promise.all(processPromises);
-  processResults.map(result => {
-    let late = async () => {
-      // Use meta to replace hashes
-      result = await transform.processLateMetaHash(hashes, result);
-      // Write results to disk
-      await writeResult(result);
-      return result;
-    };
-    latePromises.push(late());
-  });
+  // Flatten results nested arrays
+  let processOutputResults = (await Promise.all(processOutputPromises))
+    .reduce((prev, current) => {
+      if (Array.isArray(current)) {
+        current.map(result => {
+          prev.push(result);
+        });
+      } else {
+        prev.push(current);
+      }
+      return prev;
+    }, []);
 
-  // Wait to late operations completion
-  await Promise.all(latePromises);
+  // Finally process late actions (hash-parse and write)
+  await late.process(processOutputResults, hashes);
   console.log("Build completed!");
+
+
 };
+
 
