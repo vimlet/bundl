@@ -9,6 +9,7 @@ const exists = promisify(fs.exists);
 const mkdir = promisify(fs.mkdir);
 const rimraf = require("rimraf");
 const transform = require("./transform");
+const copy = require("./copy");
 
 async function getInputMatches(outputEntry, inputsObject) {
   let inputPatterns = Object.keys(inputsObject).filter(entry => outputEntry.input[entry]);
@@ -72,6 +73,8 @@ module.exports.build = async config => {
   let latePromises = [];
 
   Object.keys(config.output).map(outputKey => {
+    var isCopy = outputKey.includes("**");
+
     let process = async () => {
       // Read input files by match
       let outputPath = path.join(config.basedir, outputKey).replace(/\\/g, "/");
@@ -81,11 +84,12 @@ module.exports.build = async config => {
       let files = await filesByMatches(await getInputMatches(outputEntry, inputsObject));
       files = transform.processInputUse(inputsObject, files);
 
+
       // Process content
-      let content = transform.processInputJoin(files);      
+      let content = transform.processInputJoin(files);
       content = transform.processOutputUse(outputEntry, outputPath, content);
       content = await transform.processOutputMeta(outputEntry, hashes, content);
-      
+
       // Enable hashing support
       outputPath = handleOutputHash(config, hashes, content, outputKey, outputEntry, outputPath);
 
@@ -100,8 +104,38 @@ module.exports.build = async config => {
       return result;
     };
 
+
+    let copyProcess = async () => {
+      let outputBase = path.join(config.basedir, outputKey.replace("**", "")).replace(/\\/g, "/");
+      let outputEntry = config.output[outputKey];
+      let inputsObject = outputEntry.input;
+
+      let files = await filesByMatches(await getInputMatches(outputEntry, inputsObject));
+
+      files.map(file => {
+        processPromises.push(new Promise((resolve, reject) => {
+          let subPath = file.match.substring(path.dirname(file.pattern).length + 1);
+          let outputPath = path.join(outputBase, subPath).replace(/\\/g, "/");
+          let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
+  
+          let result = {
+            parse: outputEntry.parse,
+            outputParent: outputParent,
+            outputPath: outputPath,
+            content: file.content
+          };  
+
+          resolve(result);
+        }));
+      });
+    };
+
     // Store process promise
-    processPromises.push(process());
+    if (isCopy) {
+      copyProcess();
+    } else {
+      processPromises.push(process());
+    }
   });
 
   // Once all files are processed apply start late operations

@@ -1,7 +1,7 @@
 module.exports = {
   "basedir": "test/output",
   "clean": true,
-  "watch": "test/input",
+  // "watch": "test/input",
   "output": {
     "build.{{hash}}.js": {
       "id": "build",
@@ -23,6 +23,11 @@ module.exports = {
       "parse": true,
       "input": {
         "test/input/html/*.html": true
+      }
+    },
+    "copy/**": {
+      input: {
+        "test/input/copy/**": true
       }
     }
   }
