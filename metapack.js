@@ -1,5 +1,5 @@
 module.exports = {
-  "basedir": "test/output",
+  "basedir": "test/output/test",
   "clean": true,
   // "watch": "test/input",
   "output": {
