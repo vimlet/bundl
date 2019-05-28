@@ -33,7 +33,7 @@ async function writeResult(result) {
   console.log(`-> ${result.outputPath}`);
 }
 
-module.exports.process = async (results, hashes) => {
+module.exports.process = async (results, hashes) => {  
   let latePromises = [];
 
   results.map(result => {

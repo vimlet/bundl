@@ -1,10 +1,10 @@
 module.exports = {
   "basedir": "test/output/test",
-  "clean": true,
   // "watch": "test/input",
   "output": {
     "build.{{hash}}.js": {
       "id": "build",
+      "clean": true,
       "input": {
         "test/input/js/a.js": {
           use: function (entry) {
@@ -20,12 +20,14 @@ module.exports = {
       }
     },
     "index.html": {
+      "clean": true,
       "parse": true,
       "input": {
         "test/input/html/*.html": true
       }
     },
     "copy/**": {
+      "clean": true,
       input: {
         "test/input/copy/**": true
       }

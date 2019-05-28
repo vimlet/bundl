@@ -14,10 +14,11 @@ module.exports.build = async config => {
   let processOutputPromises = [];
 
   // Clean baseDir
-  await clean(config);
+  // await clean(config);
 
   // Process copy and transform actions
-  Object.keys(config.output).map(outputKey => {
+  Object.keys(config.output).map(async outputKey => {
+    await  clean(config, outputKey);
     var isCopy = outputKey.endsWith("**");
     if (isCopy) {
       processOutputPromises.push(copy.process(config, outputKey));
@@ -40,7 +41,7 @@ module.exports.build = async config => {
     }, []);
 
   // Finally process late actions (hash-parse and write)
-  await late.process(processOutputResults, hashes);
+  // await late.process(processOutputResults, hashes);
   console.log("Build completed!");
 
 
