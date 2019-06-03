@@ -8,17 +8,16 @@ module.exports.build = async config => {
 
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
   config.clean = "clean" in config ? config.clean : true;
-  config.basedir = "basedir" in config ? config.basedir : "";
+  config.outputBase = "outputBase" in config ? config.outputBase : "";
+  config.inputBase = "inputBase" in config ? config.inputBase : "";
 
   let hashes = {};
   let processOutputPromises = [];
 
-  // Clean baseDir
-  // await clean(config);
+  await clean(config);
 
   // Process copy and transform actions
-  Object.keys(config.output).map(async outputKey => {
-    await  clean(config, outputKey);
+  Object.keys(config.output).map(async outputKey => {    
     var isCopy = outputKey.endsWith("**");
     if (isCopy) {
       processOutputPromises.push(copy.process(config, outputKey));
@@ -41,10 +40,8 @@ module.exports.build = async config => {
     }, []);
 
   // Finally process late actions (hash-parse and write)
-  // await late.process(processOutputResults, hashes);
+  await late.process(processOutputResults, hashes);
   console.log("Build completed!");
-
-
 };
 
 

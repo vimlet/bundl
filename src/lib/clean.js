@@ -5,29 +5,23 @@ const rimraf = require("rimraf");
 const path = require("path");
 const glob = require("@vimlet/commons-glob");
 
-module.exports = async (config, outputKey) => {
-  // Clean basedir before build
-  // if (config.clean && config.basedir != "" && await exists(config.basedir)) {
-  //   rimraf.sync(config.basedir);
-  // }
-
-
-  if (config.output[outputKey].clean) {
-    var fullPath = config.basedir ? path.join(config.basedir, outputKey.replace("**", "").replace(/\\/g, "/")) : outputKey.replace("**", "").replace(/\\/g, "/");
-    // console.log("FULLPATH", fullPath);
-    if (fullPath.indexOf("{{hash}}") < 0) {
-      if (await exists(fullPath)) {
-        rimraf.sync(fullPath);
+module.exports = async config => {
+  for (var key in config.output) {
+    if (config.output[key].clean) {
+      key = config.inputBase ? path.join(config.inputBase, key) : key;
+      var fullPath = config.outputBase ? path.join(config.outputBase, key.replace("**", "").replace(/\\/g, "/")) : key.replace("**", "").replace(/\\/g,"/");      
+      if (fullPath.indexOf("{{hash}}") < 0) {
+        if (await exists(fullPath)) {
+          rimraf.sync(fullPath);
+        }
+      } else {
+        fullPath = fullPath.replace("{{hash}}", "**").replace(/\\/g, "/");   
+        var files = await glob.files(fullPath);
+        files.forEach(element => {          
+          rimraf.sync(element.file);
+        });
+  
       }
-    } else {
-      fullPath = fullPath.replace("{{hash}}", "**");
-      var files = await glob.files(fullPath);
-      
-      
-      // console.log('C:/Users/jpere/Documents/NetbeansProjects/metapack/test/output/test/build.efe8740.js'.match(/test\output\test\build.**.js/));
-      console.log("FILES", fullPath, files);
-
     }
   }
-
 };

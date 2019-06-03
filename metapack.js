@@ -1,18 +1,18 @@
 module.exports = {
-  "basedir": "test/output/test",
-  // "watch": "test/input",
+  "outputBase":"test/output/test",
+  "inputBase":"test/input",
   "output": {
     "build.{{hash}}.js": {
-      "id": "build",
       "clean": true,
+      "id": "build",
       "input": {
-        "test/input/js/a.js": {
+        "js/a.js": {
           use: function (entry) {
             entry.content += "\nconsole.log(\"input use\");";
             return entry;
           }
         },
-        "test/input/js/b.js": true
+        "js/b.js": true
       },
       use: function (entry) {
         entry.content += "\nconsole.log(\"output use\");";
@@ -23,13 +23,13 @@ module.exports = {
       "clean": true,
       "parse": true,
       "input": {
-        "test/input/html/*.html": true
+        "html/*.html": true
       }
     },
     "copy/**": {
       "clean": true,
       input: {
-        "test/input/copy/**": true
+        "copy/**": true
       }
     }
   }
