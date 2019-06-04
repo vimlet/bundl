@@ -41,7 +41,7 @@ async function processOutputMeta(outputObject, hashes, content) {
 };
 
 function handleOutputHash(config, hashes, content, outputKey, outputObject, outputPath) {
-  if (outputKey.includes("{{hash}}")){
+  if (outputKey.includes("{{hash}}")) {
     let hash = md5(content).substring(0, config.hashLength);
     hashes[outputPath] = hash;
     if (outputObject.id) {

@@ -16,7 +16,7 @@ module.exports.filesByMatches = (matches) => {
         .then(content => {
           match.content = content;
           resolve(match);
-        }) 
+        })
         .catch(error => {
           reject(error);
         });

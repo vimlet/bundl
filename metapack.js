@@ -1,9 +1,10 @@
 module.exports = {
   "outputBase":"test/output/test",
   "inputBase":"test/input",
+  "clean": true,
+  // "watch": "test/input",
   "output": {
-    "build.{{hash}}.js": {
-      "clean": true,
+    "build.{{hash}}.js?clean=false": {
       "id": "build",
       "input": {
         "js/a.js": {
@@ -19,16 +20,10 @@ module.exports = {
         return entry;
       }
     },
-    "index.html": {
-      "clean": true,
-      "parse": true,
-      "input": {
-        "html/*.html": true
-      }
-    },
+    "index.html?clean=false&parse=true": "html/*.html",
     "copy/**": {
       "clean": true,
-      input: {
+      "input": {
         "copy/**": true
       }
     }

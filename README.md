@@ -3,11 +3,11 @@
 ## TODO 
 [done] 1) clean per file
 [done] 2) copy support
-3) queyParam as key
-4)array and string as default output value for input
+[done] 3) queyParam as key
+[done] 4) array and string as default output value for input
 [done] 5) baseDir changed to outputBase and inputBase
 6) single output build
-7) clean true && cleanDir false
+[done] 7) clean true && cleanDir false
 8) Stage/Order
 
 ## Example config

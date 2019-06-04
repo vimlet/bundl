@@ -29,6 +29,7 @@ module.exports.process = async (config, outputKey) => {
         outputPath: outputPath,
         content: file.content
       };
+
       resolve(result);
     }));
   });
