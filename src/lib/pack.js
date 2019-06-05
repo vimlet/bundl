@@ -13,8 +13,11 @@ module.exports.build = async config => {
 
   await clean(config);
 
-  // Process copy and transform actions
-  Object.keys(config.output).map(async outputKey => {
+
+  let sorted = sort(config);
+
+  // Process copy and transform actions in order.
+  sorted.forEach(outputKey => {
     var isCopy = outputKey.endsWith("**");
     if (isCopy) {
       processOutputPromises.push(copy.process(config, outputKey));
@@ -22,6 +25,7 @@ module.exports.build = async config => {
       processOutputPromises.push(transform.process(config, outputKey, hashes));
     }
   });
+
 
   // Flatten results nested arrays
   let processOutputResults = (await Promise.all(processOutputPromises))
@@ -41,7 +45,7 @@ module.exports.build = async config => {
   console.log("Build completed!");
 };
 
-
+// @funciton setupConfig (private)
 function setupConfig(config) {
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
   config.outputBase = "outputBase" in config ? config.outputBase : "";
@@ -51,6 +55,7 @@ function setupConfig(config) {
   return config;
 }
 
+// @function querParam (private) [Manage query param in outputs]
 function queryParam(config) {
   var output = {};
   for (var key in config.output) {
@@ -73,11 +78,12 @@ function queryParam(config) {
   return config;
 }
 
-function setOutput(output) {  
+// @function setOutput (private) [Set output config from inputs. Handle array, string or object]
+function setOutput(output) {
   if (typeof output === 'object' && !Array.isArray(output)) {
     return output;
   } else {
-    if (Array.isArray(output)) {      
+    if (Array.isArray(output)) {
       var res = {
         input: {}
       };
@@ -89,12 +95,13 @@ function setOutput(output) {
       var res = {
         input: {}
       };
-      res.input[output] = true;      
+      res.input[output] = true;
       return res;
     }
   }
 }
 
+// @function setParam (private) [Set up query params into element config] @param param @param obj [Output object]
 function setParam(param, obj) {
   var split = param.split("=");
   if (split[0] && split[1]) {
@@ -110,4 +117,33 @@ function setParam(param, obj) {
         break;
     }
   }
+}
+
+// @function sort (private) [Sort output keys into array] @param config
+function sort(config) {
+  var sorted = [];
+  var notSorted = [];
+  Object.keys(config.output).forEach(element => {
+    if ("order" in config.output[element]) {
+      var pos = -1;
+      for (var i = 0; i < sorted.length; i++) {
+        if (sorted.length <= 0) {
+          pos = 0;
+          break;
+        }
+        if (config.output[sorted[i]].order > parseInt(config.output[element].order)) {
+          pos = i;
+          break;
+        }
+      }
+      if (pos === -1) {
+        sorted.push(element);
+      } else {
+        sorted.splice(pos, 0, element);
+      }
+    } else {
+      notSorted.push(element);
+    }
+  });
+  return sorted.concat(notSorted);
 }
