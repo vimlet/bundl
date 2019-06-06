@@ -8,7 +8,7 @@
 [done] 5) baseDir changed to outputBase and inputBase
 6) single output build
 [done] 7) clean true && cleanDir false
-8) Stage/Order
+[done] 8) Stage/Order
 
 ## Example config
 module.exports = {
