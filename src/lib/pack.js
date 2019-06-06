@@ -5,19 +5,26 @@ const late = require("./late");
 
 module.exports.build = async config => {
   console.log("Build started...");
-
   config = setupConfig(config);
+  await clean(config);
+  let sorted = sort(config);  
+  await processSorted(config, sorted.sorted);  
+  await build(config, sorted.unsorted);
+  console.log("Build completed!");
+};
 
+// @function processSorted (private) [Build sorted elements] @param config @param sorted
+async function processSorted(config, sorted){
+  for(var key in sorted){
+    await build(config, sorted[key]);
+  }
+}
+
+async function build(config, keys) {
   let hashes = {};
   let processOutputPromises = [];
-
-  await clean(config);
-
-
-  let sorted = sort(config);
-
   // Process copy and transform actions in order.
-  sorted.forEach(outputKey => {
+  keys.forEach(outputKey => {
     var isCopy = outputKey.endsWith("**");
     if (isCopy) {
       processOutputPromises.push(copy.process(config, outputKey));
@@ -25,8 +32,6 @@ module.exports.build = async config => {
       processOutputPromises.push(transform.process(config, outputKey, hashes));
     }
   });
-
-
   // Flatten results nested arrays
   let processOutputResults = (await Promise.all(processOutputPromises))
     .reduce((prev, current) => {
@@ -39,11 +44,9 @@ module.exports.build = async config => {
       }
       return prev;
     }, []);
-
   // Finally process late actions (hash-parse and write)
   await late.process(processOutputResults, hashes);
-  console.log("Build completed!");
-};
+}
 
 // @funciton setupConfig (private)
 function setupConfig(config) {
@@ -121,29 +124,22 @@ function setParam(param, obj) {
 
 // @function sort (private) [Sort output keys into array] @param config
 function sort(config) {
-  var sorted = [];
-  var notSorted = [];
+  var sorted = {};
+  var unsorted = [];
   Object.keys(config.output).forEach(element => {
     if ("order" in config.output[element]) {
-      var pos = -1;
-      for (var i = 0; i < sorted.length; i++) {
-        if (sorted.length <= 0) {
-          pos = 0;
-          break;
-        }
-        if (config.output[sorted[i]].order > parseInt(config.output[element].order)) {
-          pos = i;
-          break;
-        }
-      }
-      if (pos === -1) {
-        sorted.push(element);
+      var currentOrder = parseInt(config.output[element].order);
+      if (sorted[currentOrder]) {
+        sorted[currentOrder].push(element);
       } else {
-        sorted.splice(pos, 0, element);
+        sorted[currentOrder] = [element];
       }
     } else {
-      notSorted.push(element);
+      unsorted.push(element);
     }
   });
-  return sorted.concat(notSorted);
+  return {
+    sorted: sorted,
+    unsorted: unsorted
+  };
 }

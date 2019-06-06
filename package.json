@@ -7,7 +7,9 @@
     "metapack": "src/index.js"
   },
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "npx intern config=@ci",
+    "test:dev": "npx intern config=@dev"
   },
   "license": "MIT",
   "dependencies": {
@@ -16,6 +18,7 @@
     "@vimlet/cli": "1.2.8",
     "@vimlet/meta": "2.4.2",
     "md5": "2.2.1",
+    "intern": "4.4.2",
     "rimraf": "2.6.3"
   }
 }
