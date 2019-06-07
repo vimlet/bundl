@@ -8,17 +8,23 @@ module.exports = {
       "id": "build",
       "input": {
         "js/a.js": {
-          use: function (entry) {
+          use: [function (entry) {
             entry.content += "\nconsole.log(\"input use\");";
             return entry;
-          }
+          },function (entry) {
+            entry.content += "\nconsole.log(\"input use2\");";
+            return entry;
+          }]
         },
         "js/b.js": true
       },
-      use: function (entry) {
+      use: [function (entry) {
         entry.content += "\nconsole.log(\"output use\");";
         return entry;
-      }
+      },function (entry) {
+        entry.content += "\nconsole.log(\"output use2\");";
+        return entry;
+      }]
     },
     "index.html?clean=false&parse=true": "html/*.html",
     "index2.html?clean=false&parse=true&order=2": "html/*.html",

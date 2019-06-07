@@ -1,6 +1,6 @@
 module.exports = {
-  "outputBase":"tests/unit/output/metapack",
-  "inputBase":"tests/unit/resources/input",
+  "outputBase":"../output/command",
+  "inputBase":"input",
   "clean": true,
   "output": {
     "build.{{hash}}.js?clean=false": {
@@ -17,7 +17,7 @@ module.exports = {
       use: function (entry) {
         entry.content += "\nconsole.log(\"output use\");";
         return entry;
-      }
+      } 
     },
     "index.html?clean=false&parse=true": "html/*.html",
     "index2.html?clean=false&parse=true&order=2": "html/*.html",

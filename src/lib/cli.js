@@ -18,7 +18,7 @@ module.exports = async function () {
     cli.printHelp();
   } else {
     if (cli.result.config) {
-      configPath = cli.result.config;
+      configPath = path.resolve(cli.result.config);
     }
     if (fs.existsSync(configPath)) {
       let config = require(configPath);

@@ -6,7 +6,14 @@ const parse = require("./parse");
 function processInputUse(inputsObject, files) {
   files = files.map(file => {
     if (inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
-      return inputsObject[file.match].use(file);
+      if (Array.isArray(inputsObject[file.match].use)) {
+        inputsObject[file.match].use.forEach(func => {
+          file = func(file);
+        });
+        return file;
+      } else {
+        return inputsObject[file.match].use(file);
+      }
     }
     return file;
   });
@@ -20,11 +27,20 @@ function processInputJoin(files) {
 };
 
 function processOutputUse(outputObject, outputPath, content) {
-  if (outputObject.use) {
-    content = outputObject.use({
-      file: outputPath,
-      content: content
-    }).content;
+  if (outputObject.use) {    
+    if (Array.isArray(outputObject.use)) {      
+      outputObject.use.forEach(func => {    
+        content = func({
+          file: outputPath,
+          content: content
+        }).content;
+      });
+    } else {    
+      content = outputObject.use({
+        file: outputPath,
+        content: content
+      }).content;
+    }
   }
   return content;
 };
@@ -59,9 +75,9 @@ module.exports.process = async (config, outputKey, hashes) => {
   let outputPath = path.join(config.outputBase, outputKey).replace(/\\/g, "/");
   let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
   let inputsObject = outputObject.input;
-  if(config.inputBase){
+  if (config.inputBase) {
     var res = {};
-    for(var key in inputsObject){
+    for (var key in inputsObject) {
       res[path.join(config.inputBase, key).replace(/\\/g, "/")] = inputsObject[key];
     }
     inputsObject = res;
@@ -89,6 +105,3 @@ module.exports.process = async (config, outputKey, hashes) => {
 
   return result;
 };
-
-
-

@@ -9,6 +9,8 @@
 6) single output build
 [done] 7) clean true && cleanDir false
 [done] 8) Stage/Order
+[done] 9) Use accept array of functions, not only funcitons
+
 
 ## Example config
 module.exports = {
