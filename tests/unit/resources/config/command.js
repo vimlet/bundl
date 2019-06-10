@@ -1,6 +1,6 @@
 module.exports = {
   "outputBase":"../output/command",
-  "inputBase":"input",
+  "inputBase":"../resources/input",
   "clean": true,
   "output": {
     "build.{{hash}}.js?clean=false": {
@@ -17,7 +17,7 @@ module.exports = {
       use: function (entry) {
         entry.content += "\nconsole.log(\"output use\");";
         return entry;
-      } 
+      }
     },
     "index.html?clean=false&parse=true": "html/*.html",
     "index2.html?clean=false&parse=true&order=2": "html/*.html",
@@ -26,7 +26,7 @@ module.exports = {
     "copy/**": {
       "clean": true,
       "order": 0,
-      "input": {
+      "input":{
         "copy/**": true
       }
     }

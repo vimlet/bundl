@@ -3,9 +3,9 @@ const promisify = require("util").promisify;
 const fs = require("fs");
 const readFile = promisify(fs.readFile);
 
-module.exports.getInputMatches = async (inputsObject) => {
-  let inputPatterns = Object.keys(inputsObject).filter(entry => inputsObject[entry]);
-  return await glob.files(inputPatterns);
+module.exports.getInputMatches = async (inputsObject, options) => { 
+  let inputPatterns = Object.keys(inputsObject).filter(entry => inputsObject[entry]);  
+  return await glob.files(inputPatterns, options);
 };
 
 module.exports.filesByMatches = (matches) => {

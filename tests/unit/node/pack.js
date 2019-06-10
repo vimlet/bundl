@@ -13,8 +13,8 @@ const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
 const run = require("@vimlet/commons-run");
 const glob = require("@vimlet/commons-glob");
+const pack = require('../../../src/lib/pack');
 let output = path.join(__dirname, "../output");
-let resources = path.join(__dirname, "../resources");
 
 suite("metapack", () => {
     test("clean", async () => {
@@ -54,34 +54,31 @@ suite("metapack", () => {
                 }
             }
         };
-        var copyP = JSON.stringify(await Promise.all(await copy.process(config, "copy/**")));
-        var expected = [{"outputParent":"tests/unit/output/copy/tests/unit/resources/input/copy","outputPath":"tests/unit/output/copy/tests/unit/resources/input/copy/test1.txt","content":{"type":"Buffer","data":[116,101,115,116,49]}},{"outputParent":"tests/unit/output/copy/tests/unit/resources/input/copy","outputPath":"tests/unit/output/copy/tests/unit/resources/input/copy/test2.txt","content":{"type":"Buffer","data":[116,101,115,116,50]}},{"outputParent":"tests/unit/output/copy/tests/unit/resources/input/copy","outputPath":"tests/unit/output/copy/tests/unit/resources/input/copy/noextension","content":{"type":"Buffer","data":[]}},{"outputParent":"tests/unit/output/copy/tests/unit/resources/input/copy/folder","outputPath":"tests/unit/output/copy/tests/unit/resources/input/copy/folder/folder.js","content":{"type":"Buffer","data":[34,73,110,32,102,111,108,100,101,114,34,59]}}];
-        var has = true;
-        expected.forEach(element=>{            
-            if(!copyP.includes(JSON.stringify(element))){
-                has = false;
-            }
-        });
-        assert.isOk(has, 'copy test is not full');
+        var files = await Promise.all(await copy.process(config, "copy/**"));
+        var expected = 4;
+        assert.strictEqual(files.length, expected, "Copy expected " + expected);
     });
     test("command", async () => {
-        run.exec('metapack', {
+        await run.exec('metapack', {
             args: ["-c", "../resources/config/command.js"],
             workingDirectory: __dirname
-        }, async function (error, data) {
-            setTimeout(async () => {
-                let files = await glob.files("**/output/command/input/**");
-                var expected = 5;            
-                assert.strictEqual(files.length, expected, "Command expected " + expected);
-            }, 1000);
         });
+        let files = await glob.files("**/output/command/**");            
+        var expected = 9;  
+        assert.strictEqual(files.length, expected, "Command expected " + expected);
     });
     test("metapack", async () => {        
         var config = require("../resources/config/metapack");
-        const pack = require('../../../src/lib/pack');
         await pack.build(config);
         let files = await glob.files("**/output/metapack/**");
         var expected = 9;       
         assert.strictEqual(files.length, expected, "Metapack expected " + expected);
+    });
+    test("watch", async () => { 
+        var config = require("../resources/config/watch");
+        await pack.build(config);
+        let files = await glob.files("**/output/watch/**");
+        var expected = 5;       
+        assert.strictEqual(files.length, expected, "Watch expected " + expected);
     });
 });

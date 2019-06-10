@@ -71,18 +71,10 @@ function handleOutputHash(config, hashes, content, outputKey, outputObject, outp
 module.exports.process = async (config, outputKey, hashes) => {
   // Read input files by match
   let outputObject = config.output[outputKey];
-  outputKey = config.inputBase ? path.join(config.inputBase, outputKey) : outputKey;
   let outputPath = path.join(config.outputBase, outputKey).replace(/\\/g, "/");
   let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
-  let inputsObject = outputObject.input;
-  if (config.inputBase) {
-    var res = {};
-    for (var key in inputsObject) {
-      res[path.join(config.inputBase, key).replace(/\\/g, "/")] = inputsObject[key];
-    }
-    inputsObject = res;
-  }
-  let files = await util.filesByMatches(await util.getInputMatches(inputsObject));
+  let inputsObject = outputObject.input;  
+  let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {path:config.inputBase}));
 
   // Process input
   files = processInputUse(inputsObject, files);
