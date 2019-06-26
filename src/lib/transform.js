@@ -3,8 +3,8 @@ const path = require("path");
 const util = require("./util");
 const parse = require("./parse");
 
-function processInputUse(inputsObject, files) {
-  files = files.map(file => {
+async function processInputUse(inputsObject, files) {
+  files = await Promise.all(files.map(file => {
     if (inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
       if (Array.isArray(inputsObject[file.match].use)) {
         inputsObject[file.match].use.forEach(func => {
@@ -16,7 +16,7 @@ function processInputUse(inputsObject, files) {
       }
     }
     return file;
-  });
+  }));
   return files;
 }
 
@@ -26,22 +26,24 @@ function processInputJoin(files) {
   }, "");
 };
 
-function processOutputUse(outputObject, outputPath, content) {
+async function processOutputUse(outputObject, outputPath, content) {
   if (outputObject.use) {    
-    if (Array.isArray(outputObject.use)) {      
-      outputObject.use.forEach(func => {    
-        content = func({
+    if (Array.isArray(outputObject.use)) {     
+      for(var i = 0; i< outputObject.use.length; i++){
+        content = await outputObject.use[i]({
           file: outputPath,
           content: content
-        }).content;
-      });
-    } else {    
-      content = outputObject.use({
+        });        
+        content = content.content;
+      }
+    } else {
+      content = await outputObject.use({
         file: outputPath,
         content: content
-      }).content;
+      });
+      content = content.content;      
     }
-  }
+  }  
   return content;
 };
 
@@ -76,14 +78,17 @@ module.exports.process = async (config, outputKey, hashes) => {
   let inputsObject = outputObject.input;  
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {path:config.inputBase}));
 
+  console.log("1",files);
+  
   // Process input
-  files = processInputUse(inputsObject, files);
+  files = await processInputUse(inputsObject, files);
+  console.log("2",files);
 
   // Process output
   let content = processInputJoin(files);
-  content = processOutputUse(outputObject, outputPath, content);
+  content = await processOutputUse(outputObject, outputPath, content);
   content = await processOutputMeta(outputObject, hashes, content);
-
+  
   // Enable hashing support
   outputPath = handleOutputHash(config, hashes, content, outputKey, outputObject, outputPath);
 

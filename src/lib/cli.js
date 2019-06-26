@@ -11,7 +11,7 @@ module.exports = async function () {
     .flag("-h", "--help", "Shows help")
     .parse(process.argv);
 
-  let configPath = path.join(process.cwd(), "metapack.js");
+  let configPath = path.join(process.cwd(), "metapack.config.js");
   
   
   if (cli.result.help) {
@@ -39,7 +39,7 @@ module.exports = async function () {
       }
 
     } else {
-      console.log("Config file metapack.js not found, please create one!");
+      console.log("Config file metapack.config.js not found, please create one!");
       process.exit(1);
     }
   }
