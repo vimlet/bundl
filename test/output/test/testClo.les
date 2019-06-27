@@ -1,0 +1,8 @@
+tt {
+    width: 100%;
+}
+ttt {
+    width:@mid;
+}
+console.log("input use");
+console.log("input use2");Waited for

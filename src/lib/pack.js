@@ -4,18 +4,20 @@ const copy = require("./copy");
 const late = require("./late");
 
 module.exports.build = async config => {
-  console.log("Build started...");
+  if (!("log" in config) || config.log) {
+    console.log("Build started..."); 
+  }
   config = setupConfig(config);
   await clean(config);
-  let sorted = sort(config);  
-  await processSorted(config, sorted.sorted);    
+  let sorted = sort(config);
+  await processSorted(config, sorted.sorted);
   await build(config, sorted.unsorted);
   console.log("Build completed!");
 };
 
 // @function processSorted (private) [Build sorted elements] @param config @param sorted
-async function processSorted(config, sorted){
-  for(var key in sorted){
+async function processSorted(config, sorted) {
+  for (var key in sorted) {
     await build(config, sorted[key]);
   }
 }
@@ -45,7 +47,7 @@ async function build(config, keys) {
       return prev;
     }, []);
   // Finally process late actions (hash-parse and write)
-  await late.process(processOutputResults, hashes);
+  await late.process(processOutputResults, hashes, config);
 }
 
 // @funciton setupConfig (private)

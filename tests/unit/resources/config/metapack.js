@@ -2,6 +2,7 @@ module.exports = {
   "outputBase":"tests/unit/output/metapack",
   "inputBase":"tests/unit/resources/input",
   "clean": true,
+  "log":false,
   "output": {
     "build.{{hash}}.js?clean=false": {
       "id": "build",

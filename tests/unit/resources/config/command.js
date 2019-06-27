@@ -2,6 +2,7 @@ module.exports = {
   "outputBase":"../output/command",
   "inputBase":"../resources/input",
   "clean": true,
+  "log":false,
   "output": {
     "build.{{hash}}.js?clean=false": {
       "id": "build",

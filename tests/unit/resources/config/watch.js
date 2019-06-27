@@ -3,6 +3,7 @@ module.exports = {
   "inputBase":"tests/unit/resources/watch",
   "watch": "tests/unit/resources/watch",
   "clean": true, 
+  "log":false,
   "output": {
     "index.html?clean=false&parse=true": "html/*.html",
     "copy/**": {

@@ -76,19 +76,14 @@ module.exports.process = async (config, outputKey, hashes) => {
   let outputPath = path.join(config.outputBase, outputKey).replace(/\\/g, "/");
   let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
   let inputsObject = outputObject.input;  
-  let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {path:config.inputBase}));
-
-  console.log("1",files);
-  
+  let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {path:config.inputBase}),inputsObject);
+ 
   // Process input
   files = await processInputUse(inputsObject, files);
-  console.log("2",files);
-
   // Process output
   let content = processInputJoin(files);
   content = await processOutputUse(outputObject, outputPath, content);
-  content = await processOutputMeta(outputObject, hashes, content);
-  
+  content = await processOutputMeta(outputObject, hashes, content);  
   // Enable hashing support
   outputPath = handleOutputHash(config, hashes, content, outputKey, outputObject, outputPath);
 

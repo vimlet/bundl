@@ -7,9 +7,7 @@
     "metapack": "metapack"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "test": "npx intern config=@ci",
-    "test:dev": "npx intern config=@dev"
+    "start": "metapack"
   },
   "license": "MIT",
   "dependencies": {

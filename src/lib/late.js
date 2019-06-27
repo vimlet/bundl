@@ -17,7 +17,7 @@ async function processLateMetaHash(hashes, result) {
   return result;
 };
 
-async function writeResult(result) {
+async function writeResult(result, config) {
   if (!await exists(result.outputParent)) {
     try {
       await mkdir(result.outputParent, {
@@ -30,10 +30,12 @@ async function writeResult(result) {
 
 
   await writeFile(result.outputPath, result.content);
+  if (!("log" in config) || config.log) {
   console.log(`-> ${result.outputPath}`);
+  }
 }
 
-module.exports.process = async (results, hashes) => {  
+module.exports.process = async (results, hashes, config) => {  
   let latePromises = [];
 
   results.map(result => {
@@ -41,7 +43,7 @@ module.exports.process = async (results, hashes) => {
       // Use meta to replace hashes
       result = await processLateMetaHash(hashes, result);
       // Write results to disk
-      await writeResult(result);
+      await writeResult(result, config);
       return result;
     };
     latePromises.push(late());

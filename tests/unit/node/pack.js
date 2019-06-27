@@ -11,6 +11,7 @@ const fs = require("fs");
 const path = require("path");
 const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
+const readFile = promisify(fs.readFile);
 const run = require("@vimlet/commons-run");
 const glob = require("@vimlet/commons-glob");
 const pack = require('../../../src/lib/pack');
@@ -54,7 +55,7 @@ suite("metapack", () => {
                 }
             }
         };
-        var files = await Promise.all(await copy.process(config, "copy/**"));
+        var files = await Promise.all(await copy.process(config, "copy/**"));        
         var expected = 4;
         assert.strictEqual(files.length, expected, "Copy expected " + expected);
     });
@@ -62,23 +63,180 @@ suite("metapack", () => {
         await run.exec('metapack', {
             args: ["-c", "../resources/config/command.js"],
             workingDirectory: __dirname
-        });
-        let files = await glob.files("**/output/command/**");            
+        });        
+        let files = await glob.files("output/command/**", {path:path.join(__dirname,"../")});    
         var expected = 9;  
         assert.strictEqual(files.length, expected, "Command expected " + expected);
     });
     test("metapack", async () => {        
         var config = require("../resources/config/metapack");
         await pack.build(config);
-        let files = await glob.files("**/output/metapack/**");
+        let files = await glob.files("output/metapack/**", {path:path.join(__dirname,"../")});    
         var expected = 9;       
         assert.strictEqual(files.length, expected, "Metapack expected " + expected);
     });
-    test("watch", async () => { 
+    test("watch", async () => {
         var config = require("../resources/config/watch");
         await pack.build(config);
-        let files = await glob.files("**/output/watch/**");
+        let files = await glob.files("output/watch/**", {path:path.join(__dirname,"../")});  
         var expected = 5;       
         assert.strictEqual(files.length, expected, "Watch expected " + expected);
+    });
+    test("copy modify extension", async () => {
+        var config = require("../resources/config/extension");
+        await pack.build(config);
+        let files = await glob.files("output/extension/**.css", {path:path.join(__dirname,"../")});    
+        var expected = 2;       
+        assert.strictEqual(files.length, expected, "Modify extension expected " + expected);
+    });
+    test("input use", async () => {
+        var config = {
+            "outputBase": "tests/unit/output/empty",
+            "inputBase": "tests/unit/resources/input",
+            "clean": false,
+            "log": false,
+            "output": {
+                "input.use?clean=false": {
+                    "input": {
+                        "empty.com": {
+                            use: function (entry) {
+                                entry.content += "input use";
+                                return entry;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        await pack.build(config);
+        var result = await readFile(path.join(__dirname, "../output/empty/input.use"), "utf8");
+        var expected = "input use";
+        assert.strictEqual(result, expected, "Input use expected " + expected);
+    });
+    test("output use", async () => {
+        var config = {
+            "outputBase": "tests/unit/output/empty",
+            "inputBase": "tests/unit/resources/input",
+            "clean": false,
+            "log": false,
+            "output": {
+                "output.use?clean=false": {
+                    "input": {
+                        "empty.com": true
+                    },
+                    use: function (entry) {
+                        entry.content += "output use";
+                        return entry;
+                    }
+                }
+            }
+        };
+        await pack.build(config);
+        var result = await readFile(path.join(__dirname, "../output/empty/output.use"), "utf8");
+        var expected = "output use";
+        assert.strictEqual(result, expected, "Output use expected " + expected);
+    });
+    test("input use await", async () => {
+        var config = {
+            "outputBase": "tests/unit/output/empty",
+            "inputBase": "tests/unit/resources/input",
+            "clean": false,
+            "log": false,
+            "output": {
+                "input.await?clean=false": {
+                    "input": {
+                        "empty.com": {
+                            use: async function (entry) {
+                                entry.content += await waitTest() + " input use";
+                                return entry;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        function waitTest() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve("Waited for");
+                }, 2000);
+            });
+        }
+        await pack.build(config);
+        var result = await readFile(path.join(__dirname, "../output/empty/input.await"), "utf8");
+        var expected = "Waited for input use";
+        assert.strictEqual(result, expected, "Input use await expected " + expected);
+    });
+    test("output use await", async () => {
+        var config = {
+            "outputBase": "tests/unit/output/empty",
+            "inputBase": "tests/unit/resources/input",
+            "clean": false,
+            "log": false,
+            "output": {
+                "output.await?clean=false": {
+                    "input": {
+                        "empty.com": true
+                    },
+                    use: async function (entry) {
+                        entry.content += await waitTest() + " output use";
+                        return entry;
+                    }
+                }
+            }
+        };
+        function waitTest(){
+          return new Promise((resolve, reject) => {
+            setTimeout(() => {
+              resolve("Waited for");
+            }, 2000);
+          });
+        }
+        await pack.build(config);
+        var result = await readFile(path.join(__dirname, "../output/empty/output.await"), "utf8");
+        var expected = "Waited for output use";
+        assert.strictEqual(result, expected, "Output use await expected " + expected);
+    });
+    test("read false copy", async () => {
+        var config = {
+            "outputBase": "tests/unit/output/read",
+            "inputBase": "tests/unit/resources/input",
+            "clean": false,
+            "log": false,
+            "output": { 
+                "**?clean=false": {
+                    "input": {
+                        "read/**": {
+                            read:false
+                        }
+                    }
+                }
+            }
+        };
+        await pack.build(config);
+        var result = await readFile(path.join(__dirname, "../output/read/text.txt"), "utf8");
+        var expected = "";
+        assert.strictEqual(result, expected, "Read false copy expected " + expected);
+    });
+    test("read false transform", async () => {
+        var config = {
+            "outputBase": "tests/unit/output/read",
+            "inputBase": "tests/unit/resources/input",
+            "clean": false,
+            "log": false,
+            "output": {
+                "textOut.txt?clean=false": {
+                    "input": {
+                        "read/**": {
+                            read:false
+                        }
+                    }
+                }
+            }
+        };
+        await pack.build(config);
+        var result = await readFile(path.join(__dirname, "../output/read/textOut.txt"), "utf8");
+        var expected = "";
+        assert.strictEqual(result, expected, "Read false transform expected " + expected);
     });
 });
