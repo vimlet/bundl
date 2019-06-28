@@ -55,7 +55,14 @@ suite("metapack", () => {
                 }
             }
         };
-        var files = await Promise.all(await copy.process(config, "copy/**"));        
+        var files = await Promise.all(await copy.process(config, {
+            "clean": true,
+            "order": 0,
+            "input": {
+                "copy/**": true
+            },
+            "outPath": "copy/**"
+        }));
         var expected = 4;
         assert.strictEqual(files.length, expected, "Copy expected " + expected);
     });
@@ -63,30 +70,38 @@ suite("metapack", () => {
         await run.exec('metapack', {
             args: ["-c", "../resources/config/command.js"],
             workingDirectory: __dirname
-        });        
-        let files = await glob.files("output/command/**", {path:path.join(__dirname,"../")});    
-        var expected = 9;  
+        });
+        let files = await glob.files("output/command/**", {
+            path: path.join(__dirname, "../")
+        });
+        var expected = 9;
         assert.strictEqual(files.length, expected, "Command expected " + expected);
     });
-    test("metapack", async () => {        
+    test("metapack", async () => {
         var config = require("../resources/config/metapack");
         await pack.build(config);
-        let files = await glob.files("output/metapack/**", {path:path.join(__dirname,"../")});    
-        var expected = 9;       
+        let files = await glob.files("output/metapack/**", {
+            path: path.join(__dirname, "../")
+        });
+        var expected = 9;
         assert.strictEqual(files.length, expected, "Metapack expected " + expected);
     });
     test("watch", async () => {
         var config = require("../resources/config/watch");
         await pack.build(config);
-        let files = await glob.files("output/watch/**", {path:path.join(__dirname,"../")});  
-        var expected = 5;       
+        let files = await glob.files("output/watch/**", {
+            path: path.join(__dirname, "../")
+        });
+        var expected = 5;
         assert.strictEqual(files.length, expected, "Watch expected " + expected);
     });
     test("copy modify extension", async () => {
         var config = require("../resources/config/extension");
         await pack.build(config);
-        let files = await glob.files("output/extension/**.css", {path:path.join(__dirname,"../")});    
-        var expected = 2;       
+        let files = await glob.files("output/extension/**.css", {
+            path: path.join(__dirname, "../")
+        });
+        var expected = 2;
         assert.strictEqual(files.length, expected, "Modify extension expected " + expected);
     });
     test("input use", async () => {
@@ -155,11 +170,12 @@ suite("metapack", () => {
                 }
             }
         };
+
         function waitTest() {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     resolve("Waited for");
-                }, 2000);
+                }, 200);
             });
         }
         await pack.build(config);
@@ -185,12 +201,13 @@ suite("metapack", () => {
                 }
             }
         };
-        function waitTest(){
-          return new Promise((resolve, reject) => {
-            setTimeout(() => {
-              resolve("Waited for");
-            }, 2000);
-          });
+
+        function waitTest() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve("Waited for");
+                }, 200);
+            });
         }
         await pack.build(config);
         var result = await readFile(path.join(__dirname, "../output/empty/output.await"), "utf8");
@@ -203,11 +220,11 @@ suite("metapack", () => {
             "inputBase": "tests/unit/resources/input",
             "clean": false,
             "log": false,
-            "output": { 
+            "output": {
                 "**?clean=false": {
                     "input": {
                         "read/**": {
-                            read:false
+                            read: false
                         }
                     }
                 }
@@ -228,7 +245,7 @@ suite("metapack", () => {
                 "textOut.txt?clean=false": {
                     "input": {
                         "read/**": {
-                            read:false
+                            read: false
                         }
                     }
                 }
@@ -238,5 +255,40 @@ suite("metapack", () => {
         var result = await readFile(path.join(__dirname, "../output/read/textOut.txt"), "utf8");
         var expected = "";
         assert.strictEqual(result, expected, "Read false transform expected " + expected);
+    });
+    test("sort", async () => {
+        var config = {
+            "outputBase": "tests/unit",
+            "inputBase": "tests/unit",
+            "clean": false,
+            "log": false,
+            "output": {
+                "/output/sort/**": [{
+                    "input": {
+                        "output/sort/**": {
+                            "use": function (entry) {
+                                entry.fileName = entry.fileName.replace(".txt", ".css");
+                                return entry;
+                            }
+                        }
+                    }
+                }, {
+                    "order": 0,
+                    "input": {
+                        "resources/input/sort/**": {
+                            "use": function (entry) {
+                                return entry;
+                            }
+                        }
+                    }
+                }]
+            }
+        };
+        await pack.build(config);
+        let files = await glob.files("output/sort/**", {
+            path: path.join(__dirname, "../")
+        });
+        var expected = 2;
+        assert.strictEqual(files.length, expected, "Sort expected " + expected);
     });
 });

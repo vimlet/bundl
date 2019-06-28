@@ -5,7 +5,7 @@ const late = require("./late");
 
 module.exports.build = async config => {
   if (!("log" in config) || config.log) {
-    console.log("Build started..."); 
+    console.log("Build started...");
   }
   config = setupConfig(config);
   await clean(config);
@@ -16,22 +16,22 @@ module.exports.build = async config => {
 };
 
 // @function processSorted (private) [Build sorted elements] @param config @param sorted
-async function processSorted(config, sorted) {
+async function processSorted(config, sorted) {  
   for (var key in sorted) {
     await build(config, sorted[key]);
   }
 }
 
-async function build(config, keys) {
+async function build(config, objs) {  
   let hashes = {};
   let processOutputPromises = [];
   // Process copy and transform actions in order.
-  keys.forEach(outputKey => {
-    var isCopy = outputKey.endsWith("**");
+  objs.forEach(obj => {
+    var isCopy = obj.outPath.endsWith("**");
     if (isCopy) {
-      processOutputPromises.push(copy.process(config, outputKey));
+      processOutputPromises.push(copy.process(config, obj));
     } else {
-      processOutputPromises.push(transform.process(config, outputKey, hashes));
+      processOutputPromises.push(transform.process(config, obj, hashes));
     }
   });
   // Flatten results nested arrays
@@ -89,11 +89,15 @@ function setOutput(output) {
     return output;
   } else {
     if (Array.isArray(output)) {
-      var res = {
-        input: {}
-      };
-      output.forEach(element => {
-        res.input[element] = true;
+      var res = output.map(element => {
+        if (typeof element === 'string') {
+          var current = {
+            input: {}
+          };
+          current.input[element] = true;
+          return current;
+        }
+        return element;
       });
       return res;
     } else {
@@ -112,32 +116,69 @@ function setParam(param, obj) {
   if (split[0] && split[1]) {
     switch (split[0]) {
       case "clean":
-        obj[split[0]] = split[1] === "true" ? true : false;
+        var value = split[1] === "true" ? true : false;
+        setParamKey(obj, split[0], value);
         break;
       case "parse":
-        obj[split[0]] = split[1] === "true" ? true : false;
+        var value = split[1] === "true" ? true : false;
+        setParamKey(obj, split[0], value);
         break;
       default:
-        obj[split[0]] = split[1];
+        setParamKey(obj, split[0], split[1]);
         break;
     }
   }
 }
 
-// @function sort (private) [Sort output keys into array] @param config
+// @function setParamKey (private) [Set up single param into element config] @param obj [Output object] @param key [Param key] @param value
+function setParamKey(obj, key, value) {
+  if (typeof obj === 'object' && !Array.isArray(obj)) {
+    if (!(key in obj)) {
+      obj[key] = value;
+    }
+  } else if (Array.isArray(obj)) {
+    obj = obj.map(element => {
+      if (typeof element === 'object') {
+        if (!(key in element)) {
+          element[key] = value;
+        }
+      }
+      return element;
+    });
+  }
+}
+
 function sort(config) {
   var sorted = {};
   var unsorted = [];
   Object.keys(config.output).forEach(element => {
-    if ("order" in config.output[element]) {
-      var currentOrder = parseInt(config.output[element].order);
-      if (sorted[currentOrder]) {
-        sorted[currentOrder].push(element);
+    if (typeof config.output[element] === 'object' && !Array.isArray(config.output[element])) {
+      config.output[element].outPath = element;
+      if ("order" in config.output[element]) {
+        var currentOrder = parseInt(config.output[element].order);
+        config.output[element].outPath = element;
+        if (sorted[currentOrder]) {
+          sorted[currentOrder].push(config.output[element]);
+        } else {
+          sorted[currentOrder] = [config.output[element]];
+        }
       } else {
-        sorted[currentOrder] = [element];
+        unsorted.push(config.output[element]);
       }
-    } else {
-      unsorted.push(element);
+    } else if (Array.isArray(config.output[element])) {
+      config.output[element].forEach(e => {
+        e.outPath = element;
+        if ("order" in e) {
+          var currentOrder = parseInt(e.order);
+          if (sorted[currentOrder]) {
+            sorted[currentOrder].push(e);
+          } else {
+            sorted[currentOrder] = [e];
+          }
+        } else {
+          unsorted.push(e);
+        }
+      });
     }
   });
   return {

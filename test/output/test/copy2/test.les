@@ -6,3 +6,4 @@ ttt {
 }
 console.log("input use");
 console.log("input use2");Waited for
+console.log("output use");

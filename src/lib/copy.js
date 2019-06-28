@@ -49,10 +49,9 @@ function processOutputUse(outputObject, outputPath, content) {
   return content;
 }
 
-module.exports.process = async (config, outputKey) => {
-  let outputEntry = config.output[outputKey];
+module.exports.process = async (config, outputEntry) => {
   let copyPromises = [];
-  let outputBase = path.join(config.outputBase, outputKey.replace("**", "")).replace(/\\/g, "/");
+  let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");
   let inputsObject = outputEntry.input;
   matches = await util.getInputMatches(inputsObject, {
     path: config.inputBase

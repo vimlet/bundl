@@ -70,10 +70,9 @@ function handleOutputHash(config, hashes, content, outputKey, outputObject, outp
   return outputPath;
 }
 
-module.exports.process = async (config, outputKey, hashes) => {
+module.exports.process = async (config, outputObject, hashes) => {
   // Read input files by match
-  let outputObject = config.output[outputKey];
-  let outputPath = path.join(config.outputBase, outputKey).replace(/\\/g, "/");
+  let outputPath = path.join(config.outputBase, outputObject.outPath).replace(/\\/g, "/");
   let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
   let inputsObject = outputObject.input;  
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {path:config.inputBase}),inputsObject);
@@ -85,7 +84,7 @@ module.exports.process = async (config, outputKey, hashes) => {
   content = await processOutputUse(outputObject, outputPath, content);
   content = await processOutputMeta(outputObject, hashes, content);  
   // Enable hashing support
-  outputPath = handleOutputHash(config, hashes, content, outputKey, outputObject, outputPath);
+  outputPath = handleOutputHash(config, hashes, content, outputObject.outPath, outputObject, outputPath);
 
   // Return result
   let result = {
