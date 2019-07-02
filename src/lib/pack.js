@@ -2,6 +2,8 @@ const clean = require("./clean");
 const transform = require("./transform");
 const copy = require("./copy");
 const late = require("./late");
+const glob = require("@vimlet/commons-glob");
+const path = require("path");
 
 module.exports.build = async config => {
   if (!("log" in config) || config.log) {
@@ -15,14 +17,38 @@ module.exports.build = async config => {
   console.log("Build completed!");
 };
 
+// @function buildSingle (public) [Build single file which has been modified. Used at watch mode] @param config @param filePath
+module.exports.buildSingle = function (config, filePath) {
+  filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
+  var matches = [];
+  for (var outputKey in config.output) {
+    var inputs = config.output[outputKey].input;
+    for (var inputKey in inputs) {
+      if (glob.match(filePath, inputKey, {
+          ignoreExtension: true
+        }).length > 0) {
+        matches.push(outputKey);
+      }
+    }
+  }
+  var newOutput = {};
+  matches.forEach(match => {
+    if (config.output[match]) {
+      newOutput[match] = config.output[match];
+    }
+  });
+  config.output = newOutput;
+  module.exports.build(config);
+};
+
 // @function processSorted (private) [Build sorted elements] @param config @param sorted
-async function processSorted(config, sorted) {  
+async function processSorted(config, sorted) {
   for (var key in sorted) {
     await build(config, sorted[key]);
   }
 }
 
-async function build(config, objs) {  
+async function build(config, objs) {
   let hashes = {};
   let processOutputPromises = [];
   // Process copy and transform actions in order.

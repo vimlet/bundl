@@ -53,9 +53,6 @@ module.exports.process = async (config, outputEntry) => {
   let copyPromises = [];
   let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");
   let inputsObject = outputEntry.input;
-  matches = await util.getInputMatches(inputsObject, {
-    path: config.inputBase
-  }); 
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {
     path: config.inputBase
   }), inputsObject);  

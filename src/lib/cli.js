@@ -32,8 +32,7 @@ module.exports = async function () {
           ignoreInitial: true
         }, function (error, data) {
           if (!error) {
-            // TODO should not build all, only affected input files
-            pack.build(config);
+            pack.buildSingle(config, data.path);
           }
         });
       }
