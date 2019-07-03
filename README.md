@@ -265,6 +265,10 @@ Copied files won't be parsed nor *"use"* will be used neither, just verbatim cop
 
 If *"parse"* option is set to true, meta will be applied to file content. 
 
+Meta doesn't work in copy mode.
+
+**It is important to know that paths within meta files needs to be relative to config.inputBase.** As an output file may have many inputs, it is impossible to know the correct path so they have to be relative to config.inputBase.
+
 If you need more information regarding meta go to its [github](https://github.com/vimlet/vimlet-meta)
 
 ## Watch mode

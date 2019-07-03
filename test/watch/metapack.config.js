@@ -33,9 +33,29 @@ module.exports = {
     "index1.html?clean=false&parse=true&order=1": "html/*.html",
     "copy/**": {
       "clean": true,
-      "order": 0,
+      "order": 3,
       "input": {
         "copy/**": true
+      }
+    },
+    "parse/1.txt": {
+      "clean": true,
+      "order": 0,
+      "parse":true,
+      "input": {
+        "parse/**.vmt": {
+          "watch":"parse/**"
+        }
+      }
+    },
+    "parseCopy/**": {
+      "clean": true,
+      "order": 0,
+      "parse":true,
+      "input": {
+        "parseCopy/**.vmt": {
+          "watch":"parseCopy/**"
+        } 
       }
     }
   }

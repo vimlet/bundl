@@ -1,6 +1,6 @@
 const path = require("path");
 const util = require("./util");
-const glob = require("@vimlet/commons-glob");
+const parse = require("./parse");
 
 // @function processInputUse (private) [Apply use functions to input]
 function processInputUse(inputsObject, file, outputPath) {  
@@ -48,7 +48,6 @@ function processOutputUse(outputObject, outputPath, content) {
   }  
   return content;
 }
-
 module.exports.process = async (config, outputEntry) => {
   let copyPromises = [];
   let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");

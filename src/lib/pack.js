@@ -24,9 +24,12 @@ module.exports.buildSingle = function (config, filePath) {
   for (var outputKey in config.output) {
     var inputs = config.output[outputKey].input;
     for (var inputKey in inputs) {
-      if (glob.match(filePath, inputKey, {
-          ignoreExtension: true
-        }).length > 0) {
+      if (typeof inputs[inputKey] === "object" &&
+        !Array.isArray(inputs[inputKey]) && "watch" in inputs[inputKey]) {
+        if (glob.match(filePath, inputs[inputKey].watch).length > 0) {
+          matches.push(outputKey);
+        }
+      } else if (glob.match(filePath, inputKey).length > 0) {
         matches.push(outputKey);
       }
     }

@@ -291,4 +291,11 @@ suite("metapack", () => {
         var expected = 2;
         assert.strictEqual(files.length, expected, "Sort expected " + expected);
     });
+    test("parse", async () => { 
+        var config = require("../resources/config/parse");
+        await pack.build(config);
+        var expected = "I am aI am b";
+        var result = (await readFile(path.join(__dirname, "../output/parse/a.txt"), "utf8")).replace(/(\r\n|\n|\r)/gm, "");
+        assert.strictEqual(result, expected, "Parse expected " + expected);
+    });
 });

@@ -47,12 +47,13 @@ async function processOutputUse(outputObject, outputPath, content) {
   return content;
 };
 
-async function processOutputMeta(outputObject, hashes, content) {
+async function processOutputMeta(outputObject, hashes, content, basePath) {  
   if (outputObject.parse) {
     content = await parse(content, {
       data: {
         hashes: hashes
-      }
+      },
+      basePath: basePath
     });
   }
   return content;
@@ -80,9 +81,9 @@ module.exports.process = async (config, outputObject, hashes) => {
   // Process input
   files = await processInputUse(inputsObject, files);
   // Process output
-  let content = processInputJoin(files);
+  let content = processInputJoin(files);  
   content = await processOutputUse(outputObject, outputPath, content);
-  content = await processOutputMeta(outputObject, hashes, content);  
+  content = await processOutputMeta(outputObject, hashes, content, config.inputBase);  
   // Enable hashing support
   outputPath = handleOutputHash(config, hashes, content, outputObject.outPath, outputObject, outputPath);
 
