@@ -1,10 +1,10 @@
 module.exports = {
-    "outputBase":"tests/unit/output/parse",
+    "outputBase":"tests/unit/output/parseCopy",
     "inputBase":"tests/unit/resources/input",
     "clean": true,
     "log":false,
     "output": {
-      "a.txt": {
+      "**": {
         "clean": true,
         "order": 0,
         "parse":true,

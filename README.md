@@ -53,7 +53,7 @@ module.exports = {
 > * outputBase: Generated files will be all within this directory, they will be nested inside following their input path.
 > * inputBase: Files will be looking for from this directory.
 > * watch: Path to a folder to keep looking for changes.
-> * clean: If set to true, outputBase will be empty before starting to parse.
+> * clean: If set to true, outputBase will be empty before start packing.
 > * output: Object which contains output path as key and configuration.
 
 *IE:*
@@ -91,7 +91,7 @@ It is an object where its keys are the output folder within outputBase and its c
 ## Output options
 
 > * clean: If set to true, current output directory will be empty before pack it. It doesn't empty the outputBase, it empties *outputBase + current output key.*
-> * parse: Run meta for given key.
+> * parse: Use hash for given key.
 > * order: Set pack order to given key and make it works synchronous only for those keys with order set. Not sorted keys will be done at the end in asynchronous way.
 > * id: Identification for hashes.
 > * use: `function(entry){return entry;}`
@@ -132,6 +132,7 @@ The content can be a boolean true just to mark the file as required.
 }
 ```
 Or it can be an object with options:
+> * parse: Run meta for given key.
 > * use: `function(entry){return entry;}`
 > * read: If set to false, file content will be ignored and must be generated using `use` function.
 
@@ -263,11 +264,7 @@ Copied files won't be parsed nor *"use"* will be used neither, just verbatim cop
 ## Meta
 [Vimlet meta](https://github.com/vimlet/vimlet-meta) is built in metapack. 
 
-If *"parse"* option is set to true, meta will be applied to file content. 
-
-Meta doesn't work in copy mode.
-
-**It is important to know that paths within meta files needs to be relative to config.inputBase.** As an output file may have many inputs, it is impossible to know the correct path so they have to be relative to config.inputBase.
+If *"parse"* option is set to true at input, meta will be applied to file content.
 
 If you need more information regarding meta go to its [github](https://github.com/vimlet/vimlet-meta)
 

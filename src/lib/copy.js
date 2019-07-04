@@ -48,6 +48,19 @@ function processOutputUse(outputObject, outputPath, content) {
   }  
   return content;
 }
+
+// @function processInputMeta (private) [Process meta]
+async function processInputMeta(file, inputsObject) {
+  if (typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) {
+    content = await parse(file.content.toString(), {
+      basePath: path.dirname(file.file).replace(/\\/g, "/")
+    });
+    return content;
+  } else {    
+    return file.content.toString();
+  }
+}
+
 module.exports.process = async (config, outputEntry) => {
   let copyPromises = [];
   let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");
@@ -58,7 +71,8 @@ module.exports.process = async (config, outputEntry) => {
   await Promise.all(files.map(async file => {
     let subPath = file.match.substring(path.dirname(file.pattern).length + 1);
     let outputPath = path.join(outputBase, subPath).replace(/\\/g, "/");
-    file = await processInputUse(inputsObject, file, outputPath);    
+    file = await processInputUse(inputsObject, file, outputPath);
+    file.content = await processInputMeta(file, inputsObject);
     outputPath = file.fileName || outputPath;    
     copyPromises.push(new Promise(async (resolve, reject) => {
       let outputParent = path.dirname(outputPath).replace(/\\/g, "/");        

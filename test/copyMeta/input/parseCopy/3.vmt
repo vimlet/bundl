@@ -1,0 +1,2 @@
+i'm 3
+<% template('4.vmt');%>

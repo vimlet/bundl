@@ -71,6 +71,8 @@ suite("metapack", () => {
             args: ["-c", "../resources/config/command.js"],
             workingDirectory: __dirname
         });
+        console.log("LEO FILES");
+        
         let files = await glob.files("output/command/**", {
             path: path.join(__dirname, "../")
         });
@@ -296,6 +298,13 @@ suite("metapack", () => {
         await pack.build(config);
         var expected = "I am aI am b";
         var result = (await readFile(path.join(__dirname, "../output/parse/a.txt"), "utf8")).replace(/(\r\n|\n|\r)/gm, "");
+        assert.strictEqual(result, expected, "Parse expected " + expected);
+    });
+    test("parse copy", async () => { 
+        var config = require("../resources/config/parseCopy");
+        await pack.build(config);
+        var expected = "I am aI am b";
+        var result = (await readFile(path.join(__dirname, "../output/parseCopy/a.vmt"), "utf8")).replace(/(\r\n|\n|\r)/gm, "");
         assert.strictEqual(result, expected, "Parse expected " + expected);
     });
 });

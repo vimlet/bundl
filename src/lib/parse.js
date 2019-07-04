@@ -8,7 +8,7 @@ meta.sandbox = {
       this.echo(this.data.hashes[id]);
     } else {
       ;
-      this.echo(`<% hash('${id}') %>`)
+      this.echo(`<% hash('${id}') %>`);
     }
   }
 };

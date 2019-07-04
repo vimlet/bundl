@@ -1,2 +1,2 @@
 I'm 1
-<% template('parse/2.vmi');%>
+<% template('2.vmi');%>

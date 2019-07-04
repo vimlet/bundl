@@ -44,6 +44,7 @@ module.exports = {
       "parse":true,
       "input": {
         "parse/**.vmt": {
+          "parse":true,
           "watch":"parse/**"
         }
       }
@@ -54,6 +55,7 @@ module.exports = {
       "parse":true,
       "input": {
         "parseCopy/**.vmt": {
+          "parse":true,
           "watch":"parseCopy/**"
         } 
       }
