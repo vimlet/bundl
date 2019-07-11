@@ -14,7 +14,7 @@ module.exports.build = async config => {
   let sorted = sort(config);
   await processSorted(config, sorted.sorted);
   await build(config, sorted.unsorted);
-  console.log("Build completed!");
+  console.log("Build completed at: " + getTime());
 };
 
 // @function buildSingle (public) [Build single file which has been modified. Used at watch mode] @param config @param filePath
@@ -215,3 +215,25 @@ function sort(config) {
     unsorted: unsorted
   };
 }
+
+// @function getTime (private) [Return current time]
+function getTime() {
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+  var hours = today.getHours();
+  if(hours < 10){
+    hours = "0" + hours;
+  }
+  var minutes = today.getMinutes();
+  if(minutes < 10){
+    minutes = "0" + minutes;
+  }
+  var seconds = today.getSeconds();
+  if(seconds < 10){
+    seconds = "0" + seconds;
+  }
+  today = dd + '/' + mm + '/' + yyyy + "/" + hours + ":" + minutes + ":" + seconds;
+  return today;
+};

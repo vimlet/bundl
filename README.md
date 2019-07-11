@@ -136,6 +136,14 @@ Or it can be an object with options:
 > * use: `function(entry){return entry;}`
 > * read: If set to false, file content will be ignored and must be generated using `use` function.
 
+If input starts with **!** it will exclude that pattern.
+```
+"input":{
+  "file.*":true,
+  "!file.html":true
+}
+```
+
 ## Use
 A function which allow the user to modify the content and the file name.
 

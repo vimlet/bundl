@@ -307,4 +307,11 @@ suite("metapack", () => {
         var result = (await readFile(path.join(__dirname, "../output/parseCopy/a.vmt"), "utf8")).replace(/(\r\n|\n|\r)/gm, "");
         assert.strictEqual(result, expected, "Parse expected " + expected);
     });
+    test("transform", async () => { 
+        var config = require("../resources/config/transform");
+        await pack.build(config);
+        var expected = "123";
+        var result = (await readFile(path.join(__dirname, "../output/transform/a.txt"), "utf8")).replace(/(\r\n|\n|\r)/gm, "");        
+        assert.strictEqual(result, expected, "Parse expected " + expected);
+    });
 });

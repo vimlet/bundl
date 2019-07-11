@@ -23,7 +23,7 @@ async function processInputUse(inputsObject, files) {
 async function processInputJoin(files, inputsObject, hashes) {
   return await files.reduce(async (total, current, index, array) => {
     current.content = await processInputMeta(current, inputsObject, hashes);
-    return total + current.content + (index < (array.length - 1) ? "\n" : "");
+    return await total + current.content + (index < (array.length - 1) ? "\n" : "");
   }, "");
 }
 
