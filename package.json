@@ -20,6 +20,7 @@
     "md5": "2.2.1",
     "intern": "4.4.2",
     "rimraf": "2.6.3",
-    "@vimlet/commons-run": "0.0.11"
+    "@vimlet/commons-run": "0.0.11",
+    "istextorbinary": "2.5.1"
   }
 }

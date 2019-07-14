@@ -51,7 +51,7 @@ async function processSorted(config, sorted) {
   }
 }
 
-async function build(config, objs) {
+async function build(config, objs) {  
   let hashes = {};
   let processOutputPromises = [];
   // Process copy and transform actions in order.
