@@ -12,6 +12,8 @@ module.exports.build = async config => {
   config = setupConfig(config);
   await clean(config);
   let sorted = sort(config);
+
+
   await processSorted(config, sorted.sorted);
   await build(config, sorted.unsorted);
   console.log("Build completed at: " + getTime());
@@ -22,16 +24,14 @@ module.exports.buildSingle = function (config, filePath) {
   filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
   var matches = [];
   for (var outputKey in config.output) {
-    var inputs = config.output[outputKey].input;
-    for (var inputKey in inputs) {
-      if (typeof inputs[inputKey] === "object" &&
-        !Array.isArray(inputs[inputKey]) && "watch" in inputs[inputKey]) {
-        if (glob.match(filePath, inputs[inputKey].watch).length > 0) {
-          matches.push(outputKey);
-        }
-      } else if (glob.match(filePath, inputKey).length > 0) {
-        matches.push(outputKey);
-      }
+    if (!Array.isArray(config.output[outputKey])) {
+      var inputs = config.output[outputKey].input;
+      matchSingleConfig(inputs, matches, filePath, outputKey);
+    } else {
+      config.output[outputKey].forEach(function (cOut) {
+        var inputs = cOut.input;
+        matchSingleConfig(inputs, matches, filePath, outputKey);
+      });
     }
   }
   var newOutput = {};
@@ -44,6 +44,20 @@ module.exports.buildSingle = function (config, filePath) {
   module.exports.build(config);
 };
 
+// @function matchSingleConfig (private) [Check whether an input match with modified file] @param inputs @param matches @param filePath @param outputKey
+function matchSingleConfig(inputs, matches, filePath, outputKey) {
+  for (var inputKey in inputs) {
+    if (typeof inputs[inputKey] === "object" &&
+      !Array.isArray(inputs[inputKey]) && "watch" in inputs[inputKey]) {
+      if (glob.match(filePath, inputs[inputKey].watch).length > 0) {
+        matches.push(outputKey);
+      }
+    } else if (glob.match(filePath, inputKey).length > 0) {
+      matches.push(outputKey);
+    }
+  }
+}
+
 // @function processSorted (private) [Build sorted elements] @param config @param sorted
 async function processSorted(config, sorted) {
   for (var key in sorted) {
@@ -51,7 +65,7 @@ async function processSorted(config, sorted) {
   }
 }
 
-async function build(config, objs) {  
+async function build(config, objs) {
   let hashes = {};
   let processOutputPromises = [];
   // Process copy and transform actions in order.
@@ -223,15 +237,15 @@ function getTime() {
   var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
   var yyyy = today.getFullYear();
   var hours = today.getHours();
-  if(hours < 10){
+  if (hours < 10) {
     hours = "0" + hours;
   }
   var minutes = today.getMinutes();
-  if(minutes < 10){
+  if (minutes < 10) {
     minutes = "0" + minutes;
   }
   var seconds = today.getSeconds();
-  if(seconds < 10){
+  if (seconds < 10) {
     seconds = "0" + seconds;
   }
   today = dd + '/' + mm + '/' + yyyy + "/" + hours + ":" + minutes + ":" + seconds;

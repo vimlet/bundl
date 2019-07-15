@@ -68,12 +68,13 @@ module.exports.process = async (config, outputEntry) => {
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {
     path: config.inputBase
   }), inputsObject);
-  await Promise.all(files.map(async file => {    
-    // var dirName = path.dirname(file.pattern.replace("**", ""));    
-    // dirName = dirName != "." ? dirName : "";
-    // var size = dirName.length > 0 ? dirName.length + 1 : 0;    
-    // let subPath = file.match.substring(size);
-    let subPath = file.match.substring(path.dirname(file.pattern).length + 1);    
+  await Promise.all(files.map(async file => {  
+    let suPath;
+    if(path.basename(file.pattern) == file.pattern){
+      subPath = file.match.substring(0);   
+    }else{
+      subPath = file.match.substring(path.dirname(file.pattern).length + 1);    
+    }    
     let outputPath = path.join(outputBase, subPath).replace(/\\/g, "/");
     file = await processInputUse(inputsObject, file, outputPath);
     file.content = await processInputMeta(file, inputsObject);    

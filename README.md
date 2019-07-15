@@ -84,7 +84,7 @@ It is an object where its keys are the output folder within outputBase and its c
 >   `"output/subfolder":{input:"input.txt", ...}`
 > * Object array: An array of configuration objects.
 >
->   `"output/subfolder":[{input:"input1.txt", ...},{input:"input2.txt", ...}]`
+>   `"output/subfolder":[{input:"input1.txt", ...},"input2.txt"]`
 > * Mixed object and string array.
 >
 >   `"output/subfolder":[{input:"input1.txt", ...},"input2.txt"]`

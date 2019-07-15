@@ -1,0 +1,13 @@
+{
+  "name": "test-less",
+  "version": "0.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "metapack"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@vimlet/metapack": "file:../../"
+  }
+}

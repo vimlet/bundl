@@ -62,7 +62,7 @@ module.exports = {
       }
     },
     "string/**":"this.js",
-    "stringArray/**":["array/**", "js/a.js", "js/b.js"]
+    "stringArray":["array/**", "js/a.js", "js/b.js"]
   }
 };
 

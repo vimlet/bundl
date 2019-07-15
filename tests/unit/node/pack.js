@@ -67,7 +67,7 @@ suite("metapack", () => {
         assert.strictEqual(files.length, expected, "Copy expected " + expected);
     });
     test("command", async () => {
-        await run.exec('metapack', {
+        await run.exec('node ../../../src/index.js', {
             args: ["-c", "../resources/config/command.js"],
             workingDirectory: __dirname
         });

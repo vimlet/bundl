@@ -12,8 +12,8 @@ module.exports = async function () {
     .parse(process.argv);
 
   let configPath = path.join(process.cwd(), "metapack.config.js");
-  
-  
+
+
   if (cli.result.help) {
     cli.printHelp();
   } else {
@@ -25,7 +25,7 @@ module.exports = async function () {
       let watchPath = cli.result.watch || config.watch;
 
       await pack.build(config);
-      
+
       if (watchPath) {
         console.log(`Watching ${watchPath}...`)
         watcher.watch(watchPath, {
