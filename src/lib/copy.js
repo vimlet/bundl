@@ -1,9 +1,6 @@
 const path = require("path");
 const util = require("./util");
 const parse = require("./parse");
-const {
-  isBinary
-} = require("istextorbinary");
 
 // @function processInputUse (private) [Apply use functions to input]
 function processInputUse(inputsObject, file, outputPath) {
@@ -54,35 +51,33 @@ function processOutputUse(outputObject, outputPath, content) {
 
 // @function processInputMeta (private) [Process meta]
 async function processInputMeta(file, inputsObject) {
-  if (isBinary(file.file)) {
-    return file.content;
-  }
   if (typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) {
     content = await parse(file.content.toString(), {
       basePath: path.dirname(file.file).replace(/\\/g, "/")
     });
     return content;
   } else {
-    return file.content.toString();
+    return file.content;
   }
 }
 
 module.exports.process = async (config, outputEntry) => {
   let copyPromises = [];
-  let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");
+  let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");  
   let inputsObject = outputEntry.input;
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {
     path: config.inputBase
   }), inputsObject);
-  await Promise.all(files.map(async file => {
-    var dirName = path.dirname(file.pattern.replace("**", ""));
-    dirName = dirName != "." ? dirName : "";
-    var size = dirName.length > 0 ? dirName.length + 1 : 0;
-    let subPath = file.match.substring(size);
+  await Promise.all(files.map(async file => {    
+    // var dirName = path.dirname(file.pattern.replace("**", ""));    
+    // dirName = dirName != "." ? dirName : "";
+    // var size = dirName.length > 0 ? dirName.length + 1 : 0;    
+    // let subPath = file.match.substring(size);
+    let subPath = file.match.substring(path.dirname(file.pattern).length + 1);    
     let outputPath = path.join(outputBase, subPath).replace(/\\/g, "/");
     file = await processInputUse(inputsObject, file, outputPath);
-    file.content = await processInputMeta(file, inputsObject);
-    outputPath = file.fileName || outputPath;
+    file.content = await processInputMeta(file, inputsObject);    
+    outputPath = file.fileName || outputPath;    
     copyPromises.push(new Promise(async (resolve, reject) => {
       let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
       var usedData = await processOutputUse(outputEntry, outputPath, file.content);

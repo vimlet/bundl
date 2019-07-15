@@ -71,8 +71,6 @@ suite("metapack", () => {
             args: ["-c", "../resources/config/command.js"],
             workingDirectory: __dirname
         });
-        console.log("LEO FILES");
-        
         let files = await glob.files("output/command/**", {
             path: path.join(__dirname, "../")
         });
@@ -234,7 +232,7 @@ suite("metapack", () => {
         };
         await pack.build(config);
         var result = await readFile(path.join(__dirname, "../output/read/text.txt"), "utf8");
-        var expected = "";
+        var expected = "";        
         assert.strictEqual(result, expected, "Read false copy expected " + expected);
     });
     test("read false transform", async () => {
@@ -293,25 +291,29 @@ suite("metapack", () => {
         var expected = 2;
         assert.strictEqual(files.length, expected, "Sort expected " + expected);
     });
-    test("parse", async () => { 
+    test("parse", async () => {
         var config = require("../resources/config/parse");
         await pack.build(config);
         var expected = "I am aI am b";
         var result = (await readFile(path.join(__dirname, "../output/parse/a.txt"), "utf8")).replace(/(\r\n|\n|\r)/gm, "");
         assert.strictEqual(result, expected, "Parse expected " + expected);
     });
-    test("parse copy", async () => { 
+    test("parse copy", async () => {
         var config = require("../resources/config/parseCopy");
         await pack.build(config);
         var expected = "I am aI am b";
         var result = (await readFile(path.join(__dirname, "../output/parseCopy/a.vmt"), "utf8")).replace(/(\r\n|\n|\r)/gm, "");
         assert.strictEqual(result, expected, "Parse expected " + expected);
     });
-    test("transform", async () => { 
+    test("transform", async () => {
         var config = require("../resources/config/transform");
         await pack.build(config);
-        var expected = "123";
-        var result = (await readFile(path.join(__dirname, "../output/transform/a.txt"), "utf8")).replace(/(\r\n|\n|\r)/gm, "");        
-        assert.strictEqual(result, expected, "Parse expected " + expected);
+        var expected = 6;
+        var result = (await readFile(path.join(__dirname, "../output/transform/a.txt"), "utf8")).replace(/(\r\n|\n|\r)/gm, "");
+        var total = 0;        
+        result.split("").forEach(function (r) {
+            total += parseInt(r);
+        });        
+        assert.strictEqual(total, expected, "Transform expected " + expected);
     });
 });
