@@ -12,8 +12,6 @@ module.exports.build = async config => {
   config = setupConfig(config);
   await clean(config);
   let sorted = sort(config);
-
-
   await processSorted(config, sorted.sorted);
   await build(config, sorted.unsorted);
   console.log("Build completed at: " + getTime());

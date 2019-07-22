@@ -11,6 +11,10 @@
     "test": "npx intern config=@ci",
     "test:dev": "npx intern config=@dev"
   },
+  "engineStrict": true,
+  "engines": {
+    "node": "^10"
+  },
   "license": "MIT",
   "dependencies": {
     "@vimlet/commons-glob": "1.2.4",
@@ -20,6 +24,7 @@
     "md5": "2.2.1",
     "intern": "4.4.2",
     "rimraf": "2.6.3",
-    "@vimlet/commons-run": "0.0.11"
+    "@vimlet/commons-run": "0.0.11",
+    "lodash": "4.17.15"
   }
 }

@@ -3,6 +3,7 @@ const watcher = require("@vimlet/commons-watcher");
 const path = require("path");
 const fs = require("fs");
 const pack = require("./pack");
+const loadash = require("lodash");
 
 module.exports = async function () {
   cli
@@ -24,7 +25,7 @@ module.exports = async function () {
       let config = require(configPath);
       let watchPath = cli.result.watch || config.watch;
 
-      await pack.build(config);
+      await pack.build(loadash.cloneDeep(config));
 
       if (watchPath) {
         console.log(`Watching ${watchPath}...`)
@@ -32,7 +33,7 @@ module.exports = async function () {
           ignoreInitial: true
         }, function (error, data) {
           if (!error) {
-            pack.buildSingle(config, data.path);
+            pack.buildSingle(loadash.cloneDeep(config), data.path);
           }
         });
       }
