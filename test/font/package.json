@@ -4,14 +4,14 @@
   "description": "",
   "main": "src/index.js",
   "bin": {
-    "metapack": "metapack"
+    "bundl": "bundl"
   },
   "scripts": {
-    "start": "metapack"
+    "start": "bundl"
   },
   "license": "MIT",
   "dependencies": {
-    "@vimlet/metapack": "file:../../",
+    "@vimlet/bundl": "file:../../",
     "less": "3.9.0"
   }
 }

@@ -1,6 +1,6 @@
-# Metapack
+# Bundl
 
-metapack is a project bundler and builder.
+bundl is a project bundler and builder.
 
 
 # Features
@@ -15,7 +15,7 @@ metapack is a project bundler and builder.
 * **Meta:** [Meta](https://github.com/vimlet/vimlet-meta) built in.
 
 # Installation
-* Via NPM: npm install @vimlet/metapack
+* Via NPM: npm install @vimlet/bundl
 
 # Usage
 
@@ -26,17 +26,17 @@ metapack is a project bundler and builder.
 ## Command mode:
 
 
-* `metapack`
+* `bundl`
 
-    Calls metapack. This option will look for *metapack.config.js* at working directory.
+    Calls bundl. This option will look for *bundl.config.js* at working directory.
 
-* `metapack -c "path_to_config"`
+* `bundl -c "path_to_config"`
 
-    Calls metapack with given config file path.
+    Calls bundl with given config file path.
 
-* `metapack -w "path_to_watch"`
+* `bundl -w "path_to_watch"`
 
-    Calls metapack and keep watching for changes at given path.
+    Calls bundl and keep watching for changes at given path.
 
 # Configuration file:
 
@@ -255,7 +255,7 @@ is the same as:
 Inside property prevails.
 
 ## Copy
-Copy is a featured built in metapack.
+Copy is a featured built in bundl.
 If any output key ends with **, it will be taken as copy.
 
 IE
@@ -270,7 +270,7 @@ IE
 Copied files won't be parsed nor *"use"* will be used neither, just verbatim copy.
 
 ## Meta
-[Vimlet meta](https://github.com/vimlet/vimlet-meta) is built in metapack. 
+[Vimlet meta](https://github.com/vimlet/vimlet-meta) is built in bundl. 
 
 If *"parse"* option is set to true at input, meta will be applied to file content.
 
@@ -278,9 +278,9 @@ If you need more information regarding meta go to its [github](https://github.co
 
 ## Watch mode
 
-`metapack -w "path_to_folder"`
+`bundl -w "path_to_folder"`
 will enable watch mode. If any file under watch directory is modified, it will be packed again.
 
 
 # License
-metapack is released under MIT License. See [LICENSE](https://github.com/vimlet/metapack/blob/master/LICENSE) for details.
+bundl is released under MIT License. See [LICENSE](https://github.com/vimlet/bundl/blob/master/LICENSE) for details.

@@ -1,10 +1,10 @@
 {
-  "name": "@vimlet/metapack",
+  "name": "@vimlet/bundl",
   "version": "0.0.18",
   "description": "",
   "main": "src/index.js",
   "bin": {
-    "metapack": "src/index.js"
+    "bundl": "src/index.js"
   },
   "scripts": {
     "start": "node src/index.js",

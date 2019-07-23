@@ -17,7 +17,7 @@ const glob = require("@vimlet/commons-glob");
 const pack = require('../../../src/lib/pack');
 let output = path.join(__dirname, "../output");
 
-suite("metapack", () => {
+suite("bundl", () => {
     test("clean", async () => {
         const clean = require('../../../src/lib/clean');
         await mkdir(path.join(output, "clean"), {
@@ -77,14 +77,14 @@ suite("metapack", () => {
         var expected = 9;
         assert.strictEqual(files.length, expected, "Command expected " + expected);
     });
-    test("metapack", async () => {
-        var config = require("../resources/config/metapack");
+    test("bundl", async () => {
+        var config = require("../resources/config/bundl");
         await pack.build(config);
-        let files = await glob.files("output/metapack/**", {
+        let files = await glob.files("output/bundl/**", {
             path: path.join(__dirname, "../")
         });
         var expected = 9;
-        assert.strictEqual(files.length, expected, "Metapack expected " + expected);
+        assert.strictEqual(files.length, expected, "Bundl expected " + expected);
     });
     test("watch", async () => {
         var config = require("../resources/config/watch");
@@ -315,5 +315,23 @@ suite("metapack", () => {
             total += parseInt(r);
         });        
         assert.strictEqual(total, expected, "Transform expected " + expected);
+    });
+    test("copy fileNameReplace input", async () => {
+        var config = require("../resources/config/copyFileNameReplaceInput");
+        await pack.build(config);
+        let files = await glob.files("output/copyFileNameReplaceInput/**.css", {
+            path: path.join(__dirname, "../")
+        });
+        var expected = 2;                
+        assert.strictEqual(files.length, expected, "Copy fileNameReplace input expected " + expected);
+    });
+    test("copy fileNameReplace output", async () => {
+        var config = require("../resources/config/copyFileNameReplaceOutput");
+        await pack.build(config);
+        let files = await glob.files("output/copyFileNameReplaceOutput/**.css", {
+            path: path.join(__dirname, "../")
+        });
+        var expected = 2;                
+        assert.strictEqual(files.length, expected, "Copy ileNameReplace output expected " + expected);
     });
 });

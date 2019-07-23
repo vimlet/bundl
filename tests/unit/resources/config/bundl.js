@@ -1,5 +1,5 @@
 module.exports = {
-  "outputBase":"tests/unit/output/metapack",
+  "outputBase":"tests/unit/output/bundl",
   "inputBase":"tests/unit/resources/input",
   "clean": true,
   "log":false,

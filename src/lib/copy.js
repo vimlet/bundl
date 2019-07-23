@@ -27,6 +27,20 @@ function processInputUse(inputsObject, file, outputPath) {
   }
   return file;
 }
+
+
+// @function processInputNameReplace (private) [Apply fileNameReplace to input]
+function processInputNameReplace(inputsObject, file, outputPath) {
+  if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].fileNameReplace) {
+    try {
+      outputPath = outputPath.replace(inputsObject[file.pattern].fileNameReplace[0], inputsObject[file.pattern].fileNameReplace[1]);
+    } catch (error) {
+      console.log("Error, bad formatted fileNameReplace: " + inputsObject[file.pattern].fileNameReplace);
+    }
+  }
+  return outputPath;
+}
+
 // @function processOutputUse (private) [Apply use functions to output]
 function processOutputUse(outputObject, outputPath, content) {
   if (outputObject.use) {
@@ -48,6 +62,17 @@ function processOutputUse(outputObject, outputPath, content) {
   }
   return content;
 }
+// @function processOutputNameReplace (private) [Apply fileNameReplace to output]
+function processOutputNameReplace(outputObject, outputPath) {  
+  if (outputObject.fileNameReplace) {
+    try {
+      outputPath = outputPath.replace(outputObject.fileNameReplace[0], outputObject.fileNameReplace[1]);
+    } catch (error) {
+      console.log("Error, bad formatted fileNameReplace: " + outputObject.fileNameReplace);
+    }
+  }
+  return outputPath;
+}
 
 // @function processInputMeta (private) [Process meta]
 async function processInputMeta(file, inputsObject) {
@@ -63,25 +88,27 @@ async function processInputMeta(file, inputsObject) {
 
 module.exports.process = async (config, outputEntry) => {
   let copyPromises = [];
-  let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");  
+  let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");
   let inputsObject = outputEntry.input;
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {
     path: config.inputBase
   }), inputsObject);
-  await Promise.all(files.map(async file => {  
+  await Promise.all(files.map(async file => {
     let suPath;
-    if(path.basename(file.pattern) == file.pattern){
-      subPath = file.match.substring(0);   
-    }else{
-      subPath = file.match.substring(path.dirname(file.pattern).length + 1);    
-    }    
+    if (path.basename(file.pattern) == file.pattern) {
+      subPath = file.match.substring(0);
+    } else {
+      subPath = file.match.substring(path.dirname(file.pattern).length + 1);
+    }
     let outputPath = path.join(outputBase, subPath).replace(/\\/g, "/");
     file = await processInputUse(inputsObject, file, outputPath);
-    file.content = await processInputMeta(file, inputsObject);    
-    outputPath = file.fileName || outputPath;    
+    file.content = await processInputMeta(file, inputsObject);
+    outputPath = file.fileName || outputPath;
+    outputPath = processInputNameReplace(inputsObject, file, outputPath);
     copyPromises.push(new Promise(async (resolve, reject) => {
       let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
       var usedData = await processOutputUse(outputEntry, outputPath, file.content);
+      outputPath = processOutputNameReplace(outputEntry, outputPath);
       let result = {
         parse: outputEntry.parse,
         outputParent: outputParent,
