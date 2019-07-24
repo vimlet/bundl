@@ -1,5 +1,6 @@
 {
-  "name": "test-less",
+  "name": "test-watch",
+  "private": true,
   "version": "0.0.0",
   "description": "",
   "main": "src/index.js",

@@ -36,7 +36,8 @@ module.exports = {
       "clean": true,
       "order": 3,
       "input": {
-        "copy/**": true
+        "copy/**": true,
+        "watch":"parse/**"
       }
     },
     "parse/1.txt": {

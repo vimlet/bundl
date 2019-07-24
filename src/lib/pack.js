@@ -19,6 +19,7 @@ module.exports.build = async config => {
 
 // @function buildSingle (public) [Build single file which has been modified. Used at watch mode] @param config @param filePath
 module.exports.buildSingle = function (config, filePath) {
+  config = setupConfig(config);
   filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
   var matches = [];
   for (var outputKey in config.output) {

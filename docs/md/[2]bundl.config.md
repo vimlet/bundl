@@ -1,54 +1,12 @@
-# Bundl
+# bundl.config.js
+Bundl runs under a configuration file.
+The configuration file is a javascript file which exports a module.
 
-Bundl is a project bundler and builder.
-
-
-# Features
-
-* **Fast:** It works asynchronously.
-* **Customizable:** It allows the user to add javascript code during the process easily.
-* **Sortable:** Sort task if you need synchronous mode.
-* **Configuration file:** One single file to control everyone.
-* **Watcher mode:** Run once and work freely.
-* **Non verbose:** Friendly configuration file.
-* **Copy:** Copy built in.
-* **Meta:** [Meta](https://github.com/vimlet/vimlet-meta) built in.
-
-# Installation
-* Via NPM: npm install @vimlet/bundl
-
-# Usage
-
-* `pack.build(config);`
-
-  Run pack using given configuration object.
-
-## Command mode:
-
-
-* `bundl`
-
-    Calls bundl. This option will look for *bundl.config.js* at working directory.
-
-* `bundl -c "path_to_config"`
-
-    Calls bundl with given config file path.
-
-* `bundl -w "path_to_watch"`
-
-    Calls bundl and keep watching for changes at given path.
-
-# Configuration file:
-
-A .js file which exports the configuration object.
-
-*IE:*
 ```
 module.exports = {
   ...
 };
 ```
-
 ## Main options:
 > * outputBase: Generated files will be all within this directory, they will be nested inside following their input path.
 > * inputBase: Files will be looking for from this directory.
@@ -108,7 +66,8 @@ It is an object where its keys are the output folder within outputBase and its c
 >   }
 >}
 > ```
-> ## Hash
+> **Hash**
+>
 > Output key has hash property to insert as a part of the name. If the file has changes, a new hash will be generated and the old file won't be overwritten. The syntaxis is `{{hash}}`
 >
 > IE
@@ -253,35 +212,3 @@ is the same as:
 }
 ```
 Inside property prevails.
-
-## Copy
-Copy is a featured built in bundl.
-If any output key ends with **, it will be taken as copy.
-
-IE
-```
-"copy/**": {
-      "clean": true,
-      "input": {
-        "input/**": true
-      }
-    }
-```
-
-All files within */input* will be copied to */copy* following the structure that they have at */input*
-
-## Meta
-[Vimlet meta](https://github.com/vimlet/vimlet-meta) is built in bundl. 
-
-If *"parse"* option is set to true at input, meta will be applied to file content.
-
-If you need more information regarding meta go to its [github](https://github.com/vimlet/vimlet-meta)
-
-## Watch mode
-
-`bundl -w "path_to_folder"`
-will enable watch mode. If any file under watch directory is modified, it will be packed again.
-
-
-# License
-bundl is released under MIT License. See [LICENSE](https://github.com/vimlet/bundl/blob/master/LICENSE) for details.

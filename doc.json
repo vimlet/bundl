@@ -1,0 +1,29 @@
+{
+  "article": [{
+    "include": [
+      "docs/md/**/*.md"
+    ],
+    "entry":"manual",
+    "extension": false,
+    "output": "docs/release/manual",
+    "band": "#18c796",
+    "hoverColorText": "white",
+    "version":"1.0.0",
+    "selectedColorText": "white"
+  }],
+  "main": {
+    "versions": {
+      "1.0.0": {
+        "latest": true,
+        "entries": {
+          "manual": {
+            "title": "Manual",
+            "icon": "list",
+            "brief": "Get Started"
+          }
+        }
+      }
+    },
+    "output": "docs/release"
+  }
+}

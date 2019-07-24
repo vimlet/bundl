@@ -9,7 +9,8 @@
   "scripts": {
     "start": "node src/index.js",
     "test": "npx intern config=@ci",
-    "test:dev": "npx intern config=@dev"
+    "test:dev": "npx intern config=@dev",
+    "doc": "vimlet-doc c 'doc.json'"
   },
   "engineStrict": true,
   "engines": {
@@ -26,5 +27,8 @@
     "rimraf": "2.6.3",
     "@vimlet/commons-run": "0.0.11",
     "lodash": "4.17.15"
+  },
+  "devDependencies": {
+    "@vimlet/doc": "2.0.4"
   }
 }
