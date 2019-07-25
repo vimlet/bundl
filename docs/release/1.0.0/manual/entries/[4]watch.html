@@ -1,0 +1,17 @@
+<app-doc-viewer-templates-article links="" script="">
+    <eon-scroll thickness="8">
+        <div class="app-doc-viewer-templates-article-content app-doc-content-width" eon-ref="content">
+            <div></div><div><div class="app-md-viewer-t1 app-md-viewer-t">Watch</div></div><div>Bundl has the ability to keep tracking for changes and built again the modified file for you without.<div class="app-md-viewer-br"></div></div><div><code class="app-md-viewer-code">bundl -w &quot;path_to_folder&quot;</code></div><div>will enable watch mode. If any file under watch directory is modified, it will be packed again.<div class="app-md-viewer-br"></div></div><div>It can also be configured at bundl.config.js:<div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>module.exports = {
+  &quot;outputBase&quot;: &quot;build&quot;,
+  &quot;watch&quot;: &quot;src&quot;,
+  &quot;inputBase&quot;: &quot;src&quot;,
+  &quot;clean&quot;: true,
+  &quot;output&quot;: {
+    ...
+  }
+};</code></app-code></div></div><div>Set as main key will enable watch mode in that path.<div class="app-md-viewer-br"></div></div><div>Set at input object will not enable watch mode but if watch mode is enable, it will watch the given path for that input instead of the input key.</div>
+            <div class="app-doc-viewer-templates-article-content-bottom"></div>
+        </div>
+    </eon-scroll>
+    <app-go-top></app-go-top>
+</app-doc-viewer-templates-article>

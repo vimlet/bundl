@@ -1,0 +1,18 @@
+<app-doc-viewer-templates-article links="" script="">
+    <eon-scroll thickness="8">
+        <div class="app-doc-viewer-templates-article-content app-doc-content-width" eon-ref="content">
+            <div><div class="app-md-viewer-t1 app-md-viewer-t">Built-in features<div class="app-md-viewer-br"></div></div></div><div><div class="app-md-viewer-t2 app-md-viewer-t">Copy</div></div><div>If any output key ends with **, it will be taken as copy all the files in the path.<div class="app-md-viewer-br"></div></div><div>IE</div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>&quot;copy/**&quot;: {
+      &quot;clean&quot;: true,
+      &quot;input&quot;: {
+        &quot;input/**&quot;: true
+      }
+    }</code></app-code></div></div><div>All files within <em>/input</em> will be copied to <em>/copy</em> following the structure that they have at <em>/input</em><div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-t2 app-md-viewer-t">Meta</div></div><div><a href="https://github.com/vimlet/vimlet-meta" title="">Vimlet meta</a> is built in bundl. <div class="app-md-viewer-br"></div></div><div>If <em>"parse"</em> option is set to true at input, meta will be applied to file content.<div class="app-md-viewer-br"></div></div><div>Meta is used to generate files from templates that allow the use of javascript.<div class="app-md-viewer-br"></div></div><div><strong>IE</strong><div class="app-md-viewer-br"></div></div><div><span class="app-md-viewer-quote"></span>* Template1:</div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">Hello I&apos;m a template &lt;%template(template2.vmi)%&gt;</code></div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span>* Template2:</div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">I&apos;m another template</code></div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span>* Result:</div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">Hello I&apos;m a template I&apos;m another template</code><div class="app-md-viewer-br"></div><div class="app-md-viewer-br"></div></div><div><span class="app-md-viewer-quote"></span>* Template:</div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">Hello I&apos;m a template 
+&gt; &lt;%
+&gt; for(var i = 0; i &lt; 5; i++){
+&gt; echo(i);}
+&gt; %&gt;</code></div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span>* Result:</div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">Hello I&apos;m a template 01234</code><div class="app-md-viewer-br"></div></div><div>If you need more information regarding meta go to its <a href="https://github.com/vimlet/vimlet-meta" title="">github</a><div class="app-md-viewer-br"></div></div>
+            <div class="app-doc-viewer-templates-article-content-bottom"></div>
+        </div>
+    </eon-scroll>
+    <app-go-top></app-go-top>
+</app-doc-viewer-templates-article>
