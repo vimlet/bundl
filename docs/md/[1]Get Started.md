@@ -1,7 +1,6 @@
 # Bundl
 Bundl is a project bundler and builder.
 
-
 # Features
 * **Fast:** It works asynchronously.
 * **Customizable:** It allows the user to add javascript code during the process easily.
@@ -10,10 +9,10 @@ Bundl is a project bundler and builder.
 * **Watcher mode:** Run once and work freely.
 * **Non verbose:** Friendly configuration file.
 * **Copy:** Copy built in.
-* **Meta:** [Meta](https://github.com/vimlet/vimlet-meta) built in.
+* **Templating:** [Meta](https://github.com/vimlet/vimlet-meta) built in.
 
 # Installation
-* Via NPM: npm install @vimlet/bundl
+* Via NPM: npm install @vimlet/bundl or npx @vimlet/bundl
 
 # Usage
 * `pack.build(config);`

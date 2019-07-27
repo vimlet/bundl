@@ -27,5 +27,8 @@
     "rimraf": "2.6.3",
     "@vimlet/commons-run": "0.0.11",
     "lodash": "4.17.15"
+  },
+  "devDependencies": {
+    "@vimlet/doc": "2.0.7"
   }
 }

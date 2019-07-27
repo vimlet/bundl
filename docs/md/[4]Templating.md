@@ -1,21 +1,5 @@
-# Built-in features
-
-## Copy
-If any output key ends with **, it will be taken as copy all the files in the path.
-
-IE
-```
-"copy/**": {
-      "clean": true,
-      "input": {
-        "input/**": true
-      }
-    }
-```
-All files within */input* will be copied to */copy* following the structure that they have at */input*
-
-## Meta
-[Vimlet meta](https://github.com/vimlet/vimlet-meta) is built in bundl. 
+## Templating
+[Vimlet meta templating engine](https://github.com/vimlet/vimlet-meta) is built in bundl. 
 
 If *"parse"* option is set to true at input, meta will be applied to file content.
 

@@ -1,10 +1,10 @@
 {
   "api": [{
     "include": [
-      "../src/**/*.js"
+      "src/**/*.js"
     ],
     "extension": false,
-    "output": "release/api",
+    "output": "docs/release/api",
     "entry":"api",
     "version":"1.0.0",
     "folderIcon": false,
@@ -12,11 +12,11 @@
   }],
   "article": [{
     "include": [
-      "md/**/*.md"
+      "docs/md/**/*.md"
     ],
     "entry":"manual",
     "extension": false,
-    "output": "release/manual",
+    "output": "docs/release/manual",
     "band": "#18c796",
     "hoverColorText": "white",
     "version":"1.0.0",
@@ -26,7 +26,7 @@
     "versions": {
       "1.0.0": {
         "latest": true,
-        "mainIcon": "img/bundl.png",
+        "mainIcon": "docs/img/bundl.png",
         "mainIconLink": "http://bundljs.org",
         "entries": {
           "manual": {
@@ -42,7 +42,7 @@
         }
       }
     },
-    "output": "release",
-    "template": "template/build/eon"
+    "output": "docs/release",
+    "template": "docs/template/build/eon"
   }
 }
