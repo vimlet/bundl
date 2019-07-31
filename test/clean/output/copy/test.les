@@ -1,6 +1,0 @@
-tt {
-    width: 100%;
-}
-ttt {
-    width:@mid;
-}

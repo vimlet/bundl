@@ -11,13 +11,13 @@ module.exports = async config => {
   } else {
     for (var key in config.output) {
       if (!Array.isArray(config.output[key])) {
-        config.output[key].clean = "clean" in config.output[key] ? config.output[key].clean : true;
+        config.output[key].clean = "clean" in config.output[key] ? config.output[key].clean : false;
         if (config.output[key].clean) {
           await doClean(config, key);
         }
       } else {
         await Promise.all(config.output[key].map(async function (cOut) {
-          cOut.clean = "clean" in cOut ? cOut.clean : true;
+          cOut.clean = "clean" in cOut ? cOut.clean : false;
           if (cOut.clean) {
             await doClean(config, key);
           }
