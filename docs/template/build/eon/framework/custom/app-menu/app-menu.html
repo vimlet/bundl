@@ -80,15 +80,15 @@
                 var el = this;
                 setTimeout(function () {
                     var array = Array.prototype.slice.call(el._refs.main.childNodes);
-                    var found = false;
+                    var found = false;                    
                     array.forEach(function (item) {
                         if (item.getAttribute(attribute).toLowerCase() == value
                             .toLowerCase()) {
-                            found = true;
+                            found = true;                            
                             el.value = item.value;
                         }
                     });
-                    if (!found) {
+                    if (!found) {                        
                         el.onReady(function () {
                                     document.querySelector("app-doc").noFound();
                         });

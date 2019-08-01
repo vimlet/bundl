@@ -1,5 +1,86 @@
 <app-doc-viewer-templates-api>
-    <json>
-        {"header":[],"path":"lib\\parse.js","properties":[],"htmlAttributes":[],"methods":[]}
-    </json>
+<app-doc-viewer-templates-api-menu eon-ref="menu" class="vimlet-doc-header-menu">
+        <app-combobox class="app-doc-viewer-templates-api-menu-properties app-doc-viewer-display-none"
+        fixed-label="Properties" eon-ref="properties">
+        <eon-item class="app-doc-api-menu-item-search-item" noShrink="true">
+            <eon-searchbar class="app-doc-viewer-templates-api-menu-properties-search"
+                eon-ref="propertiesSearchSearchbar">
+                <eon-text name="name" placeholder="Search" eon-ref="propertiesSearchText"></eon-text>
+            </eon-searchbar>
+        </eon-item>
+            </app-combobox>
+    <app-combobox class="app-doc-viewer-templates-api-menu-html-attributes app-doc-viewer-display-none"
+        fixed-label="Html Attributes" eon-ref="htmlAttributes">
+        <eon-item class="app-doc-api-menu-item-search-item" noShrink="true">
+            <eon-searchbar class="app-doc-viewer-templates-api-menu-html-attributes-search"
+                eon-ref="htmlAttributesSearchSearchbar">
+                <eon-text name="name" placeholder="Search" eon-ref="htmlAttributesSearchText"></eon-text>
+            </eon-searchbar>
+        </eon-item>
+            </app-combobox>
+    <app-combobox class="app-doc-viewer-templates-api-menu-functions app-doc-viewer-display-none"
+        fixed-label="Functions" eon-ref="functions">
+        <eon-item class="app-doc-api-menu-item-search-item" noShrink="true">
+            <eon-searchbar class="app-doc-viewer-templates-api-menu-functions-search"
+                eon-ref="functionsSearchSearchbar">
+                <eon-text name="name" placeholder="Search" eon-ref="functionsSearchText"></eon-text>
+            </eon-searchbar>
+        </eon-item>
+            </app-combobox>
+    <div class="app-separator"></div>
+    <app-vicon class="app-doc-viewer-templates-api-menu-private" title-right="true" vicon="visibility"
+        label="Show Private" id="togglePrivate"></app-vicon>
+</app-doc-viewer-templates-api-menu>
+<app-doc-viewer-templates-api-content eon-ref="content">
+            <eon-scroll thickness="8" eon-ref="scroll">
+        <div class="app-doc-viewer-templates-api-content-content app-doc-content-width" eon-ref="content">
+            <div class="app-doc-viewer-templates-api-content-title app-doc-viewer-api-t1" eon-ref="title">
+                parse.js
+            </div>
+            <div class="app-doc-viewer-templates-api-content-header" eon-ref="header">
+            </div>
+                        <div class="app-doc-viewer-templates-api-content-block">
+                <div class="app-doc-viewer-api-t2">Properties</div>
+                <div class="app-doc-viewer-templates-api-content-properties" eon-ref="properties">
+                                                            None
+                </div>
+            </div>
+            <div class="app-doc-viewer-templates-api-content-block app-doc-viewer-private-display-none app-doc-viewer-templates-api-content-properties-private-block app-doc-viewer-templates-api-private"
+                eon-ref="propertiesPrivateBlock">
+                <div class="app-doc-viewer-api-t2">Private properties</div>
+                <div class="app-doc-viewer-templates-api-content-properties-private" eon-ref="propertiesPrivate">
+                                                                        None
+                </div>
+            </div>
+                        
+                                                                    <div class="app-doc-viewer-templates-api-content-block">
+                <div class="app-doc-viewer-api-t2"></div>
+                <div class="app-doc-viewer-templates-api-content-htmlAttributes" eon-ref="htmlAttributes">
+                                        </div>
+            </div>
+                                    <div class="app-doc-viewer-templates-api-content-block app-doc-viewer-private-display-none app-doc-viewer-templates-api-content-htmlAttributes-private-block app-doc-viewer-templates-api-private"
+                eon-ref="htmlAttributesPrivateBlock">
+                <div class="app-doc-viewer-api-t2"></div>
+                <div class="app-doc-viewer-templates-api-content-htmlAttributes-private"
+                    eon-ref="htmlAttributesPrivate">
+                                    </div>
+            </div>
+                                    <div class="app-doc-viewer-templates-api-content-block">
+                <div class="app-doc-viewer-api-t2">Functions</div>
+                <div class="app-doc-viewer-templates-api-content-functions" eon-ref="functions">
+                                                                        None
+                </div>
+            </div>
+            <div class="app-doc-viewer-templates-api-content-block app-doc-viewer-private-display-none app-doc-viewer-templates-api-content-functions-private-block app-doc-viewer-templates-api-private"
+                eon-ref="functionsPrivateBlock">
+                <div class="app-doc-viewer-api-t2">Private functions</div>
+                <div class="app-doc-viewer-templates-api-content-functions-private" eon-ref="functionsPrivate">
+                                                                        None
+                </div>
+            </div>
+            <div class="app-doc-viewer-templates-api-content-content-bottom"></div>
+        </div>
+    </eon-scroll>
+    <app-go-top eon-ref="goTop" id="api-content-goTop"></app-go-top>
+</app-doc-viewer-templates-api-content>
 </app-doc-viewer-templates-api>

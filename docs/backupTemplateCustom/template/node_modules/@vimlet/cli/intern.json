@@ -1,0 +1,31 @@
+{
+  "remoteUrl": "http://localhost:3000",
+  "leaveRemoteOpen": false,
+
+  "node": {
+    "suites": ["tests/unit/node/**/*.js"]
+  },
+
+  "functionalSuites": [
+    "tests/functional/browser/**/*.js"
+  ],
+  
+  "configs": {
+    "node": {
+      "environments+": ["node"]
+    }, 
+    
+    "browser": {
+      "plugins": ["tests/intern-plugin.js"],
+      "environments+": [{ "browserName": "chrome", "fixSessionCapabilities": false }]
+    },
+    
+    "ci": {
+      "extends": ["node"]
+    },
+
+    "dev": {
+      "extends": ["node", "browser"]
+    }    
+  }
+}

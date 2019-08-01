@@ -63,10 +63,17 @@
                         cell.id = row.id;
                     }
                     cell.innerHTML = row.data[columnI].value;
-                    if (row.data[columnI].onclick) {
+                    if (row.data[columnI].onclick) {                        
                         cell.classList.add("app-table-cell-clickable");
                         cell.classList.add("app-doc-text-link");
-                        cell.addEventListener("click", row.data[columnI].onclick);
+                        var functionClick;
+                        if(typeof row.data[columnI].onclick === "function"){
+                            functionClick = row.data[columnI].onclick;
+                        }else{
+                        el._misc.temp = row.data[columnI].onclick;
+                            functionClick = function(){eval(el._misc.temp)};
+                        }                        
+                        cell.addEventListener("click", functionClick);
                     }
                     if (row.data[columnI].color) {
                         cell.style.color = row.data[columnI].color;
@@ -184,7 +191,7 @@
                 el._setData();
             },
             // @function _setData (private) 
-            setData: function () {
+            setData: function () {                
                 var el = this;
                 el._misc.rowCount = 0;
                 el._rows = [];
@@ -252,16 +259,17 @@
                 fragment.appendChild(el._refs.table);
                 el._rowsData = [];
                 rows.forEach(function (row) {
-                    var columns = row.querySelectorAll("eon-cell");
+                    var columns = row.querySelectorAll("eon-cell");                    
                     var columnData = {};
                     if (row.id) {
                         columnData.id = row.id;
                     }
                     columnData.data = []
-                    columns.forEach(function (column) {
+                    columns.forEach(function (column) {                    
                         columnData.data.push({
                             value: column.innerHTML,
-                            onclick: column.onclick,
+                            // onclick: column.onclick,
+                            onclick: column.onclick || column.getAttribute("onclick"),
                             class: column.className
                         });
                     });
