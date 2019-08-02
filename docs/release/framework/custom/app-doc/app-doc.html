@@ -1,5 +1,5 @@
 <template>
-    <app-loading type="eon" eon-ref="loading"></app-loading>
+    <app-loading type="circle" eon-ref="loading"></app-loading>
     <div class="app-doc-menu vimlet-doc-header-menu">
         <div class="app-separator"></div>
         <app-menu class="app-doc-menu-buttons" fixed-label="Mode" eon-ref="menu"></app-menu>
@@ -55,18 +55,24 @@
                 var el = this;
                 if (value) {
                     value = JSON.parse(value);
-                    // el.version = value.current;
                     el.versions = value.versions;
                     el._hashControl();
                     if (!el._misc.versionSet) {
                         el._setVersion(value);
                         el._misc.versionSet = true;
                     }
-                    el._setMenu(value.config);
-                    var icon = {
-                        img: el._refs.version.value + "/" + value.config.mainIcon,
-                        link: value.config.mainIconLink
-                    };
+                    el._setMenu(value.versions[value.current]);
+                    var icon;
+                    if (value.versions[value.current].mainIcon) {
+                        icon = {
+                            img: el._refs.version.value + "/" + value.versions[value.current].mainIcon,
+                            link: value.versions[value.current].mainIconLink || "#"
+                        };
+                    } else {
+                        icon = {
+                            link: value.versions[value.current].mainIconLink || "#"
+                        };
+                    }
                     el._refs.viewer.icon = icon;
                 }
             },
@@ -83,7 +89,7 @@
                 if (!path) {
                     el._refs.mainViewScroll.classList.remove("app-display-none");
                     el._refs.viewer.classList.add("app-display-none");
-                } else {                    
+                } else {
                     el._refs.mainViewScroll.classList.add("app-display-none");
                     el._refs.viewer.index = path + "/index.json";
                     el._refs.viewer.classList.remove("app-display-none");
@@ -110,20 +116,16 @@
                     el.setValue(el.value);
                 }
                 el._refs.version.onSelected(function (item) {
-                    var versionValue = el._refs.version.value;
                     el.clearMainView();
-                    var url = versionValue + "/version.json";
-                    eon.ajax(url, {
-                        method: "GET"
-                    }, function (success, data) {
-                        el.value = data.response;
-                    });
+                    var val = JSON.parse(el.value);
+                    val.current = el._refs.version.value;                    
+                    el.value = JSON.stringify(val);
                     window.location.hash = "!version=" + encodeURIComponent(el._refs.version
-                        .displayValue);
-
+                    .displayValue);
+                    el.version = el._refs.version.value;
                 });
 
-                el._refs.menu.onSelected(function (menu, item) {                    
+                el._refs.menu.onSelected(function (menu, item) {
                     el.openView(menu.value);
                     el._addModeToUrl(item.link);
                 });
@@ -201,11 +203,11 @@
                 var el = this;
                 for (var key in value.versions) {
                     var item = document.createElement("eon-item");
-                    item.value = value.versions[key];
+                    item.value = key;
                     item.displayValue = key;
                     el._refs.version.addItem(item);
                 }
-                el._refs.version.value = value.versions[value.current];
+                el._refs.version.value = value.current;
                 if (el._misc.goToVersion && el._misc.goToVersion != "") {
                     setTimeout(function () {
                         el._refs.version.select(el._misc.goToVersion);
@@ -254,13 +256,12 @@
                         null;
                     var link = hash.split("link=")[1] ? hash.split("link=")[1].split("&")[0] :
                         null;
-                    if (version != el.version) {
-                        var allVersions = el.versions;
-                        for (var key in allVersions) {
+                    if (version != el.version) {                        
+                        for (var key in el.versions) {
                             if (version == key) {
-                                el._misc.goToVersion = allVersions[key];
-                                el.version = version;
-                                el.openView(); // Go to main view                                
+                                el._misc.goToVersion = version;
+                                el.version = version;                                
+                                // el.openView(); // Go to main view                                
                             }
                         }
                         if (!el._misc.goToVersion || el._misc.goToVersion == "") {
@@ -270,14 +271,14 @@
                     }
                     if (mode) {
                         eon.onReady(function () {
-                            el._refs.menu.onReady(function () {
+                            el._refs.menu.onReady(function () {                                
                                 el._refs.menu.selectByAttribute(mode, "link");
                             });
                         });
                     }
                     if (file) {
                         eon.onReady(function () {
-                            el._refs.viewer.onReady(function () {
+                            el._refs.viewer.onReady(function () {                                
                                 el._refs.viewer.select(file, link);
                             });
                         });

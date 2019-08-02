@@ -26,8 +26,8 @@
         dependencies: [
             "app-doc-viewer-tree",
             "@ui/eon-searchbar",
-            "app-doc-viewer-templates/app-doc-viewer-templates-api",
-            "app-doc-viewer-templates/app-doc-viewer-templates-article"
+            "app-doc-viewer-templates-api",
+            "app-doc-viewer-templates-article"
         ],
         properties: {
             // @param value (public) [Selected value]
@@ -97,12 +97,12 @@
                 var el = this;
                 el._refs.tree.selectFirst();
             },
-            // @function search (public) [Tree search filtering]
-            // search: function () {
-            //     var el = this;
-            //     console.log("SEARCH");
-
-            // }
+            // @function closeMobileMenu (public) [Close tree menu on mobiles]
+            closeMobileMenu: function () {
+                var el = this;
+                    el._refs.menu.classList.remove("app-doc-viewer-menu-show");
+                    el._refs.overlay.style.display = "none";
+            }
         },
 
         privateFunctions: {
@@ -121,6 +121,7 @@
                     el.setValue(el.value);
                 }
                 el._refs.tree.onSelected(function (tree, node) {
+                    el.closeMobileMenu();
                     el._loadDocument(node);
                     eon.triggerCallback("onSelected", el, null, [tree, node]);
                 });
@@ -129,8 +130,7 @@
                     el._refs.overlay.style.display = "block";
                 });
                 el._refs.overlay.addEventListener("click", function (e) {
-                    el._refs.menu.classList.remove("app-doc-viewer-menu-show");
-                    el._refs.overlay.style.display = "none";
+                    el.closeMobileMenu();
                 });
                 el._refs.searchText.addEventListener("keyup", function () {
                     el._refs.searchbar.search();
@@ -194,12 +194,16 @@
             // @function _setIcon (private) [Set ion]
             setIcon: function (value) {
                 var el = this;
-                el._refs.logoImg.src = value.img;
-                el._refs.logoLink.href = value.link;
-                // el._refs.logoImg.addEventListener("click",function(){
-                //     console.log("CLI");
-
-                // });
+                if(value.img){
+                    el._refs.logoImg.src = value.img;
+                    el._refs.logoLink.href = value.link;
+                }else{
+                    el._refs.logoLink.href = value.link;
+                    var i = document.createElement("i");
+                    i.classList.add("vicon", "vicon-picture");
+                    el._refs.logoLink.innerHTML = "";
+                    el._refs.logoLink.appendChild(i);
+                }
             },
             // @function _markLink (private) [Mark a link reached while scrolling at md viewer] @param id
             markLink: function (id) {

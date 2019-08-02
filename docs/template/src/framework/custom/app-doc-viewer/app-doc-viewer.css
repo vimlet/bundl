@@ -45,6 +45,7 @@ app-doc-viewer .app-doc-viewer-menu-header .app-doc-viewer-menu-header-logo a{
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
 }
 app-doc-viewer .app-doc-viewer-menu-header .app-doc-viewer-menu-header-search{
     color:red;

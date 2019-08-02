@@ -1093,9 +1093,12 @@
 
         eon.triggerCallback("onSelected", el, el, [item]);
 
+        if(item.getAttribute("noShrink") && eon.util.isTrue(item.getAttribute("noShrink"))){
+        }else{
         setTimeout(function () {
           el._shrink();
         }, 150);
+        }
 
       },
       /*

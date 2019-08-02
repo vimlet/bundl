@@ -36,32 +36,32 @@
 
         functions: {
             // @function select (private) [Select item at tree] @param namePath @param link [Link in document]
-            select: function (namePath, link) {
+            select: function (namePath, link) {                
                 var el = this;
                 el._refs.tree.onReady(function () {
                     el.onTreeReady(function () {
-                        var found = false;
-                        el._misc.nodes.forEach(function (node) {
-                            if (!link) {
-                                if (node.namePath == namePath) {
-                                    node.onReady(function () {
+                        var found = false;                        
+                        el._misc.nodes.forEach(function (node) {                            
+                            if (!link) {                                
+                                if (node.namePath == namePath) {                                    
+                                    found = true;
+                                    node.onReady(function () {                                        
                                         el._refs.tree.selectNode(node);
-                                        found = true;
                                     });
                                 }
                             } else {
                                 if (node.namePath == namePath && node.link ==
                                     link) {
+                                        found = true;
                                     node.onReady(function () {
                                         el._refs.tree.selectNode(node);
-                                        found = true;
                                     });
                                 }
                             }
                         });
                         setTimeout(function () {
                             if (!found) {
-                                el.onReady(function () {
+                                el.onReady(function () {                                    
                                     document.querySelector("app-doc").noFound();
                                 });
                             }

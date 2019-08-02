@@ -1,15 +1,4 @@
 {
-  "api": [{
-    "include": [
-      "src/**/*.js"
-    ],
-    "extension": false,
-    "output": "docs/release/api",
-    "entry":"api",
-    "version":"1.0.0",
-    "folderIcon": false,
-    "arrowIcon": true
-  }],
   "article": [{
     "include": [
       "docs/md/**/*.md"

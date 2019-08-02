@@ -30,3 +30,7 @@ app-doc-viewer-templates-api-content .app-doc-viewer-templates-api-content-block
 app-doc-viewer-templates-api-content .app-doc-viewer-templates-api-content-block app-table{
     margin-top:10px;
 }
+
+app-doc-viewer-templates-api-content .app-doc-viewer-textColorName{
+    color: #3c509c;
+}
