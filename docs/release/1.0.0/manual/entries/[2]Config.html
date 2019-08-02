@@ -1,0 +1,83 @@
+<app-doc-viewer-templates-article links="" script="">
+    <eon-scroll thickness="8">
+        <div class="app-doc-viewer-templates-article-content app-doc-content-width" eon-ref="content">
+            <div><div class="app-md-viewer-t1 app-md-viewer-t">bundl.config.js</div></div><div>Bundl runs under a configuration file.</div><div>The configuration file is a javascript file which exports a module.<div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>module.exports = {
+  ...
+};</code></app-code></div></div><div><div class="app-md-viewer-t2 app-md-viewer-t">Main options:</div></div><div><span class="app-md-viewer-quote"></span>* outputBase: Generated files will be all within this directory, they will be nested inside following their input path.</div><div><span class="app-md-viewer-quote"></span>* inputBase: Files will be looking for from this directory.</div><div><span class="app-md-viewer-quote"></span>* watch: Path to a folder to keep looking for changes.</div><div><span class="app-md-viewer-quote"></span>* clean: If set to true, outputBase will be empty before start packing.</div><div><span class="app-md-viewer-quote"></span>* output: Object which contains output path as key and configuration.<div class="app-md-viewer-br"></div></div><div><em>IE:</em></div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>module.exports = {
+  &quot;outputBase&quot;: &quot;build&quot;,
+  &quot;watch&quot;: &quot;src&quot;,
+  &quot;inputBase&quot;: &quot;src&quot;,
+  &quot;clean&quot;: true,
+  &quot;output&quot;: {
+    ...
+  }
+};</code></app-code></div><div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-t2 app-md-viewer-t">Output<div class="app-md-viewer-br"></div></div></div><div>It is an object where its keys are the output folder within outputBase and its content cant be:<div class="app-md-viewer-br"></div></div><div><span class="app-md-viewer-quote"></span>* Simple string: Path to single input file.</div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">&quot;output/subfolder&quot;:&quot;input.txt&quot;</code></div><div><span class="app-md-viewer-quote"></span>* String array: An array of paths to input files.</div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">&quot;output/subfolder&quot;:[&quot;input1.txt&quot;,&quot;input2.txt&quot;]</code></div><div><span class="app-md-viewer-quote"></span>* Object: A configuration object for given output.</div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">&quot;output/subfolder&quot;:{input:&quot;input.txt&quot;, ...}</code></div><div><span class="app-md-viewer-quote"></span>* Object array: An array of configuration objects.</div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">&quot;output/subfolder&quot;:[{input:&quot;input1.txt&quot;, ...},&quot;input2.txt&quot;]</code></div><div><span class="app-md-viewer-quote"></span>* Mixed object and string array.</div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span><code class="app-md-viewer-code">&quot;output/subfolder&quot;:[{input:&quot;input1.txt&quot;, ...},&quot;input2.txt&quot;]</code></div><div><div class="app-md-viewer-t2 app-md-viewer-t">Output options<div class="app-md-viewer-br"></div></div></div><div><span class="app-md-viewer-quote"></span>* clean: If set to true, current output directory will be empty before pack it. It doesn't empty the outputBase, it empties <em>outputBase + current output key.</em></div><div><span class="app-md-viewer-quote"></span>* parse: Use hash for given key.</div><div><span class="app-md-viewer-quote"></span>* order: Set pack order to given key and make it works synchronous only for those keys with order set. Not sorted keys will be done at the end in asynchronous way.</div><div><span class="app-md-viewer-quote"></span>* id: Identification for hashes.</div><div><span class="app-md-viewer-quote"></span>* use: <code class="app-md-viewer-code">function(entry){return entry;}</code></div><div><span class="app-md-viewer-quote"></span>* input: Object with input files</div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span>IE</div><div><span class="app-md-viewer-quote"></span><div class="app-md-viewer-code-container"><app-code language="null"><code>&gt; &quot;output&quot;:{
+&gt;   &quot;outputfile.ext&quot;:{
+&gt;   &quot;clean&quot;:true,
+&gt;   &quot;order&quot;:0,
+&gt;   &quot;id&quot;:&quot;example&quot;,
+&gt;   &quot;input&quot;:{&quot;inputfile.ext&quot;}
+&gt;   }
+&gt;}
+&gt;</code></app-code></div></div><div><span class="app-md-viewer-quote"></span><strong>Hash</strong></div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span>Output key has hash property to insert as a part of the name. If the file has changes, a new hash will be generated and the old file won't be overwritten. The syntaxis is <code class="app-md-viewer-code">{{hash}}</code></div><div><span class="app-md-viewer-quote"></span></div><div><span class="app-md-viewer-quote"></span>IE</div><div><span class="app-md-viewer-quote"></span><div class="app-md-viewer-code-container"><app-code language="null"><code>&gt; &quot;output&quot;:{
+&gt;   &quot;bundle.{{hash}}.js:{
+&gt;   &quot;id&quot;: &quot;bundle.js&quot;,
+&gt;   ...
+&gt;   }
+&gt;}
+&gt;</code></app-code></div><div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-t2 app-md-viewer-t">Input object</div></div><div>Input keys are file paths to pack.</div><div>The input full path will be <code class="app-md-viewer-code">inputbase/input</code>.<div class="app-md-viewer-br"></div></div><div>The content can be a boolean true just to mark the file as required.</div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>&quot;input&quot;:{
+  &quot;file.ext&quot;:true
+}</code></app-code></div></div><div>Or it can be an object with options:</div><div><span class="app-md-viewer-quote"></span>* parse: Run meta for given key.</div><div><span class="app-md-viewer-quote"></span>* use: <code class="app-md-viewer-code">function(entry){return entry;}</code></div><div><span class="app-md-viewer-quote"></span>* read: If set to false, file content will be ignored and must be generated using <code class="app-md-viewer-code">use</code> function.<div class="app-md-viewer-br"></div></div><div>If input starts with <em>*!*</em> it will exclude that pattern.</div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>&quot;input&quot;:{
+  &quot;file.*&quot;:true,
+  &quot;!file.html&quot;:true
+}</code></app-code></div><div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-t2 app-md-viewer-t">Use</div></div><div>A function which allow the user to modify the content and the file name.<div class="app-md-viewer-br"></div></div><div>Use can be used either at output object or at input object. The function has the same syntax but some differences.</div><div><div class="app-md-viewer-t3 app-md-viewer-t">Syntax</div></div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>function(entry){
+  // Do something
+  return entry;
+}</code></app-code></div></div><div>The function has one parameter, entry. And it has to return it again.</div><div><div class="app-md-viewer-unordered"><div class="app-md-viewer-unordered-dot"></div><div class="app-md-viewer-unordered-text">Output use:</div></div></div><div>Entry is an object with the following keys:</div><div><span class="app-md-viewer-quote"></span>* fileName: Name of the file that will be generated.</div><div><span class="app-md-viewer-quote"></span>* content: Content of the file.</div><div><span class="app-md-viewer-quote"></span>IE</div><div><span class="app-md-viewer-quote"></span><div class="app-md-viewer-code-container"><app-code language="null"><code>&gt; &quot;use&quot;:function (entry) {
+&gt;   entry.fileName = entry.fileName.replace(&quot;.less&quot;, &quot;.css&quot;);
+&gt;   entry.content += &quot;\nconsole.log(\&quot;output use\&quot;);&quot;;
+&gt;   return entry;
+&gt;}
+&gt;</code></app-code></div></div><div><div class="app-md-viewer-unordered"><div class="app-md-viewer-unordered-dot"></div><div class="app-md-viewer-unordered-text">Input use:</div></div></div><div>Entry is an object with the following keys:</div><div><span class="app-md-viewer-quote"></span>* fileName: Name of the file that will be generated.</div><div><span class="app-md-viewer-quote"></span>* content: Content of the file.</div><div><span class="app-md-viewer-quote"></span>IE</div><div><span class="app-md-viewer-quote"></span><div class="app-md-viewer-code-container"><app-code language="null"><code>&gt; &quot;use&quot;:function (entry) {
+&gt;   entry.fileName = entry.fileName.replace(&quot;.less&quot;, &quot;.css&quot;);
+&gt;   entry.content += &quot;\nconsole.log(\&quot;output use\&quot;);&quot;;
+&gt;   return entry;
+&gt;}
+&gt;</code></app-code></div><div class="app-md-viewer-br"></div></div><div><strong>It is important to know that input use will be done before output use.</strong><div class="app-md-viewer-br"></div></div><div><strong>Use allows async functions with await.</strong></div><div>IE</div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>&quot;use&quot;: async function (entry) {
+  entry.content = await doSomething(entry.content);
+  return entry;
+}</code></app-code></div><div class="app-md-viewer-br"></div><div class="app-md-viewer-br"></div></div><div><em>There are some other properties at entry object such as pattern for input, they can be useful but their modification will not be taken in the pack process.</em><div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-t3 app-md-viewer-t">Less example</div></div><div>Using <em>"use"</em> to parse less files:</div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>&quot;input&quot;: {
+  &quot;less/**.less&quot;: {
+    &quot;use&quot;: async function (entry) {
+      try {
+        entry.fileName = entry.fileName.replace(&quot;.less&quot;, &quot;.css&quot;);
+        entry.content = (await require(&quot;less&quot;).render(entry.content.toString(&quot;utf8&quot;), {
+        filename: require(&quot;path&quot;).resolve(entry.file),
+        })).css;
+        } catch (error) {
+          console.log(error);
+        }
+        return entry;
+      }
+    }
+  }</code></app-code></div><div class="app-md-viewer-br"></div><div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-t2 app-md-viewer-t">Query params</div></div><div>Output keys allow output options to be passed as query params.<div class="app-md-viewer-br"></div></div><div>IE</div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>&quot;index.html?clean=false&amp;parse=true&quot;:&quot;html/index.html&quot;</code></app-code></div></div><div>is the same as:</div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>&quot;index.html&quot;:{
+  &quot;clean&quot;:false,
+  &quot;parse&quot;:true,
+  input:{
+    &quot;html/index.html&quot;:true
+  }
+}</code></app-code></div></div><div>All query params affect to every output key. If the output key has already the property, it won't be affected by the query param.<div class="app-md-viewer-br"></div></div><div>IE</div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>&quot;index.html?clean=false&amp;parse=true&quot;:{
+  &quot;clean&quot;:true,
+  &quot;input&quot;:&quot;html/index.html&quot;
+}</code></app-code></div></div><div>is the same as:</div><div><div class="app-md-viewer-code-container"><app-code language="null"><code>&quot;index.html&quot;:{
+  &quot;clean&quot;:true,
+  &quot;parse&quot;:true,
+  input:{
+    &quot;html/index.html&quot;:true
+  }
+}</code></app-code></div></div><div>Inside property prevails.</div>
+            <div class="app-doc-viewer-templates-article-content-bottom"></div>
+        </div>
+    </eon-scroll>
+    <app-go-top></app-go-top>
+</app-doc-viewer-templates-article>
