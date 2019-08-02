@@ -202,8 +202,9 @@ The function has one parameter, entry. And it must return it again.
 
 **When used in output object:**
 Entry is an object with the following keys:
-fileName: Name of the file that will be generated.
-content: Content of the file.
+
+**fileName:** Name of the file that will be generated.
+**content:** Content of the file.
 
 ```[javascript]
 "use":function (entry) {
@@ -216,8 +217,8 @@ content: Content of the file.
 **When used in input object:**
 Entry is an object with the following keys:
 
-fileName: Name of the file that will be generated.
-content: Content of the file.
+**fileName:** Name of the file that will be generated.
+**content:** Content of the file.
 
 ```[javascript]
 "use":function (entry) {
@@ -245,7 +246,7 @@ This example shows how you can add `use` to process files with external dependen
 
 *Example:*
 
-processing `.less` files using npm dependency `less`.
+Processing `.less` files using npm dependency `less`.
 
 ```[javascript]
 "input": {
