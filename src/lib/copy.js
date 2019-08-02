@@ -94,7 +94,7 @@ module.exports.process = async (config, outputEntry) => {
     path: config.inputBase
   }), inputsObject);
   await Promise.all(files.map(async file => {
-    let suPath;
+    let subPath;
     if (path.basename(file.pattern) == file.pattern) {
       subPath = file.match.substring(0);
     } else {

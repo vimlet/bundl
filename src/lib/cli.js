@@ -6,9 +6,12 @@ const pack = require("./pack");
 const loadash = require("lodash");
 
 module.exports = async function () {
+  function handler(value) {
+    return value.split(",");
+  }
   cli
     .value("-c", "--config", "Defines the configuration file path")
-    .value("-w", "--watch", "Watched files will trigger build")
+    .value("-w", "--watch", "Watched files will trigger build", handler)
     .flag("-h", "--help", "Shows help")
     .parse(process.argv);
 

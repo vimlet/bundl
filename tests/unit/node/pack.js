@@ -26,9 +26,9 @@ suite("bundl", () => {
         await writeFile(path.join(output, "clean", "test.txt"), "test");
         var config = {
             "outputBase": path.join(output, "clean"),
+            "clean": true,
             "output": {
                 "**": {
-                    "clean": true,
                     "input": {
                         "copy/**": true
                     }
@@ -36,7 +36,7 @@ suite("bundl", () => {
             }
         };
         await clean(config);
-        fs.stat(path.join(output, "clean"), (err, stats) => {
+        fs.stat(path.join(output, "clean"), (err, stats) => {            
             assert.strictEqual(err.code, "ENOENT", "Expected ENOENT");
         });
     });
@@ -79,11 +79,11 @@ suite("bundl", () => {
     });
     test("bundl", async () => {
         var config = require("../resources/config/bundl");
-        await pack.build(config);
+        await pack.build(config);        
         let files = await glob.files("output/bundl/**", {
             path: path.join(__dirname, "../")
         });
-        var expected = 9;
+        var expected = 9;        
         assert.strictEqual(files.length, expected, "Bundl expected " + expected);
     });
     test("watch", async () => {

@@ -5,7 +5,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "bundl -w input"
+    "start": "node  ../../src/index.js -w 'input,test'",
+    "bundl": "npx bundl"
   },
   "license": "MIT",
   "dependencies": {

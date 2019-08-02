@@ -11,15 +11,22 @@ module.exports.build = async config => {
   }
   config = setupConfig(config);
   await clean(config);
+  await pack(config);
+};
+
+// @function pack (private) [After clean, sort and start packing]
+async function pack(config){
   let sorted = sort(config);
   await processSorted(config, sorted.sorted);
   await build(config, sorted.unsorted);
   console.log("Build completed at: " + getTime());
-};
+}
 
 // @function buildSingle (public) [Build single file which has been modified. Used at watch mode] @param config @param filePath
-module.exports.buildSingle = function (config, filePath) {
+module.exports.buildSingle = async function (config, filePath) {  
   config = setupConfig(config);
+  config._isWatch = true;  
+  await clean(config);
   filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
   var matches = [];
   for (var outputKey in config.output) {
@@ -40,7 +47,7 @@ module.exports.buildSingle = function (config, filePath) {
     }
   });
   config.output = newOutput;
-  module.exports.build(config);
+  await pack(config);
 };
 
 // @function matchSingleConfig (private) [Check whether an input match with modified file] @param inputs @param matches @param filePath @param outputKey
