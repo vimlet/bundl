@@ -129,7 +129,7 @@ The output path key can hold several value formats.
 
 *Example:*
 ```[javascript]
-"output":{
+"output": {
   "outputfile.ext": {
     "clean": true,
     "order": 0,
@@ -147,7 +147,7 @@ When `"parse": true`, it's recommend to add an `id` property, so you can retriev
 
 *Example:*
 ```[javascript]
-"output":{
+"output": {
   "bundle.{{hash}}.js": {
     "id": "bundle.js",
     //...
@@ -179,7 +179,7 @@ You can also provide configuration object that can be used with the following pa
 
 *Example:*
 ```[javascript]
-"input":{
+"input": {
   "file.*": true,
   "!file.html": true
 }
@@ -241,9 +241,12 @@ content: Content of the file.
 
 ### Third party modules with use
 
-Using `use` to parse .less files:
+This example show how you can add `use` to process files with external dependencies.
 
 *Example:*
+
+processing `.less` files using npm dependency `less`.
+
 ```[javascript]
 "input": {
   "less/**.less": {
@@ -296,7 +299,7 @@ If an object key has the same property as the one provided by the query params, 
 is the same as:
 
 ```
-"index.html":{
+"index.html": {
   "parse": true,
   input: {
     "html/index.html": true
