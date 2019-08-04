@@ -1,7 +1,18 @@
 {
   "name": "@vimlet/bundl",
-  "version": "0.0.22",
-  "description": "",
+  "version": "1.0.0",
+  "engineStrict": true,
+  "engines": {
+    "node": "^10"
+  },
+  "description": "Build & pack anything your way!",
+  "keywords": [
+    "bundle",
+    "pack",
+    "build",
+    "compile",
+    "tasks"
+  ],
   "main": "src/index.js",
   "bin": {
     "bundl": "src/index.js"
@@ -12,23 +23,19 @@
     "test:dev": "npx intern config=@dev",
     "doc": "vimlet-doc c 'doc.json'"
   },
-  "engineStrict": true,
-  "engines": {
-    "node": "^10"
-  },
   "license": "MIT",
   "dependencies": {
     "@vimlet/commons-glob": "1.2.5",
     "@vimlet/commons-watcher": "0.0.2",
+    "@vimlet/commons-run": "0.0.11",
     "@vimlet/cli": "1.2.8",
     "@vimlet/meta": "2.4.5",
     "md5": "2.2.1",
-    "intern": "4.4.2",
     "rimraf": "2.6.3",
-    "@vimlet/commons-run": "0.0.11",
     "lodash": "4.17.15"
   },
   "devDependencies": {
+    "intern": "4.4.2",
     "@vimlet/doc": "2.0.9"
   }
 }
