@@ -38,15 +38,19 @@ You'll need the latest [NodeJS](https://NodeJS.org) release.
 
 **Install through npm:**
 
-```npm install @vimlet/bundl``` 
-or simply
-```npx @vimlet/bundl```
+On your project root, run:
+
+```npm install @vimlet/bundl```
 
 ## Usage
 
 ### Command line
 
-**Run:**
+On your project root, run:
+
+```npx @vimlet/bundl```
+
+or simply 
 
 ```npx bundl```
 
