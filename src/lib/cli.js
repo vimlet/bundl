@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const pack = require("./pack");
 const loadash = require("lodash");
-contt packagejson = require("../../package.json");
+const packagejson = require("../../package.json");
 
 module.exports = async function () {
   function handler(value) {
