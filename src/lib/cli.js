@@ -23,32 +23,34 @@ module.exports = async function () {
   if (cli.result.help) {
     cli.printHelp();
   } else {
-    if (cli.result.config) {
-      configPath = path.resolve(cli.result.config);
-    }
-    if (fs.existsSync(configPath)) {
-      let config = require(configPath);
-      let watchPath = cli.result.watch || config.watch;
-
-      await pack.build(loadash.cloneDeep(config));
-
-      if (watchPath) {
-        console.log(`Watching ${watchPath}...`)
-        watcher.watch(watchPath, {
-          ignoreInitial: true
-        }, function (error, data) {
-          if (!error) {
-            pack.buildSingle(loadash.cloneDeep(config), data.path);
-          }
-        });
-      }
-
-    } else if(cli.result.version) {
+    if(cli.result.version) {
       console.log(`v${packagejson.version}`);
     } else {
-      console.log("Config file bundl.config.js not found, please create one!");
-      process.exit(1);
-    }
+      if (cli.result.config) {
+        configPath = path.resolve(cli.result.config);
+      }
+      if (fs.existsSync(configPath)) {
+        let config = require(configPath);
+        let watchPath = cli.result.watch || config.watch;
+  
+        await pack.build(loadash.cloneDeep(config));
+  
+        if (watchPath) {
+          console.log(`Watching ${watchPath}...`)
+          watcher.watch(watchPath, {
+            ignoreInitial: true
+          }, function (error, data) {
+            if (!error) {
+              pack.buildSingle(loadash.cloneDeep(config), data.path);
+            }
+          });
+        }
+  
+      } else {
+        console.log("Config file bundl.config.js not found, please create one!");
+        process.exit(1);
+      }
+    }  
   }
 
 };
