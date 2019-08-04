@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const pack = require("./pack");
 const loadash = require("lodash");
+contt packagejson = require("../../package.json");
 
 module.exports = async function () {
   function handler(value) {
@@ -13,6 +14,7 @@ module.exports = async function () {
     .value("-c", "--config", "Defines the configuration file path")
     .value("-w", "--watch", "Watched files will trigger build", handler)
     .flag("-h", "--help", "Shows help")
+    .flag("-v", "--version", "Shows version")
     .parse(process.argv);
 
   let configPath = path.join(process.cwd(), "bundl.config.js");
@@ -41,6 +43,8 @@ module.exports = async function () {
         });
       }
 
+    } else if(cli.result.version) {
+      console.log(`v${packagejson.version}`);
     } else {
       console.log("Config file bundl.config.js not found, please create one!");
       process.exit(1);

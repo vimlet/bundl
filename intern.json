@@ -13,19 +13,6 @@
   "configs": {
     "node": {
       "environments+": ["node"]
-    },
-    
-    "browser": {
-      "plugins": ["tests/intern-plugin.js"],
-      "environments+": [{ "browserName": "chrome", "fixSessionCapabilities": false }]
-    },
-    
-    "ci": {
-      "extends": ["node"]
-    },
-
-    "dev": {
-      "extends": ["node", "browser"]
     }    
   }
 }

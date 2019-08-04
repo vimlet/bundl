@@ -1,11 +1,10 @@
 {
   "name": "@vimlet/bundl",
-  "version": "1.0.0",
-  "engineStrict": true,
-  "engines": {
-    "node": "^10"
-  },
+  "version": "1.0.1",
   "description": "Build & pack anything your way!",
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "keywords": [
     "bundle",
     "pack",
@@ -19,9 +18,8 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "test": "npx intern config=@ci",
-    "test:dev": "npx intern config=@dev",
-    "doc": "vimlet-doc c 'doc.json'"
+    "postinstall": "node src/version.js",
+    "test": "npx intern config=@node"
   },
   "license": "MIT",
   "dependencies": {
@@ -32,7 +30,8 @@
     "@vimlet/meta": "2.4.5",
     "md5": "2.2.1",
     "rimraf": "2.6.3",
-    "lodash": "4.17.15"
+    "lodash": "4.17.15",
+    "semver": "6.3.0"
   },
   "devDependencies": {
     "intern": "4.4.2",
