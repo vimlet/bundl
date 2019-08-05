@@ -15,18 +15,17 @@ module.exports.build = async config => {
 };
 
 // @function pack (private) [After clean, sort and start packing]
-async function pack(config){
+async function pack(config) {
   let sorted = sort(config);
   await processSorted(config, sorted.sorted);
   await build(config, sorted.unsorted);
   console.log("Build completed at: " + getTime());
 }
 
-// @function buildSingle (public) [Build single file which has been modified. Used at watch mode] @param config @param filePath
-module.exports.buildSingle = async function (config, filePath) {  
+// @function buildSingle (public) [Build single file which has been modified. Used at watch mode] @param config @param filePath @param event [Watcher trigger event]
+module.exports.buildSingle = async function (config, filePath, event) {
   config = setupConfig(config);
-  config._isWatch = true;  
-  await clean(config);
+  config._isWatch = true;
   filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
   var matches = [];
   for (var outputKey in config.output) {
@@ -39,6 +38,24 @@ module.exports.buildSingle = async function (config, filePath) {
         matchSingleConfig(inputs, matches, filePath, outputKey);
       });
     }
+  }
+  if (event && event === "unlink") {
+    await clean(config, {
+      filePath: filePath,
+      matches: matches
+    });
+  } else {
+    // If not unlink, check if it is a hash because modifications should delete old hashes
+    var hashes = [];
+    matches.forEach(mat => {
+      if (mat.indexOf("{{hash}}") >= 0) {
+        hashes.push(mat);
+      }
+    });
+    await clean(config, {
+      filePath: filePath,
+      matches: hashes
+    });
   }
   var newOutput = {};
   matches.forEach(match => {
@@ -128,14 +145,30 @@ function queryParam(config) {
       output[key] = setOutput(config.output[key]);
     }
   }
-  config.output = output;
+  config.output = output;  
   return config;
 }
 
 // @function setOutput (private) [Set output config from inputs. Handle array, string or object]
 function setOutput(output) {
   if (typeof output === 'object' && !Array.isArray(output)) {
-    return output;
+    if (typeof output.input === 'object' && !Array.isArray(output.input)) {
+      return output;
+    } else {
+      if (Array.isArray(output.input)) {
+        var newInput = {};
+        output.input.forEach(inp=>{
+          newInput[inp] = true;
+          output.input = newInput;
+        });           
+        return output;    
+      } else {
+        var newInput = {};
+        newInput[output.input] = true;
+        output.input = newInput;
+        return output;
+      }
+    }
   } else {
     if (Array.isArray(output)) {
       var res = output.map(element => {

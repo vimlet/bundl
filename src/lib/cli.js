@@ -41,7 +41,7 @@ module.exports = async function () {
             ignoreInitial: true
           }, function (error, data) {
             if (!error) {
-              pack.buildSingle(loadash.cloneDeep(config), data.path);
+              pack.buildSingle(loadash.cloneDeep(config), data.path, data.event);
             }
           });
         }
