@@ -1,0 +1,37 @@
+<app-doc-viewer-templates-article links="" script="">
+    <eon-scroll thickness="8">
+        <div class="app-doc-viewer-templates-article-content app-doc-content-width" eon-ref="content">
+            <div><div class="app-md-viewer-t1 app-md-viewer-t">Babel with Bundl<div class="app-md-viewer-br"></div></div></div><div>Babel is great tool to convert ECMAScript 2015+ code into a backwards compatible version of JavaScript in current and older browsers or environments, and as any other tool it can be used with Bundl.<div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-t1 app-md-viewer-t">Use - Programmatically<div class="app-md-viewer-br"></div></div></div><div>Simply install <code class="app-md-viewer-code">@babel/core</code> and your favourite preset, for <code class="app-md-viewer-code">example@babel/preset-env</code>. </div><div>Then add a <code class="app-md-viewer-code">use</code> property with a similar logic to your config:<div class="app-md-viewer-br"></div></div><div><em>Example bundl.config.js</em></div><div><div class="app-md-viewer-code-container"><app-code language="javascript"><code>module.exports = {
+  &quot;output&quot;: {
+    &quot;build/bundle.js&quot;: {
+      &quot;use&quot;: function(entry) {
+        entry.content = require(&quot;@babel/core&quot;).transformSync(entry.content, {
+          presets: [require(&quot;@babel/preset-env&quot;)]
+        }).code;
+        return entry;
+      },
+      &quot;input&quot;: {
+        &quot;src/**.js&quot;: true
+      }
+    }
+  }
+};</code></app-code></div><div class="app-md-viewer-br"></div></div><div>If you want to keep your config object clean, you can always create a NodeJS module for the use function.<div class="app-md-viewer-br"></div></div><div><em>Example use-babel.js</em></div><div><div class="app-md-viewer-code-container"><app-code language="javascript"><code>module.exports = function(entry) {
+  entry.content = require(&quot;@babel/core&quot;).transformSync(entry.content, {
+    presets: [require(&quot;@babel/preset-env&quot;)]
+  }).code;
+  return entry;      
+};</code></app-code></div><div class="app-md-viewer-br"></div></div><div><em>Example bundl.config.js</em></div><div><div class="app-md-viewer-code-container"><app-code language="javascript"><code>module.exports = {
+  &quot;output&quot;: {
+    &quot;build/bundle.js&quot;: {
+      &quot;use&quot;: require(&quot;./use-babel&quot;);
+      &quot;input&quot;: {
+        &quot;src/**.js&quot;: true
+      }
+    }
+  }
+};</code></app-code></div><div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-t1 app-md-viewer-t">Use - Command Line</div></div><div><em>Coming soon...</em><div class="app-md-viewer-br"></div></div>
+            <div class="app-doc-viewer-templates-article-content-bottom"></div>
+        </div>
+    </eon-scroll>
+    <app-go-top></app-go-top>
+</app-doc-viewer-templates-article>
