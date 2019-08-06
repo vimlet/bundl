@@ -3,7 +3,6 @@ module.exports = {
   "inputBase": "input",
   "clean": true,
   "log": false,
-  "watch": "input",
   "output": {
     "build.{{hash}}.js?clean=false": {
       "id": "build",
@@ -29,40 +28,24 @@ module.exports = {
         return entry;
       }]
     },
-    "index.html?clean=false&parse=true": "html/*.html",
-    "index2.html?clean=false&parse=true&order=2": "html/*.html",
-    "index0.html?clean=false&parse=true&order=0": "html/*.html",
-    "index1.html?clean=false&parse=true&order=1": "html/*.html",
-    "copy/**": {
-      "order": 3,
+    "build2.js": {
       "input": {
-        "copy/**": {
-          "watch": ["copy/**"]
-        }
+        "js/a.js": true,
+        "js/b.js": true,
+        "js/c.js":true
       }
     },
-    "parse/1.txt": {
-      "order": 0,
-      "parse": true,
+    "build3.js": {
       "input": {
-        "parse/**.vmt": {
-          "parse": true,
-          "watch": "parse/**"
-        }
+        "js/**.js": true
       }
     },
-    "parseCopy/**": {
-      "order": 0,
-      "parse": true,
-      "input": {
-        "parseCopy/**.vmt": {
-          "parse": true,
-          "watch": "parseCopy/**"
-        }
-      }
+    "build4.js": {
+      "input": "js/**.js"
     },
-    "string/**": "this.js",
-    "stringArray/**": ["array/**", "js/a.js", "js/b.js"]
+    "build5.js": {
+      "input": ["js/**.js"]
+    }
   }
 };
 
