@@ -1,0 +1,17 @@
+{
+  "name": "bundl-plugin-babel",
+  "version": "1.0.0",
+  "description": "Babel plugin for Bundl",
+  "main": "index.js",
+  "keywords": ["bundl", "babel", "bundl-plugin"],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "@vimlet/bundl": "^1.0.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@vimlet/bundl": "^1.0.4"
+  },
+  "dependencies": {}
+}
