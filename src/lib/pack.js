@@ -10,15 +10,15 @@ module.exports.build = async config => {
     console.log("Build started...");
   }
   config = setupConfig(config);
-  await clean(config);
+  await clean(config);  
   await pack(config);
 };
 
 // @function pack (private) [After clean, sort and start packing]
 async function pack(config) {
-  let sorted = sort(config);
-  await processSorted(config, sorted.sorted);
-  await build(config, sorted.unsorted);
+  let sorted = sort(config);  
+  await processSorted(config, sorted.sorted);  
+  await build(config, sorted.unsorted);  
   console.log("Build completed at: " + getTime());
 }
 

@@ -7,3 +7,6 @@ module.exports.build = require("./lib/pack").build;
 if (!module.parent) {
   require("./lib/cli")();
 } 
+
+// Exec
+module.exports.run = require("@vimlet/commons-run");
