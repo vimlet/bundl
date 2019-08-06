@@ -1,6 +1,6 @@
 {
   "name": "@vimlet/bundl",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Build & pack anything your way!",
   "engines": {
     "node": ">=10.0.0"
