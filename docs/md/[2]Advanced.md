@@ -64,7 +64,7 @@ The output path key can hold several value formats.
 ### Configuration Properties
 
 **parse:** Enable [Meta](https://github.com/vimlet/vimlet-meta) template syntax parsing.
-**order:** Specify an order and make it works synchronously with other ordered entries. Not sorted keys will be done at the end in asynchronous way.
+**order:** Specify an order and make it works synchronously with other ordered entries. Non-ordered keys will be processed at the end in asynchronous way.
 **id:** Identification for hashes and other parse functions.
 **use:** `function(entry){return entry;}` Use custom code to modify the output.
 **input:** A string or a configuration object for the input files.
@@ -326,7 +326,25 @@ module.exports = {
 If watch property is added to an input object and watch mode is globally enabled, it will watch the given path for that input instead of the input key.
 
 [Order]<>
-*Coming soon...*
+An `order` property can be added to both output and input objects, to determine the order of how files will be processed. In this way we can force a synchronous behaviour with other ordered entries. Non-ordered keys will be processed at the end in asynchronous way.
+
+*Example:*
+```[javascript]
+"output": {
+  "outputfile1.ext": {
+    "clean": true,
+    "order": 0,
+    "id": "example",
+    "input": "inputfile1.ext"
+  },
+  "outputfile2ext": {
+    "clean": true,
+    "order": 1,
+    "id": "example",
+    "input": "inputfile2.ext"
+  }
+}
+```
 
 [Exec]<>
 *Coming soon...*
