@@ -3,15 +3,19 @@
   "version": "1.0.0",
   "description": "Babel plugin for Bundl",
   "main": "index.js",
-  "keywords": ["bundl", "babel", "bundl-plugin"],
+  "keywords": [
+    "bundl",
+    "babel",
+    "bundl-plugin"
+  ],
   "author": "talentlessguy <pilll.PL22@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@vimlet/bundl": "^1.0.4"
+    "@vimlet/bundl": "latest"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
-    "@vimlet/bundl": "^1.0.4"
+    "@vimlet/bundl": "latest"
   },
   "dependencies": {}
 }
