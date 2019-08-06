@@ -4,7 +4,7 @@
   "description": "Babel plugin for Bundl",
   "main": "index.js",
   "keywords": ["bundl", "babel", "bundl-plugin"],
-  "author": "",
+  "author": "talentlessguy <pilll.PL22@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
     "@vimlet/bundl": "^1.0.4"
