@@ -17,7 +17,7 @@
 Bundl is a flexible project bundler for any language. It allows you to split your code and assets in a convenient way for daily work, while optimizing the output for production with the help of any toolchain of your choice.
 You can think of Bundl as way to automate your build routine, while you focus on your development.
 
-## ⭐Features
+## ⭐ Features
 
 * **Fast:** It works asynchronously.
 * **Flexible:** Customize any task using NodeJS and NPM packages. 
@@ -29,7 +29,7 @@ You can think of Bundl as way to automate your build routine, while you focus on
 * **Join/Copy:** Join or copy any assets to the output.
 * **Templating:** Use [Meta](https://github.com/vimlet/vimlet-meta) template engine to control the output granularly.
 
-## 💿Installation
+## 💿 Installation
 
 You'll need the latest [NodeJS](https://NodeJS.org) release.
 
@@ -42,7 +42,7 @@ On your project root, run:
 
 ```npm install @vimlet/bundl```
 
-## 🔮Usage
+## 🔮 Usage
 
 ### Command line
 
@@ -73,11 +73,11 @@ var config = {
 bundl.build(config);
 ```
 
-## 📚Documentation
+## 📚 Documentation
 
 Check the full documentation for configuration details and advanced features at [https://bundlejs.org/doc](https://bundljs.org/docs/#!mode=manual&file=Get%20Started.md)
 
-## 🔌Plugins
+## 🔌 Plugins
 
 Bundl can easily be extended with your own code but it also has an official  GitHub plugin repository [https://github.com/vimlet/bundl-plugins](https://github.com/vimlet/bundl-plugins) with plugins for most of the common tools out there.
 
