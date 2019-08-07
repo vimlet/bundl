@@ -3,7 +3,7 @@
   "version": "1.0.5",
   "description": "Build & pack anything your way!",
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=8.16.0"
   },
   "keywords": [
     "bundle",
@@ -27,7 +27,7 @@
   "dependencies": {
     "@vimlet/commons-glob": "1.2.5",
     "@vimlet/commons-watcher": "0.0.2",
-    "@vimlet/commons-run": "0.0.11",
+    "@vimlet/commons-run": "0.0.12",
     "@vimlet/cli": "1.2.8",
     "@vimlet/meta": "2.4.5",
     "md5": "2.2.1",

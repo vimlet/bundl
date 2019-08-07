@@ -128,6 +128,9 @@ function setupConfig(config) {
 
 // @function querParam (private) [Manage query param in outputs]
 function queryParam(config) {
+  if(typeof config.output != 'object'){
+    throw new Error("Bundl.config is bad formatted");
+  }
   var output = {};
   for (var key in config.output) {
     var query = key.split("?");

@@ -21,128 +21,56 @@ async function processLateMetaHash(hashes, result) {
 async function writeResult(result, config) {
   // console.log("4",result);
   if (!await exists(result.outputParent)) {
-    console.log("NO EXISTE");
-
     try {
-      // await mkdir(result.outputParent, {
-      //   recursive: true
-      // }, () => {});
-      // await createDir(result);
-      console.log("result.outputParent:::", result.outputParent);
       await mkDirRecursive(result.outputParent);
-      console.log("DONE");
-
     } catch (error) {
       // Ignore error since sibling files will try to create the same directory
-      // console.log("SSSSSS");
-      // console.log(error);
-
     }
   }
 
 
-  async function mkDirRecursive(folder, previous) {
+  async function mkDirRecursive(folder) {
     return new Promise(async (resolve, reject) => {
-      console.log("1", folder);
-      if (await exists(folder)) {
-        console.log("2", folder);
-
-        if (previous) {
-          if (!await exists(previous)) {
-            console.log("3", folder);
-
-            await mkdir(previous, (error) => {
-              // console.log("ERROR:::",error);
-
-              if (!error) {
-                console.log("4", folder);
-
-                resolve();
-              } else {
-                if (error.code === 'EEXIST') {
-                  console.log("AQIU");
-                  
-                  resolve();
-                } else {
-                  reject(error);
-                }
-              }
-            });
-          } else {
-            console.log("4.5", folder);
-
-            resolve();
+      try {
+        var existingFolder = await getExistingPath(folder);
+        while (existingFolder.pending.length > 0) {
+          var current = existingFolder.pending.pop();
+          existingFolder.base = path.join(existingFolder.base, current);
+          try {
+            await mkdir(existingFolder.base);
+          } catch (error) {
+            // If folder exists, do nothing
+            if (error.code != 'EEXIST') {
+              reject(error);
+            }
           }
-        } else {
-          console.log("5", folder);
-
-          resolve();
         }
-      } else {
-        console.log("6", folder);
-
-        var subFolder = path.dirname(folder);
-        console.log("SUB:::", subFolder);
-
-        return await mkDirRecursive(subFolder, folder);
-        // return mkDirRecursive(folder);
+        resolve();
+      } catch (error) {
+        reject(error);
       }
     });
   }
 
-  // async function existSubFolder(folder){
-  //   return new Promise((resolve, reject) => {
-  //     if (await exists(folder)) {
-  //       resolve();
-  //     }else{
-
-  //     }
-  //   });
-  // }
-
-  // async function createDir(result, origin) {
-  //   return new Promise(async (resolve, reject) => {
-  //     var folder = result.outputParent;
-  //     if (origin) {
-  //       folder = origin;
-  //     }
-
-  //     if (!await exists(folder)) {
-  //       await mkdir(folder, {
-  //         recursive: true
-  //       }, (error) => {
-  //         if (error) {
-  //           if (error.code === "ENOENT") {
-  //             console.log("SISISI");
-  //             console.log(error);
-  //             // console.log("ERRPATJ:::",error.path);
-  //             // console.log("SUBDIR:::",path.dirname(error.path));
-
-  //             return createDir(result, path.dirname(error.path));
-  //           } else {
-  //             reject(error);
-  //           }
-  //         } else {
-  //           // resolve();
-  //           if (origin) {
-  //             return createDir(result);
-  //           } else {
-  //             resolve();
-  //           }
-  //         }
-  //       });
-  //     } else {
-  //       if (origin) {
-  //         return createDir(result);
-  //       } else {
-  //         resolve();
-  //       }
-  //     }
-
-
-  //   });
-  // }
-
+  // @function getExistingPath (private) [Get exiting path from a folder and returns it with an array of folder to create inside]
+  async function getExistingPath(folder) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        var pending = [];
+        var subFolder = folder;
+        while (!await exists(subFolder)) {
+          pending.push(path.basename(subFolder));
+          subFolder = path.dirname(subFolder);
+        }
+        resolve({
+          pending: pending,
+          base: subFolder
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 
   await writeFile(result.outputPath, result.content);
   if (!("log" in config) || config.log) {
