@@ -19,7 +19,6 @@ async function processLateMetaHash(hashes, result) {
 };
 
 async function writeResult(result, config) {
-  // console.log("4",result);
   if (!await exists(result.outputParent)) {
     try {
       await mkDirRecursive(result.outputParent);
