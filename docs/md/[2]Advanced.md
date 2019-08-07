@@ -24,6 +24,7 @@ module.exports = {
 
 **outputBase:** Generated files will be all within this directory, they will be nested inside following their input path.
 **inputBase:** Files will be looking for from this directory.
+**log:** If set to false, hides verbose output.
 **watch:** Path to a folder to keep looking for changes.
 **clean:** If set to true, outputBase will be empty before start packing.
 **output:** The output object, contains the output paths as keys with input patterns or objects as values.
@@ -104,6 +105,9 @@ When an input configuration object is used, it's keys are the file paths to use 
 
 If a global inputBase property is specified, it will be added at the start of each path key.
 
+*Important:*
+> Input paths that match a given pattern, will be added in alphabetical order
+
 The content can be a boolean true just to mark the file as required.
 ```[javascript]
 "input":{
@@ -129,12 +133,12 @@ You can also provide configuration object that can be used with the following pa
 
 ## Use Function
 
-A function which allow the user to modify the content and the filename.
+A function or an array of functions, which allow the user to modify the content and the filename.
 
 Use can be used either at output object or at input object. The function has the same syntax but some differences.
 
 ```[javascript]
-function(entry){
+use: function(entry){
   // Do something
   return entry;
 }
@@ -145,8 +149,9 @@ The function has one parameter, entry. And it must return it again.
 **When used in output object:**
 Entry is an object with the following keys:
 
+**file:** The output path.
 **fileName:** Name of the file that will be generated.
-**content:** Content of the file.
+**content:** Content of the output file.
 
 ```[javascript]
 "use":function (entry) {
@@ -159,8 +164,11 @@ Entry is an object with the following keys:
 **When used in input object:**
 Entry is an object with the following keys:
 
+**file:** The input path relative to the current working directory.
 **fileName:** Name of the file that will be generated.
-**content:** Content of the file.
+**content:** Content of the input file.
+**match:** When pattern used, is the file that matched the pattern.
+**pattern:** When pattern used, is the pattern that matched the file.
 
 ```[javascript]
 "use":function (entry) {
@@ -207,6 +215,30 @@ Processing `.less` files using npm dependency `less`.
     }
   }
 ```
+
+*Note:*
+> Check examples and plugins for a better understanding on how all this options interact together.
+
+[Plugins]<>
+Bundl can easily be extended with your own code but it also has an official GitHub plugin repository [https://github.com/vimlet/bundl-plugins](https://github.com/vimlet/bundl-plugins) with plugins for most of the common tools out there.
+
+```[javascript]
+module.exports = {
+  "output": {
+    "build/bundle.js": {
+      "use": [
+        // Plugins
+        require("@bundl/plugin1"),
+        require("@bundl/plugin2"),
+        require("@bundl/plugin3")
+      ],
+      "input": "src/**.js"
+    }
+  }
+};
+```
+
+All official plugins can be found under the NPM organization @bundl.
 
 [Query Params]<>
 
