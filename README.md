@@ -21,7 +21,7 @@ You can think of Bundl as way to automate your build routine, while you focus on
 
 * **Fast:** It works asynchronously.
 * **Flexible:** Customize any task using NodeJS and NPM packages. 
-* **Code Split:** Split your code to easy daily development.
+* **Code Split:** Split your code to ease daily development.
 * **Sequencing:** Order tasks in a synchronous way.
 * **Configurable:** Friendly configuration file.
 * **Watcher Mode:** Track your files and work freely while Bundl triggers in the background.
