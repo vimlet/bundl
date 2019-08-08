@@ -394,7 +394,7 @@ function parseTable(data) {
                 return "";
             });
             var isIndented = false;
-            matches[i] = matches[i].replace(new RegExp("^[ \\t]*(>\\s*){0,1}","gm"), function () {
+            matches[i] = matches[i].replace(new RegExp("^[ \\t]*(>\\s*){1}","gm"), function () {
                 isIndented = true;
                 return "";
             });
