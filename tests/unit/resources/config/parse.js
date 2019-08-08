@@ -5,7 +5,6 @@ module.exports = {
     "log":false,
     "output": {
       "a.txt": {
-        "clean": true,
         "order": 0,
         "parse":true,
         "input": {

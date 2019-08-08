@@ -63,7 +63,7 @@ suite("bundl", () => {
             },
             "outPath": "copy/**"
         }));
-        var expected = 4;
+        var expected = 4;  
         assert.strictEqual(files.length, expected, "Copy expected " + expected);
     });
     test("command", async () => {
@@ -267,7 +267,7 @@ suite("bundl", () => {
                     "input": {
                         "output/sort/**": {
                             "use": function (entry) {
-                                entry.fileName = entry.fileName.replace(".txt", ".css");
+                                entry.path = entry.path.replace(".txt", ".css");
                                 return entry;
                             }
                         }
@@ -332,7 +332,7 @@ suite("bundl", () => {
             path: path.join(__dirname, "../")
         });
         var expected = 2;                
-        assert.strictEqual(files.length, expected, "Copy ileNameReplace output expected " + expected);
+        assert.strictEqual(files.length, expected, "Copy fileNameReplace output expected " + expected);
     });
     test("input types", async () => {
         var config = require("../resources/config/inputTypes");
@@ -358,5 +358,14 @@ suite("bundl", () => {
         });
         var expected = 1;                
         assert.strictEqual(files.length, expected, "Run files expected " + expected);
+    });
+    test("path replace", async () => {
+        var config = require("../resources/config/pathReplace");
+        await pack.build(config);
+        let files = await glob.files("output/pathReplace/**.xml", {
+            path: path.join(__dirname, "../")
+        });
+        var expected = 3;                
+        assert.strictEqual(files.length, expected, "Path replace files expected " + expected);
     });
 });

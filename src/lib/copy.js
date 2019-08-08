@@ -4,31 +4,31 @@ const parse = require("./parse");
 const run = require("@vimlet/commons-run");
 
 // @function processInputUse (private) [Apply use functions to input]
-function processInputUse(inputsObject, file, outputPath) {
+function processInputUse(inputsObject, file) {
   if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].use) {
     if (Array.isArray(inputsObject[file.pattern].use)) {
       inputsObject[file.pattern].use.forEach(func => {
         file = func({
           match: file.match,
           pattern: file.pattern,
-          file: file.file,
-          content: file.content,
-          fileName: file.fileName || outputPath
+          path: file.match,
+          content: file.content
         },run);
       });
     } else {
       file = inputsObject[file.pattern].use({
         match: file.match,
         pattern: file.pattern,
-        file: file.file,
-        content: file.content,
-        fileName: file.fileName || outputPath
+        path: file.match,
+        content: file.content
       },run);
     }
+  }else{
+    file.path = file.match;
   }
+  delete file.file;
   return file;
 }
-
 
 // @function processInputNameReplace (private) [Apply fileNameReplace to input]
 function processInputNameReplace(inputsObject, file, outputPath) {
@@ -44,25 +44,30 @@ function processInputNameReplace(inputsObject, file, outputPath) {
 
 // @function processOutputUse (private) [Apply use functions to output]
 function processOutputUse(outputObject, outputPath, content) {
+  var result;
   if (outputObject.use) {
     if (Array.isArray(outputObject.use)) {
       outputObject.use.forEach(func => {
-        content = func({
-          file: outputPath,
-          fileName: outputPath,
+        result = func({
+          path: outputPath,
           content: content
         },run);
       });
     } else {
-      content = outputObject.use({
-        file: outputPath,
-        fileName: outputPath,
+      result = outputObject.use({
+        path: outputPath,
         content: content
       },run);
     }
-  }
-  return content;
+  }else{
+    result = {
+      path: outputPath,
+      content:content
+    }
+  }  
+  return result;
 }
+
 // @function processOutputNameReplace (private) [Apply fileNameReplace to output]
 function processOutputNameReplace(outputObject, outputPath) {  
   if (outputObject.fileNameReplace) {
@@ -76,10 +81,10 @@ function processOutputNameReplace(outputObject, outputPath) {
 }
 
 // @function processInputMeta (private) [Process meta]
-async function processInputMeta(file, inputsObject) {
+async function processInputMeta(file, inputsObject, cwdFilePath) {  
   if (typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) {
     content = await parse(file.content.toString(), {
-      basePath: path.dirname(file.file).replace(/\\/g, "/")
+      basePath: path.dirname(cwdFilePath).replace(/\\/g, "/")
     });
     return content;
   } else {
@@ -87,7 +92,7 @@ async function processInputMeta(file, inputsObject) {
   }
 }
 
-module.exports.process = async (config, outputEntry) => {
+module.exports.process = async (config, outputEntry) => {  
   let copyPromises = [];
   let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");
   let inputsObject = outputEntry.input;
@@ -95,25 +100,25 @@ module.exports.process = async (config, outputEntry) => {
     path: config.inputBase
   }), inputsObject);
   await Promise.all(files.map(async file => {
+    var cwdFilePath = file.file;
+    file = await processInputUse(inputsObject, file);     
+    file.content = await processInputMeta(file, inputsObject, cwdFilePath);
     let subPath;
     if (path.basename(file.pattern) == file.pattern) {
-      subPath = file.match.substring(0);
+      subPath = file.path.substring(0);
     } else {
-      subPath = file.match.substring(path.dirname(file.pattern).length + 1);
+      subPath = file.path.substring(path.dirname(file.pattern).length + 1);
     }
     let outputPath = path.join(outputBase, subPath).replace(/\\/g, "/");
-    file = await processInputUse(inputsObject, file, outputPath);
-    file.content = await processInputMeta(file, inputsObject);
-    outputPath = file.fileName || outputPath;
     outputPath = processInputNameReplace(inputsObject, file, outputPath);
     copyPromises.push(new Promise(async (resolve, reject) => {
       let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
-      var usedData = await processOutputUse(outputEntry, outputPath, file.content);
-      outputPath = processOutputNameReplace(outputEntry, outputPath);
+      var usedData = await processOutputUse(outputEntry, outputPath, file.content);            
+      usedData.path = processOutputNameReplace(outputEntry, usedData.path);
       let result = {
         parse: outputEntry.parse,
         outputParent: outputParent,
-        outputPath: usedData.fileName || outputPath,
+        outputPath: usedData.path,
         content: usedData.content || file.content
       };
       resolve(result);

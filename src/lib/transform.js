@@ -6,6 +6,8 @@ const run = require("@vimlet/commons-run");
 
 async function processInputUse(inputsObject, files) {
   files = await Promise.all(files.map(file => {
+    file.path = file.file;
+    delete file.file;
     if (inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
       if (Array.isArray(inputsObject[file.match].use)) {
         inputsObject[file.match].use.forEach(func => {
@@ -22,19 +24,19 @@ async function processInputUse(inputsObject, files) {
 }
 
 async function processInputJoin(files, inputsObject, hashes) {
-  return await files.reduce(async (total, current, index, array) => {
+  return await files.reduce(async (total, current, index, array) => {    
     current.content = await processInputMeta(current, inputsObject, hashes);
     return await total + current.content + (index < (array.length - 1) ? "\n" : "");
   }, "");
 }
 
-async function processInputMeta(file, inputsObject, hashes) {
+async function processInputMeta(file, inputsObject, hashes) {  
   if (typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) {
     content = await parse(file.content.toString(), {
       data: {
         hashes: hashes
       },
-      basePath: path.dirname(file.file).replace(/\\/g, "/")
+      basePath: path.dirname(file.path).replace(/\\/g, "/")
     });
     return content;
   } else {    
@@ -43,24 +45,28 @@ async function processInputMeta(file, inputsObject, hashes) {
 }
 
 async function processOutputUse(outputObject, outputPath, content) {
+  var result;
   if (outputObject.use) {
     if (Array.isArray(outputObject.use)) {
       for (var i = 0; i < outputObject.use.length; i++) {
-        content = await outputObject.use[i]({
-          file: outputPath,
+        result = await outputObject.use[i]({
+          path: outputPath,
           content: content
         },run);
-        content = content.content;
       }
     } else {
-      content = await outputObject.use({
-        file: outputPath,
+      result = await outputObject.use({
+        path: outputPath,
         content: content
       },run);
-      content = content.content;
     }
-  }
-  return content;
+  }else{
+    result = {
+      path: outputPath,
+      content:content
+    }
+  }  
+  return result.content;
 };
 
 
@@ -87,7 +93,7 @@ module.exports.process = async (config, outputObject, hashes) => {
 
   // Process input
   files = await processInputUse(inputsObject, files);
-  let content = await processInputJoin(files, inputsObject, hashes);
+  let content = await processInputJoin(files, inputsObject, hashes);  
   // Process output
   content = await processOutputUse(outputObject, outputPath, content);
   // Enable hashing support

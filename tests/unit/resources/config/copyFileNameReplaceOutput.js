@@ -5,7 +5,6 @@ module.exports = {
   "log":false,
   "output": {
     "copy/**": {
-      "clean": true,
       "order": 0,
       "fileNameReplace":[".txt", ".css"],
       "input": {        

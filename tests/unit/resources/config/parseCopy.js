@@ -5,7 +5,6 @@ module.exports = {
     "log":false,
     "output": {
       "**": {
-        "clean": true,
         "order": 0,
         "parse":true,
         "input": {
