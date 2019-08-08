@@ -334,4 +334,29 @@ suite("bundl", () => {
         var expected = 2;                
         assert.strictEqual(files.length, expected, "Copy ileNameReplace output expected " + expected);
     });
+    test("input types", async () => {
+        var config = require("../resources/config/inputTypes");
+        await pack.build(config);
+        let files = await glob.files("output/inputTypes/**.js", {
+            path: path.join(__dirname, "../")
+        });
+        var allRight = true;
+        var expected = 'console.log("a");console.log("b");';
+        for(const file of files){
+            var result = (await readFile(file.file, "utf8")).replace(/(\r\n|\n|\r)/gm, "");
+            if(result != expected){
+                allRight = false;
+            }
+        }               
+        assert.isOk(allRight, "Input types files have some errors");
+    });
+    test("run", async () => {
+        var config = require("../resources/config/run");
+        await pack.build(config);
+        let files = await glob.files("output/run/**.js", {
+            path: path.join(__dirname, "../")
+        });
+        var expected = 1;                
+        assert.strictEqual(files.length, expected, "Run files expected " + expected);
+    });
 });

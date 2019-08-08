@@ -1,6 +1,7 @@
 const path = require("path");
 const util = require("./util");
 const parse = require("./parse");
+const run = require("@vimlet/commons-run");
 
 // @function processInputUse (private) [Apply use functions to input]
 function processInputUse(inputsObject, file, outputPath) {
@@ -13,7 +14,7 @@ function processInputUse(inputsObject, file, outputPath) {
           file: file.file,
           content: file.content,
           fileName: file.fileName || outputPath
-        });
+        },run);
       });
     } else {
       file = inputsObject[file.pattern].use({
@@ -22,7 +23,7 @@ function processInputUse(inputsObject, file, outputPath) {
         file: file.file,
         content: file.content,
         fileName: file.fileName || outputPath
-      });
+      },run);
     }
   }
   return file;
@@ -50,14 +51,14 @@ function processOutputUse(outputObject, outputPath, content) {
           file: outputPath,
           fileName: outputPath,
           content: content
-        });
+        },run);
       });
     } else {
       content = outputObject.use({
         file: outputPath,
         fileName: outputPath,
         content: content
-      });
+      },run);
     }
   }
   return content;
