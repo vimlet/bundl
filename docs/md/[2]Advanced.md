@@ -18,7 +18,7 @@ module.exports = {
   //...
 };
 ```
-## Configuration Object
+## Configuration Object (Root Object)
 
 ### Configuration Properties
 
@@ -64,7 +64,7 @@ The output path key can hold several value formats.
 "output/subfolder": [{input:"input1.txt", ...},"input2.txt"]
 ```
 
-### Configuration Properties
+### Output Properties
 
 |Property|Description|
 |--------|-----------|
@@ -119,7 +119,7 @@ The content can be a boolean true just to mark the file as required.
 }
 ```
 
-### Configuration Properties
+### Input Properties
 
 You can also provide configuration object that can be used with the following parameters:
 
@@ -144,13 +144,14 @@ A function or an array of functions, which allow the user to modify the content 
 Use can be used either at output object or at input object. The function has the same syntax but some differences.
 
 ```[javascript]
-use: function(entry){
+use: function(entry, run){
   // Do something
   return entry;
 }
 ```
 
-The function has one parameter, entry. And it must return it again.
+The function has an `entry` parameter and it must return it again.
+The `run` parameter servers as reference for the command execution module.
 
 **When used in output object:**
 Entry is an object with the following keys:
@@ -161,7 +162,7 @@ Entry is an object with the following keys:
 |**content**|Content of the output file.|
 
 ```[javascript]
-"use":function (entry) {
+"use": function (entry) {
   entry.fileName = entry.fileName.replace(".less", ".css");
   entry.content += "\nconsole.log(\"output use\");";
   return entry;
@@ -377,13 +378,11 @@ An `order` property can be added to both output and input objects, to determine 
 ```[javascript]
 "output": {
   "outputfile1.ext": {
-    "clean": true,
     "order": 0,
     "id": "example",
     "input": "inputfile1.ext"
   },
   "outputfile2ext": {
-    "clean": true,
     "order": 1,
     "id": "example",
     "input": "inputfile2.ext"
@@ -391,5 +390,46 @@ An `order` property can be added to both output and input objects, to determine 
 }
 ```
 
-[Exec]<>
-*Coming soon...*
+[Run]<>
+
+Bundl has the ability to execute commands for you with its `run` module.
+
+## Run functions
+
+|Function|Description|
+|--------|-----------|
+|**exec (command, options, doneHandler)**| Executes the command and streams the output.|
+|**fetch (command, options, doneHandler)**| Executes the command and grabs the output.|
+
+### options
+1. execHandler: Default output callback `function(out, error)`, redirects stdout when provided.
+2. args: Executable arguments(string[]).
+3. workingDirectory: The path from where the executable will run.
+
+*Example:*
+```[javascript]
+const { run } = require("@vimlet/bundl");
+
+var donePromise = run.exec("ping", {
+  "args": ["8.8.8.8"]
+});
+
+var resultPromise = run.fetch("ping", {
+  "args": ["8.8.8.8"]
+});
+```
+
+For convenience, `use` function provides a reference to `run` as a second argument.
+
+*Example:*
+```[javascript]
+"use": async function(entry, run) {
+  await run.exec("ping", {
+    "args": ["8.8.8.8"],
+    "execHandler": function(out, error) {
+      console.log(out);
+    }
+  });
+  return entry;
+}
+```
