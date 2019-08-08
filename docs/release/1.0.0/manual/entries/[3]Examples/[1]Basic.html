@@ -1,7 +1,51 @@
 <app-doc-viewer-templates-article links="" script="">
     <eon-scroll thickness="8">
         <div class="app-doc-viewer-templates-article-content app-doc-content-width" eon-ref="content">
-            <div><em>Coming soon...</em><div class="app-md-viewer-br"></div></div>
+            <div><div class="app-md-viewer-t1 app-md-viewer-t">Basic Configuration Example<div class="app-md-viewer-br"></div></div></div><div>Here is example of a <code class="app-md-viewer-code">bundl.config.js</code> file, making use of some options: <div class="app-md-viewer-br"></div></div><div><div class="app-md-viewer-code-container"><app-code language="javascript"><code>module.exports = {
+  &quot;outputBase&quot;: &quot;build/webapp&quot;,
+  &quot;inputBase&quot;: &quot;src/webapp&quot;,
+  &quot;clean&quot;: true,
+  &quot;log&quot;: true,
+  &quot;output&quot;: {
+    &quot;app/bundle.js&quot;: {
+      &quot;id&quot;: &quot;bundle-js&quot;,
+      &quot;order&quot;: 0,
+      &quot;input&quot;: {
+        &quot;js/**.js&quot;: true
+      }
+    },
+    &quot;app/css/bundle.css&quot;: {
+      &quot;id&quot;: &quot;bundle-css&quot;,
+      &quot;order&quot;: 0,
+      &quot;input&quot;: {
+        &quot;css/**.css&quot;: true
+      }
+    },
+    &quot;**&quot;: [
+      {
+        &quot;order&quot;: 0,
+        &quot;input&quot;: {
+          &quot;less/**.less&quot;: {
+            &quot;use&quot;: async function (entry) {
+              try {
+                entry.fileName = entry.fileName.replace(&quot;.less&quot;, &quot;.css&quot;);
+                entry.content = (await require(&quot;less&quot;).render(entry.content.toString(&quot;utf8&quot;), {
+                  filename: require(&quot;path&quot;).resolve(entry.file),
+                })).css;
+              } catch (error) {
+                console.log(error);
+              }
+              return entry;
+            }
+          }
+        }
+      },
+      {
+        &quot;input&quot;: &quot;copy/**&quot;
+      }
+    ]
+  }
+};</code></app-code></div><div class="app-md-viewer-br"></div></div>
             <div class="app-doc-viewer-templates-article-content-bottom"></div>
         </div>
     </eon-scroll>

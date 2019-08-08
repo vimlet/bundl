@@ -19,7 +19,7 @@ You can think of Bundl as way to automate your build routine, while you focus on
 
 You'll need the latest [NodeJS](https://NodeJS.org) release.
 
-> (NodeJS version must be greater than 10.X.X).
+> NodeJS version must be greater than 8.X.X
 
 
 **Install through npm:**

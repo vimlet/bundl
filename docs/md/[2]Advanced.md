@@ -22,12 +22,14 @@ module.exports = {
 
 ### Configuration Properties
 
-**outputBase:** Generated files will be all within this directory, they will be nested inside following their input path.
-**inputBase:** Files will be looking for from this directory.
-**log:** If set to false, hides verbose output.
-**watch:** Path to a folder to keep looking for changes.
-**clean:** If set to true, outputBase will be empty before start packing.
-**output:** The output object, contains the output paths as keys with input patterns or objects as values.
+|Property|Description|
+|--------|-----------|
+|**outputBase**|Generated files will be all within this directory, they will be nested inside following their input path.|
+|**inputBase**|Files will be looking for from this directory.|
+|**log**|If set to false, hides verbose output.|
+|**watch**|Path to a folder to keep looking for changes.|
+|**clean**|If set to true, outputBase will be empty before start packing.|
+|**output**|The output object, contains the output paths as keys with input patterns or objects as values.|
 
 *Example:*
 ```[javascript]
@@ -64,11 +66,13 @@ The output path key can hold several value formats.
 
 ### Configuration Properties
 
-**parse:** Enable [Meta](https://github.com/vimlet/vimlet-meta) template syntax parsing.
-**order:** Specify an order and make it works synchronously with other ordered entries. Non-ordered keys will be processed at the end in asynchronous way.
-**id:** Identification for hashes and other parse functions.
-**use:** `function(entry){return entry;}` Use custom code to modify the output.
-**input:** A string or a configuration object for the input files.
+|Property|Description|
+|--------|-----------|
+|**parse**|Enable [Meta](https://github.com/vimlet/vimlet-meta) template syntax parsing.|
+|**order**|Specify an order and make it works synchronously with other ordered entries. Non-ordered keys will be processed at the end in asynchronous way.|
+|**id**|Identification for hashes and other parse functions.|
+|**use**|`function(entry){return entry;}` Use custom code to modify the output.|
+|**input**|A string or a configuration object for the input files.|
 
 *Example:*
 ```[javascript]
@@ -119,9 +123,11 @@ The content can be a boolean true just to mark the file as required.
 
 You can also provide configuration object that can be used with the following parameters:
 
-**parse:** Run meta for given key.
-**use:** `function(entry){return entry;}` Use custom code to modify the input.
-**read:** If set to false, file content will not be read. Useful when reading it by other means in `use` function.
+|Property|Description|
+|--------|-----------|
+|**parse**|Run meta for given key.|
+|**use**|`function(entry){return entry;}` Use custom code to modify the input.|
+|**read**|If set to false, file content will not be read. Useful when reading it by other means in `use` function.|
 
 *Example:*
 ```[javascript]
@@ -149,9 +155,10 @@ The function has one parameter, entry. And it must return it again.
 **When used in output object:**
 Entry is an object with the following keys:
 
-**file:** The output path.
-**fileName:** Name of the file that will be generated.
-**content:** Content of the output file.
+|Property|Description|
+|--------|-----------|
+|**path**|The input path relative to the current working directory.|
+|**content**|Content of the output file.|
 
 ```[javascript]
 "use":function (entry) {
@@ -164,11 +171,17 @@ Entry is an object with the following keys:
 **When used in input object:**
 Entry is an object with the following keys:
 
-**file:** The input path relative to the current working directory.
-**fileName:** Name of the file that will be generated.
-**content:** Content of the input file.
-**match:** When pattern used, is the file that matched the pattern.
-**pattern:** When pattern used, is the pattern that matched the file.
+|Property|Description|
+|--------|-----------|
+|**path**|The input path relative to the current working directory.|
+|**content**| Content of the input file.|
+
+When a pattern like `src/**.js` is used, you get to additional properties:
+
+|Property|Description|
+|--------|-----------|
+|**match**|When pattern used, is the file that matched the pattern.|
+|**pattern**| When pattern used, is the pattern that matched the file.|
 
 ```[javascript]
 "use":function (entry) {
