@@ -402,9 +402,9 @@ Bundl has the ability to execute commands for you with its `run` module.
 |**fetch (command, options, doneHandler)**| Executes the command and grabs the output.|
 
 ### options
-1. execHandler: Default output callback `function(out, error)`, redirects stdout when provided.
-2. args: Executable arguments(string[]).
-3. workingDirectory: The path from where the executable will run.
+- **execHandler:** Default output callback `function(out, error)`, redirects stdout when provided.
+- **args:**  Executable arguments array.
+- **workingDirectory:** The path from where the executable will run.
 
 *Example:*
 ```[javascript]
