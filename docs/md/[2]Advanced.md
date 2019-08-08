@@ -44,24 +44,30 @@ module.exports = {
 };
 ```
 
-## Output Object
+## Output String/Object/Array
 
 The output paths are presented as the keys of this object. If global outputBase property is present, it will be added at the start of each output path key.
 The output path key can hold several value formats.
 
 **Simple string:** Path to single input file.
 ```[javascript]
-"output/subfolder": "input.txt"
+output: {
+  "output/subfolder": "input.txt"
+}
 ```
 
 **Object:** A configuration object for given output.
 ```[javascript]
-"output/subfolder": {input:"input.txt", ...}
+output: {
+  "output/subfolder": {input: "input.txt", ...}
+}
 ```
 
 **Array:** Can contain both string and object.
 ```[javascript]
-"output/subfolder": [{input:"input1.txt", ...},"input2.txt"]
+output: {
+  "output/subfolder": [{input: "input1.txt", ...}, "input2.txt"]
+}
 ```
 
 ### Output Properties
@@ -78,7 +84,6 @@ The output path key can hold several value formats.
 ```[javascript]
 "output": {
   "outputfile.ext": {
-    "clean": true,
     "order": 0,
     "id": "example",
     "input": "inputfile.ext"
@@ -102,7 +107,7 @@ When `"parse": true`, it's recommend to add an `id` property, so you can retriev
 }
 ```
 
-## Input Object
+## Input String/Object
 
 When an input configuration object is used, it's keys are the file paths to use as input for the output.
 `*` and `**` patterns can be used to target multiple files. If the path starts with `!` it will exclude that pattern.
@@ -112,16 +117,22 @@ If a global inputBase property is specified, it will be added at the start of ea
 *Important:*
 > Input paths that match a given pattern, will be added in alphabetical order
 
-The content can be a boolean true just to mark the file as required.
+The input properties can have a boolean value, just to mark the file as required, or an object with its own properties.
+
 ```[javascript]
-"input":{
+"input": {
   "inputfile.ext": true
 }
+
+or simply
+
+```[javascript]
+"input": "inputfile.ext"
 ```
 
 ### Input Properties
 
-You can also provide configuration object that can be used with the following parameters:
+When using object as value, following parameters are available:
 
 |Property|Description|
 |--------|-----------|
