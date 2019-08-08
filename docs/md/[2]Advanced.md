@@ -18,7 +18,7 @@ module.exports = {
   //...
 };
 ```
-## Configuration Object
+## Configuration Object (Root Object)
 
 ### Configuration Properties
 
@@ -44,27 +44,33 @@ module.exports = {
 };
 ```
 
-## Output Object
+## Output String/Object/Array
 
 The output paths are presented as the keys of this object. If global outputBase property is present, it will be added at the start of each output path key.
 The output path key can hold several value formats.
 
 **Simple string:** Path to single input file.
 ```[javascript]
-"output/subfolder": "input.txt"
+output: {
+  "output/subfolder": "input.txt"
+}
 ```
 
 **Object:** A configuration object for given output.
 ```[javascript]
-"output/subfolder": {input:"input.txt", ...}
+output: {
+  "output/subfolder": {input: "input.txt", ...}
+}
 ```
 
 **Array:** Can contain both string and object.
 ```[javascript]
-"output/subfolder": [{input:"input1.txt", ...},"input2.txt"]
+output: {
+  "output/subfolder": [{input: "input1.txt", ...}, "input2.txt"]
+}
 ```
 
-### Configuration Properties
+### Output Properties
 
 |Property|Description|
 |--------|-----------|
@@ -78,7 +84,6 @@ The output path key can hold several value formats.
 ```[javascript]
 "output": {
   "outputfile.ext": {
-    "clean": true,
     "order": 0,
     "id": "example",
     "input": "inputfile.ext"
@@ -102,7 +107,7 @@ When `"parse": true`, it's recommend to add an `id` property, so you can retriev
 }
 ```
 
-## Input Object
+## Input String/Object
 
 When an input configuration object is used, it's keys are the file paths to use as input for the output.
 `*` and `**` patterns can be used to target multiple files. If the path starts with `!` it will exclude that pattern.
@@ -112,16 +117,23 @@ If a global inputBase property is specified, it will be added at the start of ea
 *Important:*
 > Input paths that match a given pattern, will be added in alphabetical order
 
-The content can be a boolean true just to mark the file as required.
+The input properties can have a boolean value, just to mark the file as required, or an object with its own properties.
+
 ```[javascript]
-"input":{
+"input": {
   "inputfile.ext": true
 }
 ```
 
-### Configuration Properties
+or simply
 
-You can also provide configuration object that can be used with the following parameters:
+```[javascript]
+"input": "inputfile.ext"
+```
+
+### Input Properties
+
+When using object as value, following parameters are available:
 
 |Property|Description|
 |--------|-----------|
@@ -144,13 +156,14 @@ A function or an array of functions, which allow the user to modify the content 
 Use can be used either at output object or at input object. The function has the same syntax but some differences.
 
 ```[javascript]
-use: function(entry){
+use: function(entry, run){
   // Do something
   return entry;
 }
 ```
 
-The function has one parameter, entry. And it must return it again.
+The function has an `entry` parameter and it must return it again.
+The `run` parameter servers as reference for the command execution module.
 
 **When used in output object:**
 Entry is an object with the following keys:
@@ -161,7 +174,7 @@ Entry is an object with the following keys:
 |**content**|Content of the output file.|
 
 ```[javascript]
-"use":function (entry) {
+"use": function(entry) {
   entry.fileName = entry.fileName.replace(".less", ".css");
   entry.content += "\nconsole.log(\"output use\");";
   return entry;
@@ -184,7 +197,7 @@ When a pattern like `src/**.js` is used, you get to additional properties:
 |**pattern**| When pattern used, is the pattern that matched the file.|
 
 ```[javascript]
-"use":function (entry) {
+"use":function(entry) {
   entry.fileName = entry.fileName.replace(".less", ".css");
   entry.content += "\nconsole.log(\"output use\");";
   return entry;
@@ -195,7 +208,7 @@ When a pattern like `src/**.js` is used, you get to additional properties:
 > Use allows async functions with await.
 
 ```[javascript]
-"use": async function (entry) {
+"use": async function(entry) {
   entry.content = await doSomething(entry.content);
   return entry;
 }
@@ -214,13 +227,13 @@ Processing `.less` files using npm dependency `less`.
 ```[javascript]
 "input": {
   "less/**.less": {
-    "use": async function (entry) {
+    "use": async function(entry) {
       try {
           entry.fileName = entry.fileName.replace(".less", ".css");
           entry.content = (await require("less").render(entry.content.toString("utf8"), {
           filename: require("path").resolve(entry.file),
           })).css;
-        } catch (error) {
+        } catch(error) {
           console.log(error);
         }
         return entry;
@@ -377,13 +390,11 @@ An `order` property can be added to both output and input objects, to determine 
 ```[javascript]
 "output": {
   "outputfile1.ext": {
-    "clean": true,
     "order": 0,
     "id": "example",
     "input": "inputfile1.ext"
   },
   "outputfile2ext": {
-    "clean": true,
     "order": 1,
     "id": "example",
     "input": "inputfile2.ext"
@@ -391,5 +402,46 @@ An `order` property can be added to both output and input objects, to determine 
 }
 ```
 
-[Exec]<>
-*Coming soon...*
+[Run]<>
+
+Bundl has the ability to execute commands for you with its `run` module.
+
+## Run functions
+
+|Function|Description|
+|--------|-----------|
+|**exec(command, options, doneHandler)**| Executes the command and streams the output.|
+|**fetch(command, options, doneHandler)**| Executes the command and grabs the output.|
+
+### options
+- **execHandler:** Default output callback `function(out, error)`, redirects stdout when provided.
+- **args:**  Executable arguments array.
+- **workingDirectory:** The path from where the executable will run.
+
+*Example:*
+```[javascript]
+const { run } = require("@vimlet/bundl");
+
+var donePromise = run.exec("ping", {
+  "args": ["8.8.8.8"]
+});
+
+var resultPromise = run.fetch("ping", {
+  "args": ["8.8.8.8"]
+});
+```
+
+For convenience, `use` function provides a reference to `run` as a second argument.
+
+*Example:*
+```[javascript]
+"use": async function(entry, run) {
+  await run.exec("ping", {
+    "args": ["8.8.8.8"],
+    "execHandler": function(out, error) {
+      console.log(out);
+    }
+  });
+  return entry;
+}
+```
