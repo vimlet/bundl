@@ -20,10 +20,7 @@ module.exports = {
         "js/b.js": true,
         "js/c.js":true
       },
-      use: [function (entry) {
-        entry.content += "\nconsole.log(\"output use\");";
-        return entry;
-      }, async function (entry) {
+      use: [async function (entry) {
         entry.content += "\nconsole.log(\"output use2\");";
         var result = await bundl.run.fetch("ping", {"args":["8.8.8.8"]});        
         console.log("Output bundl result:::",result);
