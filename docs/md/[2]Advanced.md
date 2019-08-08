@@ -162,7 +162,7 @@ Entry is an object with the following keys:
 |**content**|Content of the output file.|
 
 ```[javascript]
-"use": function (entry) {
+"use": function(entry) {
   entry.fileName = entry.fileName.replace(".less", ".css");
   entry.content += "\nconsole.log(\"output use\");";
   return entry;
@@ -185,7 +185,7 @@ When a pattern like `src/**.js` is used, you get to additional properties:
 |**pattern**| When pattern used, is the pattern that matched the file.|
 
 ```[javascript]
-"use":function (entry) {
+"use":function(entry) {
   entry.fileName = entry.fileName.replace(".less", ".css");
   entry.content += "\nconsole.log(\"output use\");";
   return entry;
@@ -196,7 +196,7 @@ When a pattern like `src/**.js` is used, you get to additional properties:
 > Use allows async functions with await.
 
 ```[javascript]
-"use": async function (entry) {
+"use": async function(entry) {
   entry.content = await doSomething(entry.content);
   return entry;
 }
@@ -215,13 +215,13 @@ Processing `.less` files using npm dependency `less`.
 ```[javascript]
 "input": {
   "less/**.less": {
-    "use": async function (entry) {
+    "use": async function(entry) {
       try {
           entry.fileName = entry.fileName.replace(".less", ".css");
           entry.content = (await require("less").render(entry.content.toString("utf8"), {
           filename: require("path").resolve(entry.file),
           })).css;
-        } catch (error) {
+        } catch(error) {
           console.log(error);
         }
         return entry;
@@ -398,8 +398,8 @@ Bundl has the ability to execute commands for you with its `run` module.
 
 |Function|Description|
 |--------|-----------|
-|**exec (command, options, doneHandler)**| Executes the command and streams the output.|
-|**fetch (command, options, doneHandler)**| Executes the command and grabs the output.|
+|**exec(command, options, doneHandler)**| Executes the command and streams the output.|
+|**fetch(command, options, doneHandler)**| Executes the command and grabs the output.|
 
 ### options
 - **execHandler:** Default output callback `function(out, error)`, redirects stdout when provided.
