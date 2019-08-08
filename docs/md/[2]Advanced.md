@@ -123,6 +123,7 @@ The input properties can have a boolean value, just to mark the file as required
 "input": {
   "inputfile.ext": true
 }
+```
 
 or simply
 
