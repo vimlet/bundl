@@ -37,7 +37,9 @@
   },
   "devDependencies": {
     "intern": "4.4.2",
-    "@vimlet/doc": "2.0.10",
     "minimum-node-version": "2.0.2"
+  },
+  "optionalDependencies": {
+    "@vimlet/doc": "2.0.10"
   }
 }
