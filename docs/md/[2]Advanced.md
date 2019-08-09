@@ -151,7 +151,7 @@ When using object as value, following parameters are available:
 
 ## Use Function
 
-A function or an array of functions, which allow the user to modify the content and the filename.
+A function or an array of functions, which allow the user to modify the content and the path.
 
 Use can be used either at output object or at input object. The function has the same syntax but some differences.
 
@@ -170,12 +170,12 @@ Entry is an object with the following keys:
 
 |Property|Description|
 |--------|-----------|
-|**path**|The input path relative to the current working directory.|
+|**path**|Entry path.|
 |**content**|Content of the output file.|
 
 ```[javascript]
 "use": function(entry) {
-  entry.fileName = entry.fileName.replace(".less", ".css");
+  entry.path = entry.path.replace(".less", ".css");
   entry.content += "\nconsole.log(\"output use\");";
   return entry;
 }
@@ -186,7 +186,7 @@ Entry is an object with the following keys:
 
 |Property|Description|
 |--------|-----------|
-|**path**|The input path relative to the current working directory.|
+|**path**|Entry path.|
 |**content**| Content of the input file.|
 
 When a pattern like `src/**.js` is used, you get to additional properties:
@@ -198,7 +198,7 @@ When a pattern like `src/**.js` is used, you get to additional properties:
 
 ```[javascript]
 "use":function(entry) {
-  entry.fileName = entry.fileName.replace(".less", ".css");
+  entry.path = entry.path.replace(".less", ".css");
   entry.content += "\nconsole.log(\"output use\");";
   return entry;
 }
@@ -229,9 +229,10 @@ Processing `.less` files using npm dependency `less`.
   "less/**.less": {
     "use": async function(entry) {
       try {
-          entry.fileName = entry.fileName.replace(".less", ".css");
+          var file = entry.path;
+          entry.path = entry.path.replace(".less", ".css");
           entry.content = (await require("less").render(entry.content.toString("utf8"), {
-          filename: require("path").resolve(entry.file),
+          filename: require("path").resolve(file),
           })).css;
         } catch(error) {
           console.log(error);
