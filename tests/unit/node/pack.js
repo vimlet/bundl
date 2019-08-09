@@ -67,8 +67,8 @@ suite("bundl", () => {
         assert.strictEqual(files.length, expected, "Copy expected " + expected);
     });
     test("command", async () => {
-        await run.exec('node ../../../src/index.js', {
-            args: ["-c", "../resources/config/command.js"],
+        await run.exec('node', {
+            args: ["../../../src/index.js", "-c", "../resources/config/command.js"],
             workingDirectory: __dirname
         });
         let files = await glob.files("output/command/**", {

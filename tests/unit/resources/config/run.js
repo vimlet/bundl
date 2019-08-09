@@ -18,7 +18,7 @@ module.exports = {
         "js/c.js":true
       },
       use: async function (entry, run) {
-        entry.content += await run.fetch("ping", {"args":["8.8.8.8"]});
+        entry.content += await run.fetch("node", {"args":["-v"]});  
         return entry;
       }
     }
