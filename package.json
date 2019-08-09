@@ -12,6 +12,10 @@
     "compile",
     "tasks"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vimlet/bundl.git"
+  },
   "main": "src/index.js",
   "bin": {
     "bundl": "src/index.js"
