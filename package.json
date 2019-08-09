@@ -24,8 +24,7 @@
     "start": "node src/index.js",
     "doc": "vimlet-doc c 'doc.json'",
     "postinstall": "node src/version.js",
-    "test": "npx intern config=@node",
-    "check": "node src/minimumVersion.js"
+    "test": "npx intern config=@node"
   },
   "license": "MIT",
   "dependencies": {
@@ -40,8 +39,7 @@
     "semver": "6.3.0"
   },
   "devDependencies": {
-    "intern": "4.4.2",
-    "minimum-node-version": "2.0.2"
+    "intern": "4.4.2"
   },
   "optionalDependencies": {
     "@vimlet/doc": "2.0.10"
