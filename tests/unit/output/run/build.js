@@ -1,14 +1,14 @@
-console.log("a");v10.15.3
+console.log("a");v10.13.0
 
 console.log("b");
 Haciendo ping a 8.8.8.8 con 32 bytes de datos:
-Respuesta desde 8.8.8.8: bytes=32 tiempo=29ms TTL=54
-Respuesta desde 8.8.8.8: bytes=32 tiempo=28ms TTL=54
-Respuesta desde 8.8.8.8: bytes=32 tiempo=28ms TTL=54
-Respuesta desde 8.8.8.8: bytes=32 tiempo=28ms TTL=54
+Respuesta desde 8.8.8.8: bytes=32 tiempo=2ms TTL=55
+Respuesta desde 8.8.8.8: bytes=32 tiempo=2ms TTL=55
+Respuesta desde 8.8.8.8: bytes=32 tiempo=2ms TTL=55
+Respuesta desde 8.8.8.8: bytes=32 tiempo=3ms TTL=55
 
 Estad�sticas de ping para 8.8.8.8:
     Paquetes: enviados = 4, recibidos = 4, perdidos = 0
     (0% perdidos),
 Tiempos aproximados de ida y vuelta en milisegundos:
-    M�nimo = 28ms, M�ximo = 29ms, Media = 28ms
+    M�nimo = 2ms, M�ximo = 3ms, Media = 2ms

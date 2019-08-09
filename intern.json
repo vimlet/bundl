@@ -13,6 +13,6 @@
   "configs": {
     "node": {
       "environments+": ["node"]
-    }    
+    }   
   }
 }

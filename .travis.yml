@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+- lts/*
+cache:
+  directories:
+  - "${HOME}/.npm"
+  - node_modules
+install:
+- npm install
+script:
+- npm run build
+- npm run test
+before_deploy:
+- npm run release
+- cd ${TRAVIS_BUILD_DIR}

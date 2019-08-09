@@ -12,6 +12,7 @@
 ![NPM](https://img.shields.io/npm/v/@vimlet/bundl)
 ![License](https://img.shields.io/github/license/vimlet/bundl.svg)
 [![Documentation](https://img.shields.io/badge/url-documentation-brightgreen)](https://bundljs.org/docs/#!mode=manual&file=Get%20Started.md)
+![Travis (.org)](https://img.shields.io/travis/vimlet/bundl)
 
 
 Bundl is a flexible project bundler for any language. It allows you to split your code and assets in a convenient way for daily work, while optimizing the output for production with the help of any toolchain of your choice.
