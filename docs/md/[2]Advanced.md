@@ -107,7 +107,7 @@ When `"parse": true`, it's recommend to add an `id` property, so you can retriev
 }
 ```
 
-## Input String/Object
+## Input String/Object/Array
 
 When an input configuration object is used, it's keys are the file paths to use as input for the output.
 `*` and `**` patterns can be used to target multiple files. If the path starts with `!` it will exclude that pattern.
@@ -131,6 +131,15 @@ or simply
 "input": "inputfile.ext"
 ```
 
+you could even use an array
+
+```[javascript]
+"input": [{
+    "inputfile.ext": true
+  },
+  "inputfile2.ext"]
+```
+
 ### Input Properties
 
 When using object as value, following parameters are available:
@@ -151,15 +160,31 @@ When using object as value, following parameters are available:
 
 ## Use Function
 
-A function or an array of functions, which allow the user to modify the content and the path.
-
+A function or an array of functions, which allow the user to modify the content and the output path.
+Use function can return a promise or simply use the async keyword.
 Use can be used either at output object or at input object. The function has the same syntax but some differences.
 
+*Example:*
 ```[javascript]
-use: function(entry, run){
+use: async function(entry, run){
   // Do something
   return entry;
 }
+```
+
+or chain multiple use functions with array 
+
+```[javascript]
+use: [
+  async function(entry, run){
+    // Do something
+    return entry;
+  },
+  async function(entry, run){
+    // Do something
+    return entry;
+  }
+]
 ```
 
 The function has an `entry` parameter and it must return it again.
@@ -173,6 +198,7 @@ Entry is an object with the following keys:
 |**path**|Entry path.|
 |**content**|Content of the output file.|
 
+*Example:*
 ```[javascript]
 "use": function(entry) {
   entry.path = entry.path.replace(".less", ".css");
@@ -196,6 +222,7 @@ When a pattern like `src/**.js` is used, you get to additional properties:
 |**match**|When pattern used, is the file that matched the pattern.|
 |**pattern**| When pattern used, is the pattern that matched the file.|
 
+*Example:*
 ```[javascript]
 "use":function(entry) {
   entry.path = entry.path.replace(".less", ".css");
@@ -207,6 +234,7 @@ When a pattern like `src/**.js` is used, you get to additional properties:
 > It is important to know that input use will be done before output use.
 > Use allows async functions with await.
 
+*Example:*
 ```[javascript]
 "use": async function(entry) {
   entry.content = await doSomething(entry.content);
@@ -249,6 +277,7 @@ Processing `.less` files using npm dependency `less`.
 [Plugins]<>
 Bundl can easily be extended with your own code but it also has an official GitHub plugin repository [https://github.com/vimlet/bundl-plugins](https://github.com/vimlet/bundl-plugins) with plugins for most of the common tools out there.
 
+*Example:*
 ```[javascript]
 module.exports = {
   "output": {
@@ -373,6 +402,7 @@ This will enable watch mode. If any file under watch directory that matches an i
 
 It can also be configured at `bundl.config.js` even using array for multiple directories:
 
+*Example:*
 ```[javascript]
 module.exports = {
   "watch": ["src", "doc"],
