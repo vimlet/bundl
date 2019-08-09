@@ -1,0 +1,6 @@
+---
+exclude_paths:
+ - "**README.md"
+ - "docs/**"
+ - "tests/**"
+ - "node_modules/**"
