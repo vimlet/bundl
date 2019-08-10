@@ -1,14 +1,7 @@
 {
-  "remoteUrl": "http://localhost:3000",
-  "leaveRemoteOpen": false,
-
   "node": {
-    "suites": ["tests/unit/node/**/*.js"]
+    "suites": ["tests/unit/node/**.js"]
   },
-
-  "functionalSuites": [
-    "tests/functional/browser/**/*.js"
-  ],
   
   "configs": {
     "node": {

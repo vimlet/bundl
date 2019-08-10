@@ -1,4 +1,4 @@
-const promisify = require("util").promisify;
+const { promisify } = require("util");
 const meta = require("@vimlet/meta");
 const parse = promisify(meta.parse);
 

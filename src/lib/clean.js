@@ -1,4 +1,4 @@
-const promisify = require("util").promisify;
+const { promisify } = require("util");
 const fs = require("fs");
 const exists = promisify(fs.exists);
 const fsRemove = promisify(fs.unlink);
