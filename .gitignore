@@ -2,4 +2,4 @@
 /npm-debug.log
 /package-lock.json
 /.vscode
-/bundl.config.js
+/tests/unit/output
