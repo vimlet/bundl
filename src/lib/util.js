@@ -1,5 +1,5 @@
 const glob = require("@vimlet/commons-glob");
-const promisify = require("util").promisify;
+const { promisify } = require("util");
 const fs = require("fs");
 const readFile = promisify(fs.readFile);
 

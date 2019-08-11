@@ -1,4 +1,4 @@
-const promisify = require("util").promisify;
+const { promisify } = require("util");
 const fs = require("fs");
 const writeFile = promisify(fs.writeFile);
 const exists = promisify(fs.exists);
