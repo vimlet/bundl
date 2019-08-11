@@ -1,6 +1,6 @@
 module.exports = {
-    inputBase:"tests/resources/join",
-    outputBase:"tests/resources/join",
+    inputBase:"tests/resources/joinSorted",
+    outputBase:"tests/resources/joinSorted",
     output: {
 
         // --- Output String ---
@@ -8,12 +8,14 @@ module.exports = {
 
         // ---  Output Object ---
         "output/join2.txt": {
-            input: "input/**.txt"
+            input: "input/**.txt",
+            order: 2
         },
         "output/join3.txt": {
             input: {
                 "input/**.txt": true
-            }
+            },
+            order: 3
         },
         "output/join4.txt": {
             input: [
@@ -22,7 +24,8 @@ module.exports = {
                 {
                     "input/c.txt": true
                 }
-            ]
+            ],
+            order: 4
         },
         
         // --- Output Array ---
