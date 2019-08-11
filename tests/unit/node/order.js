@@ -11,8 +11,8 @@ const resources = path.join(__dirname, "../../resources");
 
 suite("bundl-order", () => {
 
-    test("dummy", async () => {
-        assert.strictEqual(true, true, "Expected equal");
-    });
+	test("dummy", async () => {
+		assert.strictEqual(true, true, "Expected equal");
+	});
 
 });
