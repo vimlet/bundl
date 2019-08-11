@@ -10,15 +10,15 @@ module.exports.build = async config => {
     console.log("Build started...");
   }
   config = setupConfig(config);
-  await clean(config);  
+  await clean(config);
   await pack(config);
 };
 
 // @function pack (private) [After clean, sort and start packing]
 async function pack(config) {
   let sorted = sort(config);  
-  await processSorted(config, sorted.sorted);  
-  await build(config, sorted.unsorted);  
+  await processSorted(config, sorted.sorted);
+  await build(config, sorted.unsorted);
   console.log("Build completed at: " + getTime());
 }
 
@@ -90,7 +90,7 @@ async function processSorted(config, sorted) {
 
 async function build(config, objs) {
   let hashes = {};
-  let processOutputPromises = [];
+  let processOutputPromises = [];  
   // Process copy and transform actions in order.
   objs.forEach(obj => {
     var isCopy = obj.outPath.endsWith("**");
@@ -99,7 +99,7 @@ async function build(config, objs) {
     } else {
       processOutputPromises.push(transform.process(config, obj, hashes));
     }
-  });
+  });  
   // Flatten results nested arrays
   let processOutputResults = (await Promise.all(processOutputPromises))
     .reduce((prev, current) => {
@@ -116,7 +116,7 @@ async function build(config, objs) {
   await late.process(processOutputResults, hashes, config);
 }
 
-// @funciton setupConfig (private)
+// @function setupConfig (private)
 function setupConfig(config) {
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
   config.outputBase = "outputBase" in config ? config.outputBase : "";
@@ -128,7 +128,7 @@ function setupConfig(config) {
 
 // @function querParam (private) [Manage query param in outputs]
 function queryParam(config) {
-  if(typeof config.output != 'object'){
+  if (typeof config.output != 'object') {
     throw new Error("Bundl.config is bad formatted");
   }
   var output = {};
@@ -148,47 +148,51 @@ function queryParam(config) {
       output[key] = setOutput(config.output[key]);
     }
   }
-  config.output = output;  
+  config.output = output;
   return config;
 }
 
 // @function setOutput (private) [Set output config from inputs. Handle array, string or object]
 function setOutput(output) {
+  // output is an object
   if (typeof output === 'object' && !Array.isArray(output)) {
+    // input is an object
     if (typeof output.input === 'object' && !Array.isArray(output.input)) {
       return output;
     } else {
+      // input is an array
       if (Array.isArray(output.input)) {
-        var newInput = {};
-        output.input.forEach(inp=>{
-          newInput[inp] = true;
-          output.input = newInput;
-        });           
-        return output;    
+        var inp = {};
+        output.input.forEach(cuInp=>{
+          if(typeof cuInp != 'object'){
+            inp[cuInp] = true;
+          }else{
+            for(var cuKey in cuInp){
+              inp[cuKey] = cuInp[cuKey];
+            }
+          }
+        });
+        output.input = inp;
+        return output;
+        // input is a string
       } else {
-        var newInput = {};
-        newInput[output.input] = true;
-        output.input = newInput;
+        var inp = {};
+        inp[output.input] = true;
+        output.input = inp;
         return output;
       }
     }
   } else {
+     // output is an array   
     if (Array.isArray(output)) {
-      var res = output.map(element => {
-        if (typeof element === 'string') {
-          var current = {
-            input: {}
-          };
-          current.input[element] = true;
-          return current;
-        }
-        return element;
+      var res = {input:{}};
+      output.forEach(cuOut =>{
+        res.input[cuOut] = true;
       });
       return res;
+      // output is a string
     } else {
-      var res = {
-        input: {}
-      };
+      var res = {input:{}};
       res.input[output] = true;
       return res;
     }
@@ -236,36 +240,29 @@ function setParamKey(obj, key, value) {
 function sort(config) {
   var sorted = {};
   var unsorted = [];
-  Object.keys(config.output).forEach(element => {
-    if (typeof config.output[element] === 'object' && !Array.isArray(config.output[element])) {
-      config.output[element].outPath = element;
-      if ("order" in config.output[element]) {
-        var currentOrder = parseInt(config.output[element].order);
-        config.output[element].outPath = element;
-        if (sorted[currentOrder]) {
+    Object.keys(config.output).forEach(element => {
+      if (typeof config.output[element] === 'object' && !Array.isArray(config.output[element])) {
+        if ("order" in config.output[element]) {
+          var currentOrder = parseInt(config.output[element].order);
+          sorted[currentOrder] = sorted[currentOrder] || [];
+          config.output[element].outPath = element;
           sorted[currentOrder].push(config.output[element]);
         } else {
-          sorted[currentOrder] = [config.output[element]];
-        }
-      } else {
-        unsorted.push(config.output[element]);
+          config.output[element].outPath = element;
+          unsorted.push(config.output[element]);
+        }        
+      } else if (Array.isArray(config.output[element])) {
+        var current = {};
+        current.outPath = element;
+        current.input = config.output[element];
+        unsorted.push(current);
+      }else{
+        var current = {};
+        current.outPath = element;        
+        current.input = config.output[element];
+        unsorted.push(current);
       }
-    } else if (Array.isArray(config.output[element])) {
-      config.output[element].forEach(e => {
-        e.outPath = element;
-        if ("order" in e) {
-          var currentOrder = parseInt(e.order);
-          if (sorted[currentOrder]) {
-            sorted[currentOrder].push(e);
-          } else {
-            sorted[currentOrder] = [e];
-          }
-        } else {
-          unsorted.push(e);
-        }
-      });
-    }
-  });
+    });
   return {
     sorted: sorted,
     unsorted: unsorted
