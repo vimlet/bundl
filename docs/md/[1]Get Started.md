@@ -36,7 +36,7 @@ On your project root, run:
 ```[javascript]
 module.exports = {
   output: {
-    "build/bundle.js": "src/js/**.js"
+    "dist/bundle.js": "src/js/**.js"
   }
 };
 ```
@@ -61,7 +61,7 @@ const bundl = require("@vimlet/bundl");
 
 var config = {
   output: {
-    "build/bundle.js": "src/js/**.js"
+    "dist/bundle.js": "src/js/**.js"
   }
 };
 

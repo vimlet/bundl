@@ -56,12 +56,12 @@ Paths parameters and values of the config might use glob patterns where `*` and 
 *Example:*
 ```[javascript]
 module.exports = {
-  outputBase: "build",
+  outputBase: "dist",
   inputBase: "src",
   watch: "src",
   clean: true,
   output: {
-    "dist/bundle.js": "src/**.js"
+    "bundle.js": "**.js"
   }
 };
 ```
@@ -320,7 +320,7 @@ Bundl can easily be extended with your own code but it also has an official GitH
 ```[javascript]
 module.exports = {
   output: {
-    "build/bundle.js": {
+    "dist/bundle.js": {
       use: [
         // Plugins
         require("@bundl/plugin1"),
