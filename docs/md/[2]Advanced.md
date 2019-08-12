@@ -281,8 +281,6 @@ use: async function(entry) {
 }
 ```
 
-*There are some other properties at entry object such as pattern for input, they can be useful but their modification will not be taken in the bundle process.*
-
 ### Third party modules with use
 
 This example shows how you can add `use` to process files with external dependencies.
