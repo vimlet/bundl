@@ -15,7 +15,13 @@ Since its a normal NodeJS javascript file you can use all its API features inclu
 
 ```[javascript]
 module.exports = {
-  //...
+  output: {
+    // Join .js and .css files
+    "dist/bundle.js": "src/js/**.js",
+    "dist/bundle.css": "src/css/**.css",
+    // Copy other assets
+    "dist/**": "src/copy/**"
+  }
 };
 ```
 ### Glob Patterns

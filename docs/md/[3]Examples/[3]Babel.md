@@ -10,15 +10,15 @@ Then add a `use` property with a similar logic to your config:
 *Example bundl.config.js*
 ```[javascript]
 module.exports = {
-  "output": {
-    "build/bundle.js": {
-      "use": function(entry) {
+  output: {
+    "dist/bundle.js": {
+      use: function(entry) {
         entry.content = require("@babel/core").transformSync(entry.content, {
           presets: [require("@babel/preset-env")]
         }).code;
         return entry;
       },
-      "input": {
+      input: {
         "src/**.js": true
       }
     }
@@ -41,10 +41,10 @@ module.exports = function(entry) {
 *Example bundl.config.js*
 ```[javascript]
 module.exports = {
-  "output": {
-    "build/bundle.js": {
-      "use": require("./use-babel");
-      "input": {
+  output: {
+    "dist/bundle.js": {
+      use: require("./use-babel"),
+      input: {
         "src/**.js": true
       }
     }
