@@ -6,7 +6,7 @@
 The configuration file is a javascript file that exports a configuration object.
 Since its a normal NodeJS javascript file you can use all its API features including:
 
-- imports
+- require
 - dependencies
 - variables
 - functions
@@ -18,59 +18,77 @@ module.exports = {
   //...
 };
 ```
-## Configuration Object (Root Object)
+### Glob Patterns
+Paths parameters and values of the config might use glob patterns where `*` and `**` patterns can be used to target multiple files. If the pattern starts with `!` it will exclude matched paths.
 
-### Configuration Properties
+**Glob Syntax:**
+- `*` matches any character sequence that does not contain '/'.
+- `**` matches any character sequence.
+- `!`[pattern] excludes the matches from previous matches.
+
+```
+"*.js" Matches any file ending with `.js` for the current directory.
+
+"**.js" Matches any file ending with `.js` for the current directory and subdirectories.
+
+["**", "!**test**"] Matches all files except the ones that contain `test`.
+```
+
+## Configuration Object (Root)
+
+### Properties
 
 |Property|Description|
 |--------|-----------|
 |**outputBase**|Generated files will be all within this directory, they will be nested inside following their input path.|
 |**inputBase**|Files will be looking for from this directory.|
 |**log**|If set to false, hides verbose output.|
-|**watch**|Path to a folder to keep looking for changes.|
+|**watch**|Path to a directory to keep looking for changes.|
 |**clean**|If set to true, outputBase will be empty before start packing.|
 |**output**|The output object, contains the output paths as keys with input patterns or objects as values.|
 
 *Example:*
 ```[javascript]
 module.exports = {
-  "outputBase": "build",
-  "inputBase": "src",
-  "watch": "src",
-  "clean": true,
-  "output": {
-    "bundle.js": "js/**.js"
+  outputBase: "build",
+  inputBase: "src",
+  watch: "src",
+  clean: true,
+  output: {
+    "dist/bundle.js": "src/**.js"
   }
 };
 ```
 
-## Output String/Object/Array
+## root.output (Values: String/Object/Array)
 
 The output paths are presented as the keys of this object. If global outputBase property is present, it will be added at the start of each output path key.
 The output path key can hold several value formats.
 
-**Simple string:** Path to single input file.
+> All file formats can be used not only `.js`
+
+**String:** Path to single input file.
 ```[javascript]
 output: {
-  "output/subfolder": "input.txt"
+  "dist/bundle.js": "src/**.js"
 }
 ```
 
 **Object:** A configuration object for given output.
 ```[javascript]
 output: {
-  "output/subfolder": {input: "input.txt", ...}
+  "dist/bundle.js": { input: "src/**.js" }
 }
 ```
 
-**Array:** Can contain both string and object.
+**Array:** Can *ONLY* contain strings since single target output is incompatible with some properties like order for example.
 ```[javascript]
 output: {
-  "output/subfolder": [{input: "input1.txt", ...}, "input2.txt"]
+  "dist/bundle.js": ["file1.js", "file2.js"]
 }
 ```
 
-### Output Properties
+### Properties
 
 |Property|Description|
 |--------|-----------|
@@ -82,35 +100,18 @@ output: {
 
 *Example:*
 ```[javascript]
-"output": {
-  "outputfile.ext": {
-    "order": 0,
-    "id": "example",
-    "input": "inputfile.ext"
+output: {
+  "dist/bundle.js": {
+    order: 0,
+    id: "example",
+    input: "src/**.js"
   }
 }
 ```
 
-### Hash Interpolation
-
-You can interpolate a shortened file hash as part of the output path key with `{{hash}}`, this will be inserted as a part of the key. 
-This is useful for tracking changes or busting caches, since the hash will change when any input file for a given output is modified
-When `"parse": true`, it's recommend to add an `id` property, so you can retrieve the name using `<%= hash(id); %>`
-
-*Example:*
-```[javascript]
-"output": {
-  "bundle.{{hash}}.js": {
-    "id": "bundle.js",
-    //...
-  }
-}
-```
-
-## Input String/Object/Array
+## root.output.input (Values: String/Object/Array)
 
 When an input configuration object is used, it's keys are the file paths to use as input for the output.
-`*` and `**` patterns can be used to target multiple files. If the path starts with `!` it will exclude that pattern.
 
 If a global inputBase property is specified, it will be added at the start of each path key.
 
@@ -119,48 +120,80 @@ If a global inputBase property is specified, it will be added at the start of ea
 
 The input properties can have a boolean value, just to mark the file as required, or an object with its own properties.
 
+
+**String:** Path to single input file.
 ```[javascript]
-"input": {
-  "inputfile.ext": true
+output: {
+  "dist/bundle.js": {
+    input: "src/**.js"
+  }
 }
 ```
 
-or simply
-
+**Object:** A configuration object for given input property.
 ```[javascript]
-"input": "inputfile.ext"
+output: {
+  "dist/bundle.js": {
+    input: {
+      "src/**.js": {
+        parse: true
+      }
+    }
+  }
+}
 ```
 
-you could even use an array
-
+**Array:** Can contain only both string and object.
 ```[javascript]
-"input": [{
-    "inputfile.ext": true
-  },
-  "inputfile2.ext"]
+output: {
+  "dist/bundle.js": {
+    input: [
+      "src/a.js",
+      {
+        "src/b.js": true
+      }
+    ]
+  }
+}
 ```
 
-### Input Properties
+### Properties
 
 When using object as value, following parameters are available:
 
 |Property|Description|
 |--------|-----------|
 |**parse**|Run meta for given key.|
-|**use**|`function(entry){return entry;}` Use custom code to modify the input.|
+|**use**|`function(entry){return entry;}` Use custom code to modify the file.|
 |**read**|If set to false, file content will not be read. Useful when reading it by other means in `use` function.|
 
 *Example:*
 ```[javascript]
-"input": {
-  "file.*": true,
-  "!file.html": true
+input: [
+  "src/**.js",
+  "!src/**test**"
+]
+```
+
+[Hashing]<>
+
+You can interpolate a shortened file hash as part of the output path key with `{{hash}}`, this will be inserted as a part of the key. 
+This is useful for tracking changes or busting caches, since the hash will change when any input file for a given output is modified
+When `"parse": true`, it's recommend to add an `id` property, so you can retrieve the name using `<%= hash(id); %>`
+
+*Example:*
+```[javascript]
+output: {
+  "bundle.{{hash}}.js": {
+    id: "bundle.js",
+    //...
+  }
 }
 ```
 
-## Use Function
+[Use]<>
 
-A function or an array of functions, which allow the user to modify the content and the output path.
+Property `use` can have as a value a function or an array of functions, which allow the user to modify the content and the output path.
 Use function can return a promise or simply use the async keyword.
 Use can be used either at output object or at input object. The function has the same syntax but some differences.
 
@@ -200,7 +233,7 @@ Entry is an object with the following keys:
 
 *Example:*
 ```[javascript]
-"use": function(entry) {
+use: function(entry) {
   entry.path = entry.path.replace(".less", ".css");
   entry.content += "\nconsole.log(\"output use\");";
   return entry;
@@ -224,7 +257,7 @@ When a pattern like `src/**.js` is used, you get to additional properties:
 
 *Example:*
 ```[javascript]
-"use":function(entry) {
+use: function(entry) {
   entry.path = entry.path.replace(".less", ".css");
   entry.content += "\nconsole.log(\"output use\");";
   return entry;
@@ -236,7 +269,7 @@ When a pattern like `src/**.js` is used, you get to additional properties:
 
 *Example:*
 ```[javascript]
-"use": async function(entry) {
+use: async function(entry) {
   entry.content = await doSomething(entry.content);
   return entry;
 }
@@ -253,9 +286,9 @@ This example shows how you can add `use` to process files with external dependen
 Processing `.less` files using npm dependency `less`.
 
 ```[javascript]
-"input": {
+input: {
   "less/**.less": {
-    "use": async function(entry) {
+    use: async function(entry) {
       try {
           var file = entry.path;
           entry.path = entry.path.replace(".less", ".css");
@@ -280,15 +313,15 @@ Bundl can easily be extended with your own code but it also has an official GitH
 *Example:*
 ```[javascript]
 module.exports = {
-  "output": {
+  output: {
     "build/bundle.js": {
-      "use": [
+      use: [
         // Plugins
         require("@bundl/plugin1"),
         require("@bundl/plugin2"),
         require("@bundl/plugin3")
       ],
-      "input": "src/**.js"
+      input: "src/**.js"
     }
   }
 };
@@ -296,7 +329,7 @@ module.exports = {
 
 All official plugins can be found under the NPM organization @bundl.
 
-[Query Params]<>
+[QueryParam]<>
 
 Output keys allow output options to be passed as query params, following the same syntax as HTML query params, in order to simplify some scenarios.
 
@@ -311,8 +344,8 @@ is the same as:
 
 ```[javascript]
 "index.html": {
-  "parse": true,
-  "input": {
+  parse: true,
+  input: {
     "html/index.html": true
   }
 }
@@ -323,7 +356,7 @@ If an object key has the same property as the one provided by the query params, 
 *Example:*
 ```[javascript]
 "index.html?parse=true": {
-  "input": "html/index.html"
+  input: "html/index.html"
 }
 ```
 
@@ -331,7 +364,7 @@ is the same as:
 
 ```
 "index.html": {
-  "parse": true,
+  parse: true,
   input: {
     "html/index.html": true
   }
@@ -345,7 +378,7 @@ If any output key ends with **, it will be interpreted as `copy` task, and all t
 *Example:*
 ```[javascript]
 "copy/**": {
-  "input": {
+  input: {
     "input/**": true
   }
 }
@@ -355,9 +388,9 @@ All files inside `input/**` will be copied to `copy` following the same structur
 
 [Templating]<>
 
-[Vimlet meta templating engine](https://github.com/vimlet/vimlet-meta) is built in bundl. 
+Bundl has built-in support for templates with [@vimlet/meta](https://github.com/vimlet/vimlet-meta) templating engine. 
 
-If `"parse": true` meta template engine will parse the file content.
+If `parse: true` meta template engine will parse the file content.
 
 Meta template engine is used to generate files from templates that allow the use of JavaScript and NodeJS API.
 
@@ -366,7 +399,7 @@ Meta template engine is used to generate files from templates that allow the use
 Join files with meta:
 
 Template1:
-```Hello I'm a template <%template(template2)%>```
+```Hello I'm a template <%template("template2")%>```
 
 Template2:
 ```I'm another template```
@@ -396,7 +429,7 @@ If you need more information regarding meta please visit [https://github.com/vim
 
 Bundl has the ability to keep track for changes on input files and output again the necessary files without the need to manually run bundl each time.
 
-```bundl -w "path_to_folder"```
+```bundl -w "path_to_directory"```
 
 This will enable watch mode. If any file under watch directory that matches an input are modified, bundl will run again for those outputs.
 
@@ -405,8 +438,8 @@ It can also be configured at `bundl.config.js` even using array for multiple dir
 *Example:*
 ```[javascript]
 module.exports = {
-  "watch": ["src", "doc"],
-  "output": {
+  watch: ["src", "doc"],
+  output: {
     //...
   }
 };
@@ -419,16 +452,14 @@ An `order` property can be added to both output and input objects, to determine 
 
 *Example:*
 ```[javascript]
-"output": {
-  "outputfile1.ext": {
-    "order": 0,
-    "id": "example",
-    "input": "inputfile1.ext"
+output: {
+  "file1.js": {
+    order: 0,
+    input: "file1.js"
   },
-  "outputfile2ext": {
-    "order": 1,
-    "id": "example",
-    "input": "inputfile2.ext"
+  "file2.js": {
+    order": 1,
+    input: "file2.js"
   }
 }
 ```
@@ -466,7 +497,7 @@ For convenience, `use` function provides a reference to `run` as a second argume
 
 *Example:*
 ```[javascript]
-"use": async function(entry, run) {
+use: async function(entry, run) {
   await run.exec("ping", {
     "args": ["8.8.8.8"],
     "execHandler": function(out, error) {
