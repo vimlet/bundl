@@ -48,6 +48,15 @@ On your project root, run:
 
 ### Command line
 
+*Example bundl.config.js*
+```javascript
+module.exports = {
+  output: {
+    "build/bundle.js": "src/js/**.js"
+  }
+};
+```
+
 On your project root, run:
 
 ```npx @vimlet/bundl```
@@ -67,7 +76,7 @@ A config path can be provided with `-c` like so:
 const bundl = require("@vimlet/bundl");
 
 var config = {
-  "output": {
+  output: {
     "build/bundle.js": "src/js/**.js"
   }
 };
