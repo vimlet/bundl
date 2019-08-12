@@ -1,0 +1,2 @@
+I'm 1
+<% template('2.vmi');%>
