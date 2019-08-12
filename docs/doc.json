@@ -1,0 +1,37 @@
+{
+  "article": [{
+    "include": [
+      "md/**/*.md"
+    ],
+    "entry":"manual",
+    "extension": false,
+    "output": "release/manual",
+    "band": "#18c796",
+    "hoverColorText": "white",
+    "version":"1.0.0",
+    "selectedColorText": "white"
+  }],
+  "main": {
+    "versions": {
+      "1.0.0": {
+        "latest": true,
+        "mainIcon": "img/bundl.png",
+        "mainIconLink": "http://bundljs.org",
+        "entries": {
+          "manual": {
+            "title": "Manual",
+            "icon": "list",
+            "brief": "Get Started"
+          },
+          "api": {
+            "title": "API",
+            "icon": "vertical-split",
+            "brief": "API Documentation"
+          }
+        }
+      }
+    },
+    "output": "release",
+    "template": "template/build/eon"
+  }
+}
