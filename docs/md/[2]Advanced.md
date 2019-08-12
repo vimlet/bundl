@@ -399,7 +399,7 @@ Meta template engine is used to generate files from templates that allow the use
 Join files with meta:
 
 Template1:
-```Hello I'm a template <%template("template2")%>```
+```Hello I'm a template <% template("template2") %>```
 
 Template2:
 ```I'm another template```
