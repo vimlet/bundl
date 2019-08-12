@@ -5,11 +5,8 @@ const late = require("./late");
 const glob = require("@vimlet/commons-glob");
 const path = require("path");
 
-// @property currentBeforeId (private) [Index to give ids to before promises]
-var currentBeforeId = 0;
-// @property beforeRelation (private) [Map for before promises and their ids]
-var beforeRelation = {};
-
+// @property sortIndexModifier (private) [Added to sort index integer to have free index below when using before/after]
+const sortIndexModifier = 1000;
 
 module.exports.build = async config => {
   if (!("log" in config) || config.log) {
@@ -23,7 +20,8 @@ module.exports.build = async config => {
 // @function pack (private) [After clean, sort and start packing]
 async function pack(config) {
   let sorted = sort(config);
-  await Promise.all([processSorted(config, sorted.sorted), build(config, sorted.unsorted)]);
+  await processSorted(config, sorted.sorted);
+  await build(config, sorted.unsorted);
   console.log("Build completed at: " + getTime());
 }
 
@@ -176,7 +174,19 @@ function setOutput(output) {
     if (Array.isArray(output)) {
       return setOutputArray(output);
     } else {
-      return setOutputString(output);
+      if (Array.isArray(output.input)) {
+        var newInput = {};
+        output.input.forEach(inp => {
+          newInput[inp] = true;
+          output.input = newInput;
+        });
+        return output;
+      } else {
+        var newInput = {};
+        newInput[output.input] = true;
+        output.input = newInput;
+        return output;
+      }
     }
   }
 }
@@ -206,8 +216,33 @@ function setOutputObject(output) {
   if (typeof output.input === 'object' && !Array.isArray(output.input)) {
     return setInputObject(output);
   } else {
-    if (Array.isArray(output.input)) {
-      return setInputArray(output);
+    if (Array.isArray(output)) {
+      var res = output.map(element => {
+        if (typeof element === 'string') {
+          var current = {
+            input: {}
+          };
+          current.input[element] = true;
+          return current;
+        } else {
+          if (typeof element.input === 'object' && !Array.isArray(element.input)) {
+            return element;
+          } else if (Array.isArray(element.input)) {
+            var input = {};
+            element.input.forEach(eInput => {
+              input[eInput] = true;
+            });
+            element.input = input;
+            return element;
+          } else {
+            var input = {};
+            input[element.input] = true;
+            element.input = input;
+            return element;
+          }
+        }
+      });
+      return res;
     } else {
       return setInputString(output);
     }
@@ -289,21 +324,113 @@ function sort(config) {
   var before = {};
   Object.keys(config.output).forEach(element => {
     if (typeof config.output[element] === 'object' && !Array.isArray(config.output[element])) {
-      sortOutputObject(config, element, sorted, unsorted, before);
+      config.output[element].outPath = element;
+      if ("order" in config.output[element]) {
+        var currentOrder = parseInt(config.output[element].order) + sortIndexModifier;
+        config.output[element].outPath = element;
+        if (!sorted[currentOrder]) {
+          sorted[currentOrder] = [];
+        }
+        sorted[currentOrder].push(config.output[element]);
+      } else {
+        unsorted.push(config.output[element]);
+      }
     } else if (Array.isArray(config.output[element])) {
-      sortOutputArray(config, element, unsorted);
-    } else {
-      sortOutputString(config, element, unsorted);
+      config.output[element].forEach(e => {
+        e.outPath = element;
+        if ("order" in e) {
+          var currentOrder = parseInt(e.order) + sortIndexModifier;
+          if (!sorted[currentOrder]) {
+            sorted[currentOrder] = [];
+          }
+          sorted[currentOrder].push(e);
+        } else {
+          unsorted.push(e);
+        }
+      });
     }
   });
-  for (var beforeKey in before) {
-    unsorted = unsorted.map(current => {
-      if ("id" in current && current.id === beforeKey) {
-        current._waitFor = before[beforeKey];
+  return sortBeforeAfter(config, sorted, unsorted);
+}
+
+// @function sortBeforeAfter (private) [Sort unsorted items which have before/after key]
+function sortBeforeAfter(config, sorted, unsorted) {
+  // Remove before/after items from unsorted
+  var before = [];
+  var after = [];
+  var referredBeforeAfter = [];
+  unsorted = unsorted.filter(item => {
+    var added = false;
+    if (item.before) {
+      added = true;
+      referredBeforeAfter.push(item.before);
+      before.push(item);
+    }
+    if (item.after) {
+      added = true;
+      referredBeforeAfter.push(item.after);
+      after.push(item);
+    }
+    if (!added) {
+      return item;
+    }
+  });
+
+  // Add referred items from unsorted to sorted
+  unsorted = unsorted.filter(unsortedItem => {
+    if (unsortedItem.id && referredBeforeAfter.indexOf(unsortedItem.id) >= 0) {
+      sorted.push(unsortedItem);
+    } else {
+      return unsortedItem;
+    }
+  });
+  
+  // Add before items to sorted list
+  before.forEach(itemBefore => {
+    var added = false;
+    for (const key in sorted) {
+      var item = sorted[key];
+      item.forEach(current => {
+        if (current.id && current.id === itemBefore.before) {
+          var currentKey = parseInt(key) - 1;
+          if (!sorted[currentKey]) {
+            sorted[currentKey] = [];
+          }
+          added = true;
+          sorted[currentKey].push(itemBefore);
+        }
+      });
+    }
+    if (!added) {
+      if (!("log" in config) || config.log) {
+        console.log("Item " + itemBefore + "hasn't found its before index");
       }
-      return current;
-    });
-  }
+      unsorted.push(itemBefore);
+    }
+  });
+  // Add after items to sorted list
+  after.forEach(itemAfter => {
+    var added = false;
+    for (const key in sorted) {
+      var item = sorted[key];
+      item.forEach(current => {
+        if (current.id && current.id === itemAfter.after) {
+          var currentKey = parseInt(key) + 1;
+          if (!sorted[currentKey]) {
+            sorted[currentKey] = [];
+          }
+          added = true;
+          sorted[currentKey].push(itemAfter);
+        }
+      });
+    }
+    if (!added) {
+      if (!("log" in config) || config.log) {
+        console.log("Item " + itemAfter + "hasn't found its after index");
+      }
+      unsorted.push(itemAfter);
+    }
+  });
   return {
     sorted: sorted,
     unsorted: unsorted,

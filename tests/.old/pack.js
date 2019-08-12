@@ -362,4 +362,13 @@ suite("bundl", () => {
         var expected = 3;                
         assert.strictEqual(files.length, expected, "Path replace files expected " + expected);
     });
+    test("before & after", async () => {
+        var config = require("../resources/config/beforeAfter");
+        await pack.build(config);
+        let files = await glob.files("output/beforeAfter/**", {
+            path: path.join(__dirname, "../")
+        });      
+        var expected = 6;                
+        assert.strictEqual(files.length, expected, "Before & after files expected " + expected);
+    });
 });
