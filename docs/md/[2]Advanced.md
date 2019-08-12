@@ -489,11 +489,11 @@ Bundl has the ability to execute commands for you with its `run` module.
 const { run } = require("@vimlet/bundl");
 
 var donePromise = run.exec("ping", {
-  "args": ["8.8.8.8"]
+  args: ["8.8.8.8"]
 });
 
 var resultPromise = run.fetch("ping", {
-  "args": ["8.8.8.8"]
+  args: ["8.8.8.8"]
 });
 ```
 
@@ -503,8 +503,8 @@ For convenience, `use` function provides a reference to `run` as a second argume
 ```[javascript]
 use: async function(entry, run) {
   await run.exec("ping", {
-    "args": ["8.8.8.8"],
-    "execHandler": function(out, error) {
+    args: ["8.8.8.8"],
+    execHandler: function(out, error) {
       console.log(out);
     }
   });
