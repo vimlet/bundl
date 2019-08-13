@@ -9,6 +9,8 @@ const path = require("path");
 var currentBeforeId = 0;
 // @property beforeRelation (private) [Map for before promises and their ids]
 var beforeRelation = {};
+// @property idOutputsRelation (private) [Map for output keys which have id]
+idOutputsRelation = {};
 
 
 module.exports.build = async config => {
@@ -23,7 +25,7 @@ module.exports.build = async config => {
 // @function pack (private) [After clean, sort and start packing]
 async function pack(config) {
   let sorted = sort(config);
-  await Promise.all([processSorted(config, sorted.sorted), build(config, sorted.unsorted)]);
+  await Promise.all([processSorted(config, sorted.sorted), build(config, sorted.unsorted), build(config, sorted.after)]);
   console.log("Build completed at: " + getTime());
 }
 
@@ -96,38 +98,44 @@ async function processSorted(config, sorted) {
   });
 }
 
-async function build(config, objs) {  
+async function build(config, objs) {
   return new Promise(async (resolve, reject) => {
     let hashes = {};
     let processOutputPromises = [];
+    var tempIdsPromises = [];
     // Process copy and transform actions in order.
-    for(const obj of objs){
-      if(obj._waitFor){        
+    for (const obj of objs) {
+      if (obj._waitFor) {
         await beforeRelation[obj._waitFor];
       }
-      
+      if (obj.after) {
+        if (!Array.isArray(obj.after)) {
+          obj.after = obj.after.split("");
+        }
+        for (const afterId of obj.after) {
+          if (idOutputsRelation[afterId]) {
+            await idOutputsRelation[afterId];
+          }
+        }
+      }
       var isCopy = obj.outPath.endsWith("**");
+      var currentPromise;
       if (isCopy) {
-        processOutputPromises.push(copy.process(config, obj));
+        currentPromise = copy.process(config, obj);
+        processOutputPromises.push(currentPromise);
       } else {
-        processOutputPromises.push(transform.process(config, obj, hashes));
+        currentPromise = transform.process(config, obj, hashes);
+        processOutputPromises.push(currentPromise);
+      }
+      tempIdsPromises.push(obj.id);
+      if (obj.id) {
+        idOutputsRelation[obj.id] = currentPromise;
       }
     }
-
-    // Flatten results nested arrays
-    let processOutputResults = (await Promise.all(processOutputPromises))
-      .reduce((prev, current) => {
-        if (Array.isArray(current)) {
-          current.map(result => {
-            prev.push(result);
-          });
-        } else {
-          prev.push(current);
-        }
-        return prev;
-      }, []);
-    // Finally process late actions (hash-parse and write)
-    await late.process(processOutputResults, hashes, config);
+    await Promise.all(processOutputPromises.map(async currentP => {
+      await currentP;
+      await late.process([currentP], hashes, config);
+    }));
     resolve();
   });
 }
@@ -287,9 +295,10 @@ function sort(config) {
   var sorted = {};
   var unsorted = [];
   var before = {};
+  var after = [];
   Object.keys(config.output).forEach(element => {
     if (typeof config.output[element] === 'object' && !Array.isArray(config.output[element])) {
-      sortOutputObject(config, element, sorted, unsorted, before);
+      sortOutputObject(config, element, sorted, unsorted, before, after);
     } else if (Array.isArray(config.output[element])) {
       sortOutputArray(config, element, unsorted);
     } else {
@@ -307,7 +316,8 @@ function sort(config) {
   return {
     sorted: sorted,
     unsorted: unsorted,
-    before: before
+    before: before,
+    after: after
   };
 }
 
@@ -327,8 +337,8 @@ function sortOutputArray(config, element, unsorted) {
   unsorted.push(current);
 }
 
-// @function sortOutputObject (private) [Sort output key where it is an object] @param config @param element [Output key] @param sorted [Object for sorted elements] @param unsorted [Array for unsorted elements] @param before [Array to add items labeled with before key]
-function sortOutputObject(config, element, sorted, unsorted, before) {
+// @function sortOutputObject (private) [Sort output key where it is an object] @param config @param element [Output key] @param sorted [Object for sorted elements] @param unsorted [Array for unsorted elements] @param before [Array to add items labeled with before key] @param after [Array to add items labeled with after key]
+function sortOutputObject(config, element, sorted, unsorted, before, after) {
   if ("order" in config.output[element]) {
     var currentOrder = parseInt(config.output[element].order);
     sorted[currentOrder] = sorted[currentOrder] || [];
@@ -337,6 +347,9 @@ function sortOutputObject(config, element, sorted, unsorted, before) {
   } else {
     if ("before" in config.output[element]) {
       sortBefore(config, element, before);
+    } else if ("after" in config.output[element]) {
+      config.output[element].outPath = element;
+      after.push(config.output[element]);
     } else {
       config.output[element].outPath = element;
       unsorted.push(config.output[element]);
@@ -345,7 +358,7 @@ function sortOutputObject(config, element, sorted, unsorted, before) {
 }
 
 // @function getBeforeId (private) [Get an id to identify a before promise without id]
-function getBeforeId(){
+function getBeforeId() {
   var current = "__" + currentBeforeId;
   currentBeforeId++;
   return current;
