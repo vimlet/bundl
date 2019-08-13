@@ -2,7 +2,7 @@ const md5 = require("md5");
 const path = require("path");
 const util = require("./util");
 const parse = require("./parse");
-const run = require("@vimlet/commons-run");
+const bundl = require("../index.js");
 
 async function processInputUse(inputsObject, files) {
   files = await Promise.all(files.map(async file => {
@@ -11,11 +11,11 @@ async function processInputUse(inputsObject, files) {
     if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].use) {
       if (Array.isArray(inputsObject[file.pattern].use)) {
         for(const func of inputsObject[file.pattern].use){
-          file = await func(file,run);
+          file = await func(file,bundl);
         }
         return await file;
       } else {
-        return await inputsObject[file.pattern].use(file,run);
+        return await inputsObject[file.pattern].use(file,bundl);
       }
     }
     return file;
@@ -55,13 +55,13 @@ async function processOutputUse(outputObject, outputPath, content) {
         result = await outputObject.use[i]({
           path: result.path,
           content: result.content
-        },run);
+        },bundl);
       }
     } else {
       result = await outputObject.use({
         path: result.path,
         content: result.content
-      },run);
+      },bundl);
     }
   }  
   return result.content;

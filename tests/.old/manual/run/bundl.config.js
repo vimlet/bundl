@@ -1,4 +1,4 @@
-const bundl = require("@vimlet/bundl");
+// const bundl = require("@vimlet/bundl");
 module.exports = {
   "outputBase": "output",
   "inputBase": "input",
@@ -9,10 +9,10 @@ module.exports = {
       "id": "build",
       "input": {
         "js/a.js": {
-          use: [async function (entry, run) {
+          use: [async function (entry, bundl) {
             entry.content += "\nconsole.log(\"input use\");";
-            entry.content += await waitTest();      
-            var result = await run.fetch("ping", {"args":["8.8.8.8"]});        
+            entry.content += await waitTest();                  
+            var result = await bundl.run.fetch("ping", {"args":["8.8.8.8"]});        
             console.log("Input result:::",result);
             return entry;
           }]
@@ -22,12 +22,12 @@ module.exports = {
       },
       use: [async function (entry) {
         entry.content += "\nconsole.log(\"output use2\");";
-        var result = await bundl.run.fetch("ping", {"args":["8.8.8.8"]});        
-        console.log("Output bundl result:::",result);
+        // var result = await bundl.run.fetch("ping", {"args":["8.8.8.8"]});        
+        // console.log("Output bundl result:::",result);
         return entry;
-      }, async function (entry, run) {
+      }, async function (entry, bundl) {
         entry.content += await waitTest();        
-        var result = await run.fetch("ping", {"args":["8.8.8.8"]});        
+        var result = await bundl.run.fetch("ping", {"args":["8.8.8.8"]});        
         console.log("Output result:::",result);
         return entry;
       }]
