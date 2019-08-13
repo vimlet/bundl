@@ -205,7 +205,7 @@ Use can be used either at output object or at input object. The function has the
 
 *Example:*
 ```[javascript]
-use: async function(entry, run){
+use: async function(entry, bundl){
   // Do something
   return entry;
 }
@@ -215,11 +215,11 @@ or chain multiple use functions with array
 
 ```[javascript]
 use: [
-  async function(entry, run){
+  async function(entry, bundl){
     // Do something
     return entry;
   },
-  async function(entry, run){
+  async function(entry, bundl){
     // Do something
     return entry;
   }
@@ -497,12 +497,12 @@ var resultPromise = run.fetch("ping", {
 });
 ```
 
-For convenience, `use` function provides a reference to `run` as a second argument.
+For convenience, `use` function provides a reference to `bundl` as a second argument which can be used to access `bundl.run`.
 
 *Example:*
 ```[javascript]
-use: async function(entry, run) {
-  await run.exec("ping", {
+use: async function(entry, bundl) {
+  await bundl.run.exec("ping", {
     args: ["8.8.8.8"],
     execHandler: function(out, error) {
       console.log(out);
