@@ -5,17 +5,17 @@ const parse = require("./parse");
 const run = require("@vimlet/commons-run");
 
 async function processInputUse(inputsObject, files) {
-  files = await Promise.all(files.map(file => {
+  files = await Promise.all(files.map(async file => {
     file.path = file.file;
-    delete file.file;
-    if (inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
-      if (Array.isArray(inputsObject[file.match].use)) {
-        inputsObject[file.match].use.forEach(func => {
-          file = func(file,run);
-        });
-        return file;
+    delete file.file;    
+    if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].use) {
+      if (Array.isArray(inputsObject[file.pattern].use)) {
+        for(const func of inputsObject[file.pattern].use){
+          file = await func(file,run);
+        }
+        return await file;
       } else {
-        return inputsObject[file.match].use(file,run);
+        return await inputsObject[file.pattern].use(file,run);
       }
     }
     return file;
@@ -45,25 +45,23 @@ async function processInputMeta(file, inputsObject, hashes) {
 }
 
 async function processOutputUse(outputObject, outputPath, content) {
-  var result;
+  var result = {
+    path: outputPath,
+    content:content
+  };
   if (outputObject.use) {
     if (Array.isArray(outputObject.use)) {
       for (var i = 0; i < outputObject.use.length; i++) {
         result = await outputObject.use[i]({
-          path: outputPath,
-          content: content
+          path: result.path,
+          content: result.content
         },run);
       }
     } else {
       result = await outputObject.use({
-        path: outputPath,
-        content: content
+        path: result.path,
+        content: result.content
       },run);
-    }
-  }else{
-    result = {
-      path: outputPath,
-      content:content
     }
   }  
   return result.content;

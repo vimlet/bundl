@@ -1,6 +1,6 @@
 {
   "name": "@vimlet/bundl",
-  "version": "1.1.1",
+  "version": "1.1.4",
   "description": "Build & pack anything your way!",
   "engines": {
     "node": ">=8.16.0"
@@ -22,8 +22,8 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "doc": "vimlet-doc c 'doc.json'",
     "postinstall": "node src/version.js",
+    "doc": "cd docs && npm i && npm run doc",
     "test": "npx intern config=@node"
   },
   "license": "MIT",
@@ -40,8 +40,5 @@
   },
   "devDependencies": {
     "intern": "4.4.2"
-  },
-  "optionalDependencies": {
-    "@vimlet/doc": "2.0.10"
   }
 }

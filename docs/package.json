@@ -1,0 +1,11 @@
+{
+  "name": "@vimlet/bundl-doc",
+  "private": true,
+  "scripts": {
+    "doc": "vimlet-doc c 'doc.json'"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@vimlet/doc": "2.0.10"
+  }
+}
