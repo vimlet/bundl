@@ -60,7 +60,7 @@ Then add a `use` property with a similar logic to your config:
 ```[javascript]
 module.exports = {
   output: {
-    'build/bundle.js': {
+    'dist/bundle.js': {
       use: async (entry, bundl) => {
         entry.content = await bundl.run.fetch("npx", {
           args: ["babel", "src/**.js", "--presets=@babel/preset-env"]
