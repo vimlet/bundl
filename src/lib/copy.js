@@ -4,19 +4,19 @@ const parse = require("./parse");
 const run = require("@vimlet/commons-run");
 
 // @function processInputUse (private) [Apply use functions to input]
-function processInputUse(inputsObject, file) {
+async function processInputUse(inputsObject, file) {
   if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].use) {
     if (Array.isArray(inputsObject[file.pattern].use)) {
-      inputsObject[file.pattern].use.forEach(func => {
-        file = func({
+      for(const func of inputsObject[file.pattern].use){
+        file = await func({
           match: file.match,
           pattern: file.pattern,
           path: file.match,
           content: file.content
         },run);
-      });
+      }
     } else {
-      file = inputsObject[file.pattern].use({
+      file = await inputsObject[file.pattern].use({
         match: file.match,
         pattern: file.pattern,
         path: file.match,
@@ -43,28 +43,26 @@ function processInputNameReplace(inputsObject, file, outputPath) {
 }
 
 // @function processOutputUse (private) [Apply use functions to output]
-function processOutputUse(outputObject, outputPath, content) {
-  var result;
+async function processOutputUse(outputObject, outputPath, content) {
+  var result = {
+    path: outputPath,
+    content:content
+  };
   if (outputObject.use) {
-    if (Array.isArray(outputObject.use)) {
-      outputObject.use.forEach(func => {
-        result = func({
-          path: outputPath,
-          content: content
+    if (Array.isArray(outputObject.use)) {      
+      for (var i = 0; i < outputObject.use.length; i++) {
+        result = await outputObject.use[i]({
+          path: result.path,
+          content: result.content
         },run);
-      });
+      }
     } else {
-      result = outputObject.use({
+      result = await outputObject.use({
         path: outputPath,
         content: content
       },run);
     }
-  }else{
-    result = {
-      path: outputPath,
-      content:content
-    }
-  }  
+  }
   return result;
 }
 
