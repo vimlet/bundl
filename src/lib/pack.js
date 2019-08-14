@@ -102,7 +102,6 @@ async function build(config, objs) {
   return new Promise(async (resolve, reject) => {
     let hashes = {};
     let processOutputPromises = [];
-    var tempIdsPromises = [];
     // Process copy and transform actions in order.
     for (const obj of objs) {
       if (obj._waitFor) {
@@ -127,14 +126,20 @@ async function build(config, objs) {
         currentPromise = transform.process(config, obj, hashes);
         processOutputPromises.push(currentPromise);
       }
-      tempIdsPromises.push(obj.id);
       if (obj.id) {
         idOutputsRelation[obj.id] = currentPromise;
       }
     }
     await Promise.all(processOutputPromises.map(async currentP => {
-      await currentP;
-      await late.process([currentP], hashes, config);
+      var solved = await currentP;
+      if(Array.isArray(solved)){
+        await Promise.all(solved.map(async cuSolved=>{
+          cuSolved = await cuSolved;
+          await late.process([cuSolved], hashes, config);
+        }));        
+      }else{
+        await late.process([solved], hashes, config);
+      }
     }));
     resolve();
   });

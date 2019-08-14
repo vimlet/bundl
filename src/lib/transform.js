@@ -2,20 +2,20 @@ const md5 = require("md5");
 const path = require("path");
 const util = require("./util");
 const parse = require("./parse");
-const run = require("@vimlet/commons-run");
+const bundl = require("../index.js");
 
 async function processInputUse(inputsObject, files) {
-  files = await Promise.all(files.map(file => {
+  files = await Promise.all(files.map(async file => {
     file.path = file.file;
-    delete file.file;
-    if (inputsObject[file.match] instanceof Object && inputsObject[file.match].use) {
-      if (Array.isArray(inputsObject[file.match].use)) {
-        inputsObject[file.match].use.forEach(func => {
-          file = func(file,run);
-        });
-        return file;
+    delete file.file;    
+    if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].use) {
+      if (Array.isArray(inputsObject[file.pattern].use)) {
+        for(const func of inputsObject[file.pattern].use){
+          file = await func(file,bundl);
+        }
+        return await file;
       } else {
-        return inputsObject[file.match].use(file,run);
+        return await inputsObject[file.pattern].use(file,bundl);
       }
     }
     return file;
@@ -45,25 +45,23 @@ async function processInputMeta(file, inputsObject, hashes) {
 }
 
 async function processOutputUse(outputObject, outputPath, content) {
-  var result;
+  var result = {
+    path: outputPath,
+    content:content
+  };
   if (outputObject.use) {
     if (Array.isArray(outputObject.use)) {
       for (var i = 0; i < outputObject.use.length; i++) {
         result = await outputObject.use[i]({
-          path: outputPath,
-          content: content
-        },run);
+          path: result.path,
+          content: result.content
+        },bundl);
       }
     } else {
       result = await outputObject.use({
-        path: outputPath,
-        content: content
-      },run);
-    }
-  }else{
-    result = {
-      path: outputPath,
-      content:content
+        path: result.path,
+        content: result.content
+      },bundl);
     }
   }  
   return result.content;
@@ -89,7 +87,7 @@ module.exports.process = async (config, outputObject, hashes) => {
   let inputsObject = outputObject.input;
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {
     path: config.inputBase
-  }), inputsObject);
+  }), inputsObject);  
   // Process input
   files = await processInputUse(inputsObject, files);
   let content = await processInputJoin(files, inputsObject, hashes);  
