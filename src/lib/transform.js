@@ -95,7 +95,7 @@ module.exports.process = async (config, outputObject, hashes) => {
   content = await processOutputUse(outputObject, outputPath, content);
   // Enable hashing support
   outputPath = handleOutputHash(config, hashes, content, outputObject.outPath, outputObject, outputPath);
-
+  
   // Return result
   let result = {
     parse: outputObject.parse,
@@ -103,6 +103,11 @@ module.exports.process = async (config, outputObject, hashes) => {
     outputPath: outputPath,
     content: content
   };
+
+  if("_waitTransform" in outputObject){
+    result._waitTransform = outputObject._waitTransform;
+    result.id = outputObject.id;
+  }
 
   return result;
 };

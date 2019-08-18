@@ -10,8 +10,11 @@ var currentBeforeId = 0;
 // @property beforeRelation (private) [Map for before promises and their ids]
 var beforeRelation = {};
 // @property idOutputsRelation (private) [Map for output keys which have id]
-idOutputsRelation = {};
-
+var idOutputsRelation = {};
+// @property transformArrays (private) [Add transform object array]
+var transformArrays = {};
+// @property buildCalls (private) [Number of sorted key plus 1 for unsorted plus 1 for after, which is the number than build is going to be called. When it reachs 0, transformArray should be launched]
+var buildCalls;
 
 module.exports.build = async config => {
   if (!("log" in config) || config.log) {
@@ -25,8 +28,38 @@ module.exports.build = async config => {
 // @function pack (private) [After clean, sort and start packing]
 async function pack(config) {
   let sorted = sort(config);
+  buildCalls = Object.keys(sorted.sorted).length + 1 + 1;  
   await Promise.all([processSorted(config, sorted.sorted), build(config, sorted.unsorted), build(config, sorted.after)]);
   console.log("Build completed at: " + getTime());
+}
+
+// @function processTransformArray (private) [Process transform array promises]
+function processTransformArray(config) {
+  return new Promise(async (resolve, reject) => {    
+    for (const key in transformArrays) {
+      var transformArray = transformArrays[key];      
+      transformArray.promises = await Promise.all(transformArray.promises);   
+      var content = "";
+      while(transformArray.position.length > 0){
+        var currentId = transformArray.position.shift();        
+        transformArray.promises.forEach(cPromise=>{          
+          if(cPromise.id === currentId){
+            content+= cPromise.content + ((transformArray.position.length > 0) ? "\n" : "");
+          }
+        });
+      }
+
+      let result = {
+        parse: transformArray.promises[0].parse,
+        outputParent: transformArray.promises[0].outputParent,
+        outputPath: transformArray.promises[0].outputPath,
+        content: content
+      };
+      var hashes = {};
+      await late.process([result], hashes, config);
+    }
+    resolve();
+  });
 }
 
 // @function buildSingle (public) [Build single file which has been modified. Used at watch mode] @param config @param filePath @param event [Watcher trigger event]
@@ -91,18 +124,43 @@ function matchSingleConfig(inputs, matches, filePath, outputKey) {
 // @function processSorted (private) [Build sorted elements] @param config @param sorted
 async function processSorted(config, sorted) {
   return new Promise(async (resolve, reject) => {
-    for (var key in sorted) {
+    for (var key in sorted) {      
       await build(config, sorted[key]);
-    }
+    }    
     resolve();
   });
 }
 
-async function build(config, objs) {
+async function build(config, objs) {  
   return new Promise(async (resolve, reject) => {
     let hashes = {};
+    let processOutputPromises = await processCopyTransform(config, objs, hashes);
+    buildCalls--;
+    if (buildCalls === 0) {      
+      await processTransformArray(config);  // TODO fix await
+    }
+    await Promise.all(processOutputPromises.map(async currentP => {
+      var solved = await currentP;
+      if (Array.isArray(solved)) {
+        await Promise.all(solved.map(async cuSolved => {
+          cuSolved = await cuSolved;
+          await late.process([cuSolved], hashes, config);
+        }));
+      } else {
+        if ("_waitTransform" in solved) {
+        } else {
+          await late.process([solved], hashes, config);
+        }
+      }
+    }));
+    resolve();
+  });
+}
+
+// @function processCopyTransform (private) [Process output objects into promises] @param config @param objs @param hashes
+async function processCopyTransform(config, objs, hashes) {
+  return new Promise(async (resolve, reject) => {
     let processOutputPromises = [];
-    // Process copy and transform actions in order.
     for (const obj of objs) {
       if (obj._waitFor) {
         await beforeRelation[obj._waitFor];
@@ -122,26 +180,18 @@ async function build(config, objs) {
       if (isCopy) {
         currentPromise = copy.process(config, obj);
         processOutputPromises.push(currentPromise);
-      } else {
+      } else {        
         currentPromise = transform.process(config, obj, hashes);
         processOutputPromises.push(currentPromise);
+        if ("_waitTransform" in obj) {          
+          transformArrays[obj.outPath].promises.push(currentPromise);  
+        }        
       }
       if (obj.id) {
         idOutputsRelation[obj.id] = currentPromise;
       }
     }
-    await Promise.all(processOutputPromises.map(async currentP => {
-      var solved = await currentP;
-      if(Array.isArray(solved)){
-        await Promise.all(solved.map(async cuSolved=>{
-          cuSolved = await cuSolved;
-          await late.process([cuSolved], hashes, config);
-        }));        
-      }else{
-        await late.process([solved], hashes, config);
-      }
-    }));
-    resolve();
+    resolve(processOutputPromises);
   });
 }
 
@@ -165,7 +215,7 @@ function queryParam(config) {
     var query = key.split("?");
     if (query.length > 1) {
       try {
-        output[query[0]] = setOutput(config.output[key]);
+        output[query[0]] = setOutput(config.output[key], key);
         var param = query[1].split("&");
         param.forEach(element => {
           setParam(element, output[query[0]]);
@@ -174,15 +224,15 @@ function queryParam(config) {
         console.log("Error parsing query param at: " + key);
       }
     } else {
-      output[key] = setOutput(config.output[key]);
+      output[key] = setOutput(config.output[key], key);
     }
   }
   config.output = output;
   return config;
 }
 
-// @function setOutput (private) [Set output config from inputs. Handle array, string or object]
-function setOutput(output) {
+// @function setOutput (private) [Set output config from inputs. Handle array, string or object] @param output [Object] @param key [Output key]
+function setOutput(output, key) {
   if (typeof output === 'object' && !Array.isArray(output)) {
     return setOutputObject(output);
   } else {
@@ -194,7 +244,7 @@ function setOutput(output) {
   }
 }
 
-// @function setOutputString (private) [Set output config where output is a string]
+// @function setOutputString (private) [Set output config where output is a string] @param output [Object]
 function setOutputString(output) {
   var res = {
     input: {}
@@ -203,18 +253,19 @@ function setOutputString(output) {
   return res;
 }
 
-// @function setOutputArray (private) [Set output config where output is an array]
+// @function setOutputArray (private) [Set output config where output is an array] @param output [Object]
 function setOutputArray(output) {
-  var res = {
-    input: {}
-  };
-  output.forEach(cuOut => {
-    res.input[cuOut] = true;
+  output = output.map(current => {
+    if (typeof current === 'object') {
+      return setOutputObject(current);
+    } else {
+      return setOutputString(current);
+    }
   });
-  return res;
+  return output;
 }
 
-// @function setOutputObject (private) [Set output config where output is an object]
+// @function setOutputObject (private) [Set output config where output is an object] @param output [Object]
 function setOutputObject(output) {
   if (typeof output.input === 'object' && !Array.isArray(output.input)) {
     return setInputObject(output);
@@ -261,10 +312,6 @@ function setParam(param, obj) {
   var split = param.split("=");
   if (split[0] && split[1]) {
     switch (split[0]) {
-      case "clean":
-        var value = split[1] === "true" ? true : false;
-        setParamKey(obj, split[0], value);
-        break;
       case "parse":
         var value = split[1] === "true" ? true : false;
         setParamKey(obj, split[0], value);
@@ -297,15 +344,15 @@ function setParamKey(obj, key, value) {
 
 // @function sort (private) [Sort config output elements if order is set] @param config
 function sort(config) {
-  var sorted = {};
-  var unsorted = [];
-  var before = {};
-  var after = [];
+  var sorted = {}; // Add sorted
+  var unsorted = []; // Add unsorted
+  var before = {}; // Add with before key
+  var after = []; // Add with after key
   Object.keys(config.output).forEach(element => {
     if (typeof config.output[element] === 'object' && !Array.isArray(config.output[element])) {
-      sortOutputObject(config, element, sorted, unsorted, before, after);
+      sortOutputObject(config, config.output[element], element, sorted, unsorted, before, after);
     } else if (Array.isArray(config.output[element])) {
-      sortOutputArray(config, element, unsorted);
+      sortOutputArray(config, element, sorted, unsorted, before, after);
     } else {
       sortOutputString(config, element, unsorted);
     }
@@ -334,30 +381,45 @@ function sortOutputString(config, element, unsorted) {
   unsorted.push(current);
 }
 
-// @function sortOutputArray (private) [Sort output key where it is an array] @param config @param element [Output key] @param unsorted [Array for unsorted elements]
-function sortOutputArray(config, element, unsorted) {
-  var current = {};
-  current.outPath = element;
-  current.input = config.output[element];
-  unsorted.push(current);
+// @function sortOutputArray (private) [Sort output key where it is an array] @param config @param element [Output key] @param unsorted [Array for unsorted elements] @param before @param after
+function sortOutputArray(config, element, sorted, unsorted, before, after) {
+  var isCopy = element.endsWith("**");
+  if (isCopy) {
+    config.output[element].forEach(currentObject => {
+      sortOutputObject(config, currentObject, element, sorted, unsorted, before, after);
+    });
+  } else {
+    var tId = 0;
+    config.output[element].forEach(currentObject => {
+      if(!currentObject.id){
+        currentObject.id = "_" + tId;
+        tId++;
+      }
+      currentObject._waitTransform = element;
+      // transformArrays[element] = transformArrays[element] || [];
+      transformArrays[element] = transformArrays[element] || {position:[], promises:[]};
+      transformArrays[element].position.push(currentObject.id);      
+      sortOutputObject(config, currentObject, element, sorted, unsorted, before, after);
+    });
+  }
 }
 
-// @function sortOutputObject (private) [Sort output key where it is an object] @param config @param element [Output key] @param sorted [Object for sorted elements] @param unsorted [Array for unsorted elements] @param before [Array to add items labeled with before key] @param after [Array to add items labeled with after key]
-function sortOutputObject(config, element, sorted, unsorted, before, after) {
-  if ("order" in config.output[element]) {
-    var currentOrder = parseInt(config.output[element].order);
+// @function sortOutputObject (private) [Sort output key where it is an object] @param config @param obj [Output object] @param key [Output key] @param sorted [Object for sorted elements] @param unsorted [Array for unsorted elements] @param before [Array to add items labeled with before key] @param after [Array to add items labeled with after key]
+function sortOutputObject(config, obj, key, sorted, unsorted, before, after) {
+  if ("order" in obj) {
+    var currentOrder = parseInt(obj.order);
     sorted[currentOrder] = sorted[currentOrder] || [];
-    config.output[element].outPath = element;
-    sorted[currentOrder].push(config.output[element]);
+    obj.outPath = key;
+    sorted[currentOrder].push(obj);
   } else {
-    if ("before" in config.output[element]) {
-      sortBefore(config, element, before);
-    } else if ("after" in config.output[element]) {
-      config.output[element].outPath = element;
-      after.push(config.output[element]);
+    if ("before" in obj) {
+      sortBefore(config, obj, key, before);
+    } else if ("after" in obj) {
+      obj.outPath = key;
+      after.push(obj);
     } else {
-      config.output[element].outPath = element;
-      unsorted.push(config.output[element]);
+      obj.outPath = key;
+      unsorted.push(obj);
     }
   }
 }
@@ -370,24 +432,24 @@ function getBeforeId() {
 }
 
 // @function sortBefore (private) [Add elements with before key to before array] @param config @param element [Output key] @param before [Array to add items labeled with before key]
-function sortBefore(config, element, before) {
-  if (!Array.isArray(config.output[element].before)) {
-    config.output[element].before = config.output[element].before.split(" ");
+function sortBefore(config, obj, key, before) {
+  if (!Array.isArray(obj.before)) {
+    obj.before = obj.before.split(" ");
   }
-  if (Array.isArray(config.output[element].before)) {
-    config.output[element].outPath = element;
-    config.output[element].id = config.output[element].id || getBeforeId();
-    beforeRelation[config.output[element].id] = build(config, [config.output[element]]);
-    config.output[element].before.forEach(bElem => {
+  if (Array.isArray(obj.before)) {
+    obj.outPath = key;
+    obj.id = obj.id || getBeforeId();
+    beforeRelation[obj.id] = build(config, [obj]);
+    obj.before.forEach(bElem => {
       before[bElem] = before[bElem] || [];
-      before[bElem].push(config.output[element].id);
+      before[bElem].push(obj.id);
     });
   } else {
-    config.output[element].outPath = element;
-    config.output[element].id = config.output[element].id || getBeforeId();
-    beforeRelation[config.output[element].id] = build(config, [config.output[element]]);
-    before[config.output[element].before] = before[config.output[element].before] || [];
-    before[bElem].push(config.output[element].id);
+    obj.outPath = key;
+    obj.id = obj.id || getBeforeId();
+    beforeRelation[obj.id] = build(config, [obj]);
+    before[obj.before] = before[obj.before] || [];
+    before[bElem].push(obj.id);
   }
 }
 
