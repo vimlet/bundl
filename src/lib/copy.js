@@ -5,21 +5,22 @@ const bundl = require("../index.js");
 
 // @function processInputUse (private) [Apply use functions to input]
 async function processInputUse(inputsObject, file) {
+  file.path = file.match;
   if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].use) {
     if (Array.isArray(inputsObject[file.pattern].use)) {
       for(const func of inputsObject[file.pattern].use){
         file = await func({
           match: file.match,
           pattern: file.pattern,
-          path: file.match,
+          path: file.path,
           content: file.content
-        },bundl);
+        },bundl);       
       }
     } else {
       file = await inputsObject[file.pattern].use({
         match: file.match,
         pattern: file.pattern,
-        path: file.match,
+        path: file.path,
         content: file.content
       },bundl);
     }
@@ -99,8 +100,8 @@ module.exports.process = async (config, outputEntry) => {
   }), inputsObject);
   await Promise.all(files.map(async file => {
     var cwdFilePath = file.file;
-    file = await processInputUse(inputsObject, file);     
-    file.content = await processInputMeta(file, inputsObject, cwdFilePath);
+    file = await processInputUse(inputsObject, file);         
+    file.content = await processInputMeta(file, inputsObject, cwdFilePath);    
     let subPath;    
     if (path.basename(file.pattern) == file.pattern) {
       subPath = file.path.substring(0);
