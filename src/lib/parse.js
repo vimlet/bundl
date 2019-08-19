@@ -7,8 +7,21 @@ meta.sandbox = {
     if (this.data.hashParse && this.data.hashes && this.data.hashes[id]) {
       this.echo(this.data.hashes[id]);
     } else {
-      ;
       this.echo(`<% hash('${id}') %>`);
+    }
+  },
+  "file": function (id) {
+    if (this.data.hashParse && this.data.hashes && this.data.hashes[id]) {
+      this.echo(this.data.hashes[id]);
+    } else {
+      this.echo(`<% file('${id}') %>`);
+    }
+  },
+  "filename": function (id) {
+    if (this.data.hashParse && this.data.hashes && this.data.hashes[id]) {
+      this.echo(this.data.hashes[id]);
+    } else {
+      this.echo(`<% filename('${id}') %>`);
     }
   }
 };

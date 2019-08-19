@@ -8,6 +8,13 @@ module.exports = {
           parse: true
         }
       }
+    },
+    "output/parse2.{{hash}}.txt": {
+      input: {
+        "input/a.txt": {
+          parse: true
+        }
+      }
     }
   }
 }
