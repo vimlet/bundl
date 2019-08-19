@@ -11,7 +11,7 @@
 
 [![NPM](https://img.shields.io/npm/v/@vimlet/bundl?style=flat-square&logo=npm)](https://www.npmjs.com/package/@vimlet/bundl)
 [![License](https://img.shields.io/github/license/vimlet/bundl.svg?style=flat-square&logo=readthedocs)](https://github.com/vimlet/bundl/blob/master/LICENSE)
-[![Documentation](https://img.shields.io/badge/url-documentation-brightgreen?style=flat-square)](https://bundljs.org/docs/#!mode=manual&file=Get%20Started.md)
+[![Documentation](https://img.shields.io/badge/url-documentation-green?style=flat-square)](https://bundljs.org/docs/#!mode=manual&file=Get%20Started.md)
 [![Codacy grade](https://img.shields.io/codacy/grade/047c241c4b4541769679c4ca4d593eb3.svg?style=flat-square&logo=codacy)](https://app.codacy.com/app/vimlet/bundl)
 [![Travis (.org)](https://img.shields.io/travis/vimlet/bundl/master?style=flat-square&logo=travis)](https://travis-ci.org/vimlet/bundl)
 
