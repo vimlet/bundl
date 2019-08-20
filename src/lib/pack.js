@@ -13,7 +13,7 @@ var beforeRelation = {};
 var idOutputsRelation = {};
 // @property transformArrays (private) [Add transform object array]
 var transformArrays = {};
-// @property buildCalls (private) [Number of sorted key plus 1 for unsorted plus 1 for after, which is the number than build is going to be called. When it reachs 0, transformArray should be launched]
+// @property buildCalls (private) [Number of sorted key plus 1 for unsorted plus 1 for after, plus beforeRelation objects.keys.length which is the number than build is going to be called. When it reaches 0, transformArray should be launched]
 var buildCalls;
 
 module.exports.build = async config => {
@@ -28,23 +28,24 @@ module.exports.build = async config => {
 // @function pack (private) [After clean, sort and start packing]
 async function pack(config) {
   let sorted = sort(config);
-  buildCalls = Object.keys(sorted.sorted).length + 1 + 1;  
+  buildCalls = Object.keys(sorted.sorted).length + 1 + 1 + Object.keys(beforeRelation).length;
   await Promise.all([processSorted(config, sorted.sorted), build(config, sorted.unsorted), build(config, sorted.after)]);
   console.log("Build completed at: " + getTime());
 }
 
+
 // @function processTransformArray (private) [Process transform array promises]
 function processTransformArray(config) {
-  return new Promise(async (resolve, reject) => {    
+  return new Promise(async (resolve, reject) => {
     for (const key in transformArrays) {
-      var transformArray = transformArrays[key];      
-      transformArray.promises = await Promise.all(transformArray.promises);   
+      var transformArray = transformArrays[key];
+      transformArray.promises = await Promise.all(transformArray.promises);
       var content = "";
-      while(transformArray.position.length > 0){
-        var currentId = transformArray.position.shift();        
-        transformArray.promises.forEach(cPromise=>{          
-          if(cPromise.id === currentId){
-            content+= cPromise.content + ((transformArray.position.length > 0) ? "\n" : "");
+      while (transformArray.position.length > 0) {
+        var currentId = transformArray.position.shift();
+        transformArray.promises.forEach(cPromise => {
+          if (cPromise.id === currentId) {
+            content += cPromise.content + ((transformArray.position.length > 0) ? "\n" : "");
           }
         });
       }
@@ -55,7 +56,7 @@ function processTransformArray(config) {
         outputPath: transformArray.promises[0].outputPath,
         content: content
       };
-      var hashes = {};
+      var hashes = {};      
       await late.process([result], hashes, config);
     }
     resolve();
@@ -124,31 +125,68 @@ function matchSingleConfig(inputs, matches, filePath, outputKey) {
 // @function processSorted (private) [Build sorted elements] @param config @param sorted
 async function processSorted(config, sorted) {
   return new Promise(async (resolve, reject) => {
-    for (var key in sorted) {      
+    for (var key in sorted) {
       await build(config, sorted[key]);
-    }    
+    }
     resolve();
   });
 }
 
-async function build(config, objs) {  
+// async function build(config, objs) {  
+//   return new Promise(async (resolve, reject) => {
+//     let hashes = {};
+//     let processOutputPromises = await processCopyTransform(config, objs, hashes);
+//     buildCalls--;
+//     if (buildCalls === 0) {      
+//       await processTransformArray(config);  // TODO fix await
+//     }    
+//     await Promise.all(processOutputPromises.map(async currentP => {
+//       var solved = await currentP;
+//       if (Array.isArray(solved)) {
+//         await Promise.all(solved.map(async cuSolved => {
+//           cuSolved = await cuSolved;
+//           await late.process([cuSolved], hashes, config);
+//         }));
+//       } else {      
+//         if ("_waitTransform" in solved) {
+//         } else {          
+//           await late.process([solved], hashes, config);
+//         }
+//       }
+//     }));
+//     resolve();
+//   });
+// }
+
+// @function build (private) [Build an array of objs] @param config @param objs
+async function build(config, objs) {
   return new Promise(async (resolve, reject) => {
-    let hashes = {};
-    let processOutputPromises = await processCopyTransform(config, objs, hashes);
     buildCalls--;
-    if (buildCalls === 0) {      
-      await processTransformArray(config);  // TODO fix await
-    }
+    if (buildCalls === 0) {
+      await processTransformArray(config); // TODO fix await
+    }    
+    await Promise.all(objs.map(async obj => {
+      await buildObj(config, obj);
+    }));
+    resolve();
+  });
+}
+
+// @function buildObj (private) [Build an obj] @param config @param obj
+async function buildObj(config, obj) {
+  return new Promise(async (resolve, reject) => {
+    let hashes = {};    
+    let processOutputPromises = await processCopyTransform(config, obj, hashes);
     await Promise.all(processOutputPromises.map(async currentP => {
       var solved = await currentP;
       if (Array.isArray(solved)) {
         await Promise.all(solved.map(async cuSolved => {
-          cuSolved = await cuSolved;
+          cuSolved = await cuSolved;          
           await late.process([cuSolved], hashes, config);
         }));
       } else {
-        if ("_waitTransform" in solved) {
-        } else {
+        if ("_waitTransform" in solved) {          
+        } else {          
           await late.process([solved], hashes, config);
         }
       }
@@ -158,42 +196,81 @@ async function build(config, objs) {
 }
 
 // @function processCopyTransform (private) [Process output objects into promises] @param config @param objs @param hashes
-async function processCopyTransform(config, objs, hashes) {
+async function processCopyTransform(config, obj, hashes) {
   return new Promise(async (resolve, reject) => {
     let processOutputPromises = [];
-    for (const obj of objs) {
-      if (obj._waitFor) {
-        await beforeRelation[obj._waitFor];
+    if (obj._waitFor) {
+      await Promise.all(obj._waitFor.map(async currentWait =>{
+        beforeRelation[currentWait] = build(config, [beforeRelation[currentWait]]);
+        await beforeRelation[currentWait];
+      }));
+    }
+    if (obj.after) {
+      if (!Array.isArray(obj.after)) {
+        obj.after = obj.after.split("");
       }
-      if (obj.after) {
-        if (!Array.isArray(obj.after)) {
-          obj.after = obj.after.split("");
+      for (const afterId of obj.after) {
+        if (idOutputsRelation[afterId]) {
+          await idOutputsRelation[afterId];
         }
-        for (const afterId of obj.after) {
-          if (idOutputsRelation[afterId]) {
-            await idOutputsRelation[afterId];
-          }
-        }
       }
-      var isCopy = obj.outPath.endsWith("**");
-      var currentPromise;
-      if (isCopy) {
-        currentPromise = copy.process(config, obj);
-        processOutputPromises.push(currentPromise);
-      } else {        
-        currentPromise = transform.process(config, obj, hashes);
-        processOutputPromises.push(currentPromise);
-        if ("_waitTransform" in obj) {          
-          transformArrays[obj.outPath].promises.push(currentPromise);  
-        }        
+    }
+    var isCopy = obj.outPath.endsWith("**");
+    var currentPromise;
+    if (isCopy) {
+      currentPromise = copy.process(config, obj);
+      processOutputPromises.push(currentPromise);
+    } else {
+      currentPromise = transform.process(config, obj, hashes);
+      processOutputPromises.push(currentPromise);
+      if ("_waitTransform" in obj) {
+        transformArrays[obj.outPath].promises.push(currentPromise);
       }
-      if (obj.id) {
-        idOutputsRelation[obj.id] = currentPromise;
-      }
+    }
+    if (obj.id) {
+      idOutputsRelation[obj.id] = currentPromise;
     }
     resolve(processOutputPromises);
   });
 }
+
+// @function processCopyTransform (private) [Process output objects into promises] @param config @param objs @param hashes
+// async function processCopyTransform(config, obj, hashes) {
+//   return new Promise(async (resolve, reject) => {
+//     let processOutputPromises = [];
+//     for (const obj of objs) {
+//       if (obj._waitFor) {
+//         await beforeRelation[obj._waitFor];
+//       }
+//       if (obj.after) {
+//         if (!Array.isArray(obj.after)) {
+//           obj.after = obj.after.split("");
+//         }
+//         for (const afterId of obj.after) {
+//           if (idOutputsRelation[afterId]) {
+//             await idOutputsRelation[afterId];
+//           }
+//         }
+//       }
+//       var isCopy = obj.outPath.endsWith("**");
+//       var currentPromise;
+//       if (isCopy) {
+//         currentPromise = copy.process(config, obj);
+//         processOutputPromises.push(currentPromise);
+//       } else {
+//         currentPromise = transform.process(config, obj, hashes);
+//         processOutputPromises.push(currentPromise);
+//         if ("_waitTransform" in obj) {
+//           transformArrays[obj.outPath].promises.push(currentPromise);
+//         }
+//       }
+//       if (obj.id) {
+//         idOutputsRelation[obj.id] = currentPromise;
+//       }
+//     }
+//     resolve(processOutputPromises);
+//   });
+// }
 
 // @function setupConfig (private)
 function setupConfig(config) {
@@ -205,7 +282,7 @@ function setupConfig(config) {
   return config;
 }
 
-// @function querParam (private) [Manage query param in outputs]
+// @function queryParam (private) [Manage query param in outputs]
 function queryParam(config) {
   if (typeof config.output != 'object') {
     throw new Error("Bundl.config is bad formatted");
@@ -305,8 +382,6 @@ function setInputString(output) {
   return output;
 }
 
-
-
 // @function setParam (private) [Set up query params into element config] @param param @param obj [Output object]
 function setParam(param, obj) {
   var split = param.split("=");
@@ -341,7 +416,6 @@ function setParamKey(obj, key, value) {
   }
 }
 
-
 // @function sort (private) [Sort config output elements if order is set] @param config
 function sort(config) {
   var sorted = {}; // Add sorted
@@ -358,12 +432,17 @@ function sort(config) {
     }
   });
   for (var beforeKey in before) {
-    unsorted = unsorted.map(current => {
+    unsorted = unsorted.map(current => {      
       if ("id" in current && current.id === beforeKey) {
         current._waitFor = before[beforeKey];
       }
       return current;
     });
+    for(var key in beforeRelation){
+      if ("id" in beforeRelation[key] && beforeRelation[key].id === beforeKey) {
+        beforeRelation[key]._waitFor = before[beforeKey];
+      }
+    }    
   }
   return {
     sorted: sorted,
@@ -391,14 +470,16 @@ function sortOutputArray(config, element, sorted, unsorted, before, after) {
   } else {
     var tId = 0;
     config.output[element].forEach(currentObject => {
-      if(!currentObject.id){
+      if (!currentObject.id) {
         currentObject.id = "_" + tId;
         tId++;
       }
       currentObject._waitTransform = element;
-      // transformArrays[element] = transformArrays[element] || [];
-      transformArrays[element] = transformArrays[element] || {position:[], promises:[]};
-      transformArrays[element].position.push(currentObject.id);      
+      transformArrays[element] = transformArrays[element] || {
+        position: [],
+        promises: []
+      };
+      transformArrays[element].position.push(currentObject.id);
       sortOutputObject(config, currentObject, element, sorted, unsorted, before, after);
     });
   }
@@ -436,21 +517,13 @@ function sortBefore(config, obj, key, before) {
   if (!Array.isArray(obj.before)) {
     obj.before = obj.before.split(" ");
   }
-  if (Array.isArray(obj.before)) {
-    obj.outPath = key;
-    obj.id = obj.id || getBeforeId();
-    beforeRelation[obj.id] = build(config, [obj]);
-    obj.before.forEach(bElem => {
-      before[bElem] = before[bElem] || [];
-      before[bElem].push(obj.id);
-    });
-  } else {
-    obj.outPath = key;
-    obj.id = obj.id || getBeforeId();
-    beforeRelation[obj.id] = build(config, [obj]);
-    before[obj.before] = before[obj.before] || [];
+  obj.outPath = key;
+  obj.id = obj.id || getBeforeId();  
+  beforeRelation[obj.id] = obj;
+  obj.before.forEach(bElem => {
+    before[bElem] = before[bElem] || [];
     before[bElem].push(obj.id);
-  }
+  });
 }
 
 // @function getTime (private) [Return current time]

@@ -5,9 +5,6 @@ const { promisify } = require("util");
 const fs = require("fs");
 const path = require("path");
 const rimraf = promisify(require("rimraf"));
-const mkdir = promisify(fs.mkdir);
-const writeFile = promisify(fs.writeFile);
-const readFile = promisify(fs.readFile);
 const statFile = promisify(fs.stat);
 
 const bundl = require("../../../src/index.js");
