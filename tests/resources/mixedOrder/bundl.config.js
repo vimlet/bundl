@@ -1,6 +1,6 @@
 module.exports = {
-    inputBase: "tests/resources/mixedSort",
-    outputBase: "tests/resources/mixedSort",
+    inputBase: "tests/resources/mixedOrder",
+    outputBase: "tests/resources/mixedOrder",
     output: {
         "output/mixedSort1.txt": {
             use: async function (entry) {                                
@@ -76,53 +76,7 @@ module.exports = {
                 "input/**.txt": true
             },
             order: 2
-        }],
-        "output/mixedSort8.txt": {
-            id:"8",
-            use: async function (entry) {
-                await waitTest(4);                
-                entry.content = new Date().getTime();
-                return entry;
-            },
-            input: "input/**.txt",
-            before: "9"
-        },
-        "output/mixedSort9.txt": {
-            id:"9",
-            use: async function (entry) {
-                await waitTest(2);
-                entry.content = new Date().getTime();
-                return entry;
-            },
-            input: "input/**.txt"
-        },
-        "output/mixedSort10.txt": [{
-            use: async function (entry) {
-                await waitTest(8);
-                entry.content = new Date().getTime();
-                return entry;
-            },
-            input: "input/**.txt",
-            before: "8"
-        }, {
-            use: async function (entry) {
-                await waitTest(1);
-                entry.content = new Date().getTime();
-                return entry;
-            },
-            input: {
-                "input/**.txt": true
-            }
-        }],
-        "output/mixedSort11.txt": {
-            use: async function (entry) {
-                await waitTest(2);
-                entry.content = new Date().getTime();
-                return entry;
-            },
-            input: "input/**.txt",
-            before:"8"
-        }
+        }]
     }
 }
 

@@ -1,6 +1,6 @@
 module.exports = {
-    inputBase:"tests/resources/joinSorted",
-    outputBase:"tests/resources/joinSorted",
+    inputBase:"tests/resources/joinOrder",
+    outputBase:"tests/resources/joinOrder",
     output: {
 
         // --- Output String ---

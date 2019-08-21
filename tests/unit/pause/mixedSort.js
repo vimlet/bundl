@@ -28,18 +28,7 @@ suite("bundl-mixedSort", () => {
         var result6 = parseInt((await readFile(path.join(resources, `mixedSort/output/mixedSort6.txt`))).toString());       
         var result7 = (await readFile(path.join(resources, `mixedSort/output/mixedSort7.txt`))).toString().split("\n");
         result7 = result7.map(current=> parseInt(current));                
-        var order = (result6 <= result7[0] || result7[0] < result6) && (result7[0] < result4) && (result4 <= result5 || result5 < result4) && (result5 < result1) && (result1 < result7[1])  && (result7[1] < result2) && (result2 < result3);
-
-        console.log("1",(result6 <= result7[0] || result7[0] < result6));
-        console.log("2",(result7[0] < result4));
-        console.log("3",(result4 <= result5 || result5 < result4));
-        console.log("4", (result5 < result1));
-        console.log("5",(result1 < result7[1]));
-        console.log("6",(result7[1] < result2));
-        console.log("7",(result2 < result3));
-        
-
-
+        var order = (result6 <= result7[0] || result7[0] < result6) && (result7[0] < result4) && (result4 <= result5 || result5 < result4) && (result5 < result1) && (result1 < result7[1])  && (result7[1] < result2) && (result2 < result3); 
         assert.isOk(order, `mixedSort execution order is not correct`);
     });
     test("Write", async () => {
@@ -51,37 +40,28 @@ suite("bundl-mixedSort", () => {
         var result6 = (await statFile(path.join(resources, `mixedSort/output/mixedSort6.txt`))).mtime;    
         var result7 = (await statFile(path.join(resources, `mixedSort/output/mixedSort7.txt`))).mtime;        
         var order = (result6 < result4) && ((result4 <= result5) || (result5 < result4)) && (result5< result1) && (result1 < result2) && ((result7 < result2) ||(result2 < result7)) && (result7 <= result3);
-
-        console.log("1",(result6 < result4));
-        console.log("2",((result4 <= result5) || (result5 < result4)));
-        console.log("3",(result5< result1));
-        console.log("4", (result5 < result1));
-        console.log("5",(result1 < result2));
-        console.log("6",(result7 < result2));
-        console.log("7",(result7 <= result3));
         assert.isOk(order, `mixedSort write order is not correct`);
     });
     test("Before execution", async () => { 
         var result8 = parseInt((await readFile(path.join(resources, `mixedSort/output/mixedSort8.txt`))).toString()); 
         var result9 = parseInt((await readFile(path.join(resources, `mixedSort/output/mixedSort9.txt`))).toString());         
         var result10 = (await readFile(path.join(resources, `mixedSort/output/mixedSort10.txt`))).toString().split("\n");
-        result10 = result10.map(current=> parseInt(current));   
-        
-        console.log("1:::", (result10[1] < result10[0]));
-        console.log("2:::", (result10[0] < result8));
-        console.log("3:::", (result8 < result9));
-        
-
+        result10 = result10.map(current=> parseInt(current));  
         var order = (result10[1] < result10[0]) && (result10[0] < result8) && (result8 < result9);
         assert.isOk(order, `mixedSort before execution order is not correct`);
     });
+
+    // TODO transformArray are always written at last.
     // test("Before write", async () => { 
     //     var result8 = (await statFile(path.join(resources, `mixedSort/output/mixedSort8.txt`))).mtime;  
     //     var result9 = (await statFile(path.join(resources, `mixedSort/output/mixedSort9.txt`))).mtime;       
     //     var result10 = (await readFile(path.join(resources, `mixedSort/output/mixedSort10.txt`))).mtime;
     //     var order = (result10 < result8) && (result8 < result9) && (result9 < result10);
+    //     console.log("1:::", (result10 < result8));
+    //     console.log("2:::", (result8 < result9));
+    //     console.log("3:::", (result9 < result10));
     //     assert.isOk(order, `mixedSort before write order is not correct`);
-    // });
+    // });  
 
     
 });

@@ -4,6 +4,8 @@ const copy = require("./copy");
 const late = require("./late");
 const glob = require("@vimlet/commons-glob");
 const path = require("path");
+const configurator = require("./configurator");
+const sorter = require("./sorter");
 
 // @property currentBeforeId (private) [Index to give ids to before promises]
 var currentBeforeId = 0;
@@ -20,52 +22,116 @@ module.exports.build = async config => {
   if (!("log" in config) || config.log) {
     console.log("Build started...");
   }
-  config = setupConfig(config);
+  config = configurator.setupOutput(config);
   await clean(config);
   await pack(config);
 };
 
 // @function pack (private) [After clean, sort and start packing]
 async function pack(config) {
-  let sorted = sort(config);
-  buildCalls = Object.keys(sorted.sorted).length + 1 + 1 + Object.keys(beforeRelation).length;
-  await Promise.all([processSorted(config, sorted.sorted), build(config, sorted.unsorted), build(config, sorted.after)]);
+  // let sorted = sort(config);
+  let sorted = sorter.sortOutput(config);
+  await Promise.all([buildSorted(config, sorted), build(config, sorted, sorted.list.unsorted)]);
   console.log("Build completed at: " + getTime());
 }
 
-
-// @function processTransformArray (private) [Process transform array promises]
-function processTransformArray(config) {
+// @function buildSorted (private) [Build sorted elements] @param config @param sorted
+async function buildSorted(config, sorted) {
   return new Promise(async (resolve, reject) => {
-    for (const key in transformArrays) {
-      var transformArray = transformArrays[key];
-      transformArray.promises = await Promise.all(transformArray.promises);
-      var content = "";
-      while (transformArray.position.length > 0) {
-        var currentId = transformArray.position.shift();
-        transformArray.promises.forEach(cPromise => {
-          if (cPromise.id === currentId) {
-            content += cPromise.content + ((transformArray.position.length > 0) ? "\n" : "");
-          }
-        });
-      }
-
-      let result = {
-        parse: transformArray.promises[0].parse,
-        outputParent: transformArray.promises[0].outputParent,
-        outputPath: transformArray.promises[0].outputPath,
-        content: content
-      };
-      var hashes = {};      
-      await late.process([result], hashes, config);
+    for (var key in sorted.list.sorted) {
+      await build(config, sorted, sorted.list.sorted[key]);
     }
     resolve();
   });
 }
 
+// @function build (private) [Build an array of objs] @param config @param sorted @param objs
+async function build(config, sorted, objs) {
+  return new Promise(async (resolve, reject) => {
+    await Promise.all(objs.map(async key => {
+      await buildObj(config, sorted, key);
+    }));
+    resolve();
+  });
+}
+
+// @function buildObj (private) [Build an obj] @param config @param sorted @param key
+async function buildObj(config, sorted, key) {
+  return new Promise(async (resolve, reject) => {
+    let hashes = {};
+    var obj = sorted.data[key].obj;
+    var isCopy = obj.outPath.endsWith("**");
+    if(isCopy){
+      var current = await process(config, sorted, key, hashes);
+      await Promise.all(current.map(async cCopy =>{
+        cCopy = await cCopy;
+        await lateAndWrite(cCopy, hashes, config, sorted, key);
+      }));
+      sorted.data[key].status = "solved";
+    }else{
+      var current = await process(config, sorted, key, hashes);
+      sorted.data[key].status = "solved";
+      await lateAndWrite(current, hashes, config, sorted, key);
+    }
+    resolve();
+  });
+}
+
+// @function lateAndWrite (private) [Launch late operations and write result to disk]
+async function lateAndWrite(obj, hashes, config, sorted, key) {
+  return new Promise(async (resolve, reject) => {
+    if (sorted.list.transformArray[sorted.data[key].obj.outPath]) {      
+      await lateTransformArray(hashes, config, sorted, sorted.list.transformArray[sorted.data[key].obj.outPath]);
+    } else {
+      await late.process([obj], hashes, config);
+    }
+    resolve();
+  });
+}
+
+// @function lateTransformArray (private) [Launch late operations and write result to disk for transforms arrays]
+async function lateTransformArray(hashes, config, sorted, transformArray) {  
+  return new Promise(async (resolve, reject) => {
+    var allDone = true;
+    transformArray.forEach(currentTA => {      
+      if (sorted.data[currentTA].status != "solved") {        
+        allDone = false;
+      }
+    });
+    if (allDone) {      
+      var obj;
+      content = await transformArray.reduce(async (total, current, index, array) => {
+        var solved = await sorted.data[current].promise;
+        obj = solved;
+        return await total + solved.content + (index < (array.length - 1) ? "\n" : "");
+      }, "");
+      obj.content = content;      
+      await late.process([obj], hashes, config);
+    }
+    resolve();
+  });
+}
+
+// @function process (private) [Launch promises] @param config @param sorted @param key @param hashes
+async function process(config, sorted, key, hashes) {
+  return new Promise(async (resolve, reject) => {
+    var obj = sorted.data[key].obj;
+    var isCopy = obj.outPath.endsWith("**");
+    var currentPromise;
+    if (isCopy) {
+      currentPromise = copy.process(config, obj);
+    } else {
+      currentPromise = transform.process(config, obj, hashes);
+    }
+    sorted.data[key].status = "triggered";
+    sorted.data[key].promise = currentPromise;
+    resolve(currentPromise);
+  });
+}
+
 // @function buildSingle (public) [Build single file which has been modified. Used at watch mode] @param config @param filePath @param event [Watcher trigger event]
 module.exports.buildSingle = async function (config, filePath, event) {
-  config = setupConfig(config);
+  config = configurator.setupOutput(config);
   config._isWatch = true;
   filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
   var matches = [];
@@ -120,410 +186,6 @@ function matchSingleConfig(inputs, matches, filePath, outputKey) {
       matches.push(outputKey);
     }
   }
-}
-
-// @function processSorted (private) [Build sorted elements] @param config @param sorted
-async function processSorted(config, sorted) {
-  return new Promise(async (resolve, reject) => {
-    for (var key in sorted) {
-      await build(config, sorted[key]);
-    }
-    resolve();
-  });
-}
-
-// async function build(config, objs) {  
-//   return new Promise(async (resolve, reject) => {
-//     let hashes = {};
-//     let processOutputPromises = await processCopyTransform(config, objs, hashes);
-//     buildCalls--;
-//     if (buildCalls === 0) {      
-//       await processTransformArray(config);  // TODO fix await
-//     }    
-//     await Promise.all(processOutputPromises.map(async currentP => {
-//       var solved = await currentP;
-//       if (Array.isArray(solved)) {
-//         await Promise.all(solved.map(async cuSolved => {
-//           cuSolved = await cuSolved;
-//           await late.process([cuSolved], hashes, config);
-//         }));
-//       } else {      
-//         if ("_waitTransform" in solved) {
-//         } else {          
-//           await late.process([solved], hashes, config);
-//         }
-//       }
-//     }));
-//     resolve();
-//   });
-// }
-
-// @function build (private) [Build an array of objs] @param config @param objs
-async function build(config, objs) {
-  return new Promise(async (resolve, reject) => {
-    buildCalls--;
-    if (buildCalls === 0) {
-      await processTransformArray(config); // TODO fix await
-    }    
-    await Promise.all(objs.map(async obj => {
-      await buildObj(config, obj);
-    }));
-    resolve();
-  });
-}
-
-// @function buildObj (private) [Build an obj] @param config @param obj
-async function buildObj(config, obj) {
-  return new Promise(async (resolve, reject) => {
-    let hashes = {};    
-    let processOutputPromises = await processCopyTransform(config, obj, hashes);
-    await Promise.all(processOutputPromises.map(async currentP => {
-      var solved = await currentP;
-      if (Array.isArray(solved)) {
-        await Promise.all(solved.map(async cuSolved => {
-          cuSolved = await cuSolved;          
-          await late.process([cuSolved], hashes, config);
-        }));
-      } else {
-        if ("_waitTransform" in solved) {          
-        } else {          
-          await late.process([solved], hashes, config);
-        }
-      }
-    }));
-    resolve();
-  });
-}
-
-// @function processCopyTransform (private) [Process output objects into promises] @param config @param objs @param hashes
-async function processCopyTransform(config, obj, hashes) {
-  return new Promise(async (resolve, reject) => {
-    let processOutputPromises = [];
-    if (obj._waitFor) {
-      await Promise.all(obj._waitFor.map(async currentWait =>{
-        beforeRelation[currentWait] = build(config, [beforeRelation[currentWait]]);
-        await beforeRelation[currentWait];
-      }));
-    }
-    if (obj.after) {
-      if (!Array.isArray(obj.after)) {
-        obj.after = obj.after.split("");
-      }
-      for (const afterId of obj.after) {
-        if (idOutputsRelation[afterId]) {
-          await idOutputsRelation[afterId];
-        }
-      }
-    }
-    var isCopy = obj.outPath.endsWith("**");
-    var currentPromise;
-    if (isCopy) {
-      currentPromise = copy.process(config, obj);
-      processOutputPromises.push(currentPromise);
-    } else {
-      currentPromise = transform.process(config, obj, hashes);
-      processOutputPromises.push(currentPromise);
-      if ("_waitTransform" in obj) {
-        transformArrays[obj.outPath].promises.push(currentPromise);
-      }
-    }
-    if (obj.id) {
-      idOutputsRelation[obj.id] = currentPromise;
-    }
-    resolve(processOutputPromises);
-  });
-}
-
-// @function processCopyTransform (private) [Process output objects into promises] @param config @param objs @param hashes
-// async function processCopyTransform(config, obj, hashes) {
-//   return new Promise(async (resolve, reject) => {
-//     let processOutputPromises = [];
-//     for (const obj of objs) {
-//       if (obj._waitFor) {
-//         await beforeRelation[obj._waitFor];
-//       }
-//       if (obj.after) {
-//         if (!Array.isArray(obj.after)) {
-//           obj.after = obj.after.split("");
-//         }
-//         for (const afterId of obj.after) {
-//           if (idOutputsRelation[afterId]) {
-//             await idOutputsRelation[afterId];
-//           }
-//         }
-//       }
-//       var isCopy = obj.outPath.endsWith("**");
-//       var currentPromise;
-//       if (isCopy) {
-//         currentPromise = copy.process(config, obj);
-//         processOutputPromises.push(currentPromise);
-//       } else {
-//         currentPromise = transform.process(config, obj, hashes);
-//         processOutputPromises.push(currentPromise);
-//         if ("_waitTransform" in obj) {
-//           transformArrays[obj.outPath].promises.push(currentPromise);
-//         }
-//       }
-//       if (obj.id) {
-//         idOutputsRelation[obj.id] = currentPromise;
-//       }
-//     }
-//     resolve(processOutputPromises);
-//   });
-// }
-
-// @function setupConfig (private)
-function setupConfig(config) {
-  config.hashLength = "hashLength" in config ? config.hashLength : 7;
-  config.outputBase = "outputBase" in config ? config.outputBase : "";
-  config.inputBase = "inputBase" in config ? config.inputBase : "";
-  config.clean = "clean" in config ? config.clean : false;
-  config = queryParam(config);
-  return config;
-}
-
-// @function queryParam (private) [Manage query param in outputs]
-function queryParam(config) {
-  if (typeof config.output != 'object') {
-    throw new Error("Bundl.config is bad formatted");
-  }
-  var output = {};
-  for (var key in config.output) {
-    var query = key.split("?");
-    if (query.length > 1) {
-      try {
-        output[query[0]] = setOutput(config.output[key], key);
-        var param = query[1].split("&");
-        param.forEach(element => {
-          setParam(element, output[query[0]]);
-        });
-      } catch (e) {
-        console.log("Error parsing query param at: " + key);
-      }
-    } else {
-      output[key] = setOutput(config.output[key], key);
-    }
-  }
-  config.output = output;
-  return config;
-}
-
-// @function setOutput (private) [Set output config from inputs. Handle array, string or object] @param output [Object] @param key [Output key]
-function setOutput(output, key) {
-  if (typeof output === 'object' && !Array.isArray(output)) {
-    return setOutputObject(output);
-  } else {
-    if (Array.isArray(output)) {
-      return setOutputArray(output);
-    } else {
-      return setOutputString(output);
-    }
-  }
-}
-
-// @function setOutputString (private) [Set output config where output is a string] @param output [Object]
-function setOutputString(output) {
-  var res = {
-    input: {}
-  };
-  res.input[output] = true;
-  return res;
-}
-
-// @function setOutputArray (private) [Set output config where output is an array] @param output [Object]
-function setOutputArray(output) {
-  output = output.map(current => {
-    if (typeof current === 'object') {
-      return setOutputObject(current);
-    } else {
-      return setOutputString(current);
-    }
-  });
-  return output;
-}
-
-// @function setOutputObject (private) [Set output config where output is an object] @param output [Object]
-function setOutputObject(output) {
-  if (typeof output.input === 'object' && !Array.isArray(output.input)) {
-    return setInputObject(output);
-  } else {
-    if (Array.isArray(output.input)) {
-      return setInputArray(output);
-    } else {
-      return setInputString(output);
-    }
-  }
-}
-
-// @function setInputObject (private) [Set input where input is an object]
-function setInputObject(output) {
-  return output;
-}
-// @function setInputArray (private) [Set input where input is an array]
-function setInputArray(output) {
-  var inp = {};
-  output.input.forEach(cuInp => {
-    if (typeof cuInp != 'object') {
-      inp[cuInp] = true;
-    } else {
-      for (var cuKey in cuInp) {
-        inp[cuKey] = cuInp[cuKey];
-      }
-    }
-  });
-  output.input = inp;
-  return output;
-}
-// @function setInputString (private) [Set input where input is a string]
-function setInputString(output) {
-  var inp = {};
-  inp[output.input] = true;
-  output.input = inp;
-  return output;
-}
-
-// @function setParam (private) [Set up query params into element config] @param param @param obj [Output object]
-function setParam(param, obj) {
-  var split = param.split("=");
-  if (split[0] && split[1]) {
-    switch (split[0]) {
-      case "parse":
-        var value = split[1] === "true" ? true : false;
-        setParamKey(obj, split[0], value);
-        break;
-      default:
-        setParamKey(obj, split[0], split[1]);
-        break;
-    }
-  }
-}
-
-// @function setParamKey (private) [Set up single param into element config] @param obj [Output object] @param key [Param key] @param value
-function setParamKey(obj, key, value) {
-  if (typeof obj === 'object' && !Array.isArray(obj)) {
-    if (!(key in obj)) {
-      obj[key] = value;
-    }
-  } else if (Array.isArray(obj)) {
-    obj = obj.map(element => {
-      if (typeof element === 'object') {
-        if (!(key in element)) {
-          element[key] = value;
-        }
-      }
-      return element;
-    });
-  }
-}
-
-// @function sort (private) [Sort config output elements if order is set] @param config
-function sort(config) {
-  var sorted = {}; // Add sorted
-  var unsorted = []; // Add unsorted
-  var before = {}; // Add with before key
-  var after = []; // Add with after key
-  Object.keys(config.output).forEach(element => {
-    if (typeof config.output[element] === 'object' && !Array.isArray(config.output[element])) {
-      sortOutputObject(config, config.output[element], element, sorted, unsorted, before, after);
-    } else if (Array.isArray(config.output[element])) {
-      sortOutputArray(config, element, sorted, unsorted, before, after);
-    } else {
-      sortOutputString(config, element, unsorted);
-    }
-  });
-  for (var beforeKey in before) {
-    unsorted = unsorted.map(current => {      
-      if ("id" in current && current.id === beforeKey) {
-        current._waitFor = before[beforeKey];
-      }
-      return current;
-    });
-    for(var key in beforeRelation){
-      if ("id" in beforeRelation[key] && beforeRelation[key].id === beforeKey) {
-        beforeRelation[key]._waitFor = before[beforeKey];
-      }
-    }    
-  }
-  return {
-    sorted: sorted,
-    unsorted: unsorted,
-    before: before,
-    after: after
-  };
-}
-
-// @function sortOutputString (private) [Sort output key where it is an string] @param config @param element [Output key] @param unsorted [Array for unsorted elements]
-function sortOutputString(config, element, unsorted) {
-  var current = {};
-  current.outPath = element;
-  current.input = config.output[element];
-  unsorted.push(current);
-}
-
-// @function sortOutputArray (private) [Sort output key where it is an array] @param config @param element [Output key] @param unsorted [Array for unsorted elements] @param before @param after
-function sortOutputArray(config, element, sorted, unsorted, before, after) {
-  var isCopy = element.endsWith("**");
-  if (isCopy) {
-    config.output[element].forEach(currentObject => {
-      sortOutputObject(config, currentObject, element, sorted, unsorted, before, after);
-    });
-  } else {
-    var tId = 0;
-    config.output[element].forEach(currentObject => {
-      if (!currentObject.id) {
-        currentObject.id = "_" + tId;
-        tId++;
-      }
-      currentObject._waitTransform = element;
-      transformArrays[element] = transformArrays[element] || {
-        position: [],
-        promises: []
-      };
-      transformArrays[element].position.push(currentObject.id);
-      sortOutputObject(config, currentObject, element, sorted, unsorted, before, after);
-    });
-  }
-}
-
-// @function sortOutputObject (private) [Sort output key where it is an object] @param config @param obj [Output object] @param key [Output key] @param sorted [Object for sorted elements] @param unsorted [Array for unsorted elements] @param before [Array to add items labeled with before key] @param after [Array to add items labeled with after key]
-function sortOutputObject(config, obj, key, sorted, unsorted, before, after) {
-  if ("order" in obj) {
-    var currentOrder = parseInt(obj.order);
-    sorted[currentOrder] = sorted[currentOrder] || [];
-    obj.outPath = key;
-    sorted[currentOrder].push(obj);
-  } else {
-    if ("before" in obj) {
-      sortBefore(config, obj, key, before);
-    } else if ("after" in obj) {
-      obj.outPath = key;
-      after.push(obj);
-    } else {
-      obj.outPath = key;
-      unsorted.push(obj);
-    }
-  }
-}
-
-// @function getBeforeId (private) [Get an id to identify a before promise without id]
-function getBeforeId() {
-  var current = "__" + currentBeforeId;
-  currentBeforeId++;
-  return current;
-}
-
-// @function sortBefore (private) [Add elements with before key to before array] @param config @param element [Output key] @param before [Array to add items labeled with before key]
-function sortBefore(config, obj, key, before) {
-  if (!Array.isArray(obj.before)) {
-    obj.before = obj.before.split(" ");
-  }
-  obj.outPath = key;
-  obj.id = obj.id || getBeforeId();  
-  beforeRelation[obj.id] = obj;
-  obj.before.forEach(bElem => {
-    before[bElem] = before[bElem] || [];
-    before[bElem].push(obj.id);
-  });
 }
 
 // @function getTime (private) [Return current time]

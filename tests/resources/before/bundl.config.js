@@ -26,6 +26,8 @@ module.exports = {
         "output/before3.txt": {
             id: "3",
             use: async function (entry) { 
+                console.log("LAUNCH 3");
+                
                 await waitTest(0);
                 entry.content =  new Date().getTime(); 
                 return entry;
@@ -54,6 +56,6 @@ function waitTest(amount) {
         amount = amount || 1;
         setTimeout(() => {
             resolve("Waited for");
-        }, (1000 * amount));
+        }, (100 * amount));
     });
 }
