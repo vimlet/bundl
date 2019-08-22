@@ -13,8 +13,6 @@ module.exports = async (config, options) => {
       rimraf.sync(path.resolve(config.outputBase));
     } else {
       await cleanWatch(config, options);
-      // var generatedFiles = await getGeneratedFiles(config);
-      // await clean(config, generatedFiles);
     }
   }
 };

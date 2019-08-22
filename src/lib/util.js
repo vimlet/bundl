@@ -30,3 +30,26 @@ module.exports.filesByMatches = (matches, inputsObject) => {
   });
   return Promise.all(files);
 };
+
+
+// @function getTime (public) [Return current time]
+module.exports.getTime = function() {
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+  var hours = today.getHours();
+  if (hours < 10) {
+    hours = "0" + hours;
+  }
+  var minutes = today.getMinutes();
+  if (minutes < 10) {
+    minutes = "0" + minutes;
+  }
+  var seconds = today.getSeconds();
+  if (seconds < 10) {
+    seconds = "0" + seconds;
+  }
+  today = dd + '/' + mm + '/' + yyyy + "/" + hours + ":" + minutes + ":" + seconds;
+  return today;
+};
