@@ -4,6 +4,7 @@ const util = require("./util");
 const parse = require("./parse");
 const bundl = require("../index.js");
 
+// @function processInputUse (private) [Apply use functions to input] @param inputsObject @param file
 async function processInputUse(inputsObject, files) {
   files = await Promise.all(files.map(async file => {
     file.path = file.file;
@@ -23,6 +24,7 @@ async function processInputUse(inputsObject, files) {
   return files;
 }
 
+// @function processInputJoin (private) [Join given files content for output] @param files @param inputsObject @param hashes
 async function processInputJoin(files, inputsObject, hashes) {
   return await files.reduce(async (total, current, index, array) => {    
     current.content = await processInputMeta(current, inputsObject, hashes);
@@ -30,6 +32,7 @@ async function processInputJoin(files, inputsObject, hashes) {
   }, "");
 }
 
+// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param hashes
 async function processInputMeta(file, inputsObject, hashes) {  
   if (typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) {
     content = await parse(file.content.toString(), {
@@ -44,6 +47,7 @@ async function processInputMeta(file, inputsObject, hashes) {
   }
 }
 
+// @function processOutputUse (private) [Apply use functions to output] @param outputObject @param outputPath @param content
 async function processOutputUse(outputObject, outputPath, content) {
   var result = {
     path: outputPath,
@@ -67,7 +71,7 @@ async function processOutputUse(outputObject, outputPath, content) {
   return result.content;
 };
 
-
+// @function handleOutputHash (private) [Generate hash for file name] @param config @param hashes @param content @param outputKey @param outputObject @param outputPath
 function handleOutputHash(config, hashes, content, outputKey, outputObject, outputPath) {
   if (outputKey.includes("{{hash}}")) {
     let hash = md5(content).substring(0, config.hashLength);
@@ -80,6 +84,8 @@ function handleOutputHash(config, hashes, content, outputKey, outputObject, outp
   return outputPath;
 }
 
+
+// @function process (public) [Process given output transform entry] @param config @param outputEntry
 module.exports.process = async (config, outputObject, hashes) => {  
   // Read input files by match
   let outputPath = path.join(config.outputBase, outputObject.outPath).replace(/\\/g, "/");

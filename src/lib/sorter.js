@@ -1,109 +1,126 @@
 var customId = 0;
 
-// @function sortOutput (public) [Sort output object]
-module.exports.sortOutput = function (config) {
-    var status = {};
-    var list = {
-        sorted: {},
-        unsorted: [],
-        transformArray: {},
-        before: [],
-        after: []
+// @function process (private) [Sort tasks and output]
+module.exports.process = function (config) {
+    var sorted = {
+        list: {
+            sorted: {},
+            unsorted: [],
+            transformArray: {},
+            before: [],
+            after: []
+        },
+        data: {}
     };
-    Object.keys(config.output).forEach(element => {
-        if (typeof config.output[element] === 'object' && !Array.isArray(config.output[element])) {
-            sortOutputObject(config, config.output[element], element, status, list);
-        } else if (Array.isArray(config.output[element])) {
-            sortOutputArray(config, config.output[element], element, status, list);
-        } else {
-            sortOutputString(config, config.output[element], element, status, list);
-        }
-    });
-    return {
-        list: list,
-        data: status
-    };
+    sortOutput(config, sorted);
+    sortTask(config, sorted);
+    return sorted;
 };
 
+// @function sortTask (private) [Sort tasks] @param config @param sorted [Result object]
+function sortTask(config, sorted) {
+    if ("task" in config) {        
+        Object.keys(config.task).forEach(element => {
+            sortTaskObject(config, config.task[element], element, sorted);
+        });
+    }
+}
 
-// @function sortOutputObject (private) [Sort output key where it is an object] @param config @param obj @param element [Output key] @param status [Object which stores output object and status.]@param list [List with sorted and unsorted objects]
-function sortOutputObject(config, obj, element, status, list) {
-    obj.id = obj.id || getCustomId();
-    obj.outPath = element;
-    if ("order" in obj) {
+// @function sortTaskObject (private) [Sort task key] @param config @param obj @param element [Output key] @param sorted [Result object]
+function sortTaskObject(config, obj, element, sorted) {
+    obj.id = element;
+    obj._type = "task";    
+    if ("order" in obj) {        
         var currentOrder = parseInt(obj.order);
-        list.sorted[currentOrder] = list.sorted[currentOrder] || [];
-        list.sorted[currentOrder].push(obj.id);
-        status[obj.id] = {
+        sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
+        sorted.list.sorted[currentOrder].push(obj.id);
+        sorted.data[obj.id] = {
             status: "object",
             obj: obj
         };
     } else {
-
-
-        if ("before" in obj) {
-            // sortBefore(config, obj, key, before, unsorted);
-        } else if ("after" in obj) {
-            // after.push(obj);
-        } else {
-            list.unsorted.push(obj.id);
-            status[obj.id] = {
-                triggered: "object",
-                obj: obj
-            };
-        }
-
-
-
+        sorted.list.unsorted.push(obj.id);
+        sorted.data[obj.id] = {
+            status: "object",
+            obj: obj
+        };
     }
+    return obj;
+}
+
+// @function sortOutput (private) [Sort output object] @param config @param sorted [Result object]
+function sortOutput(config, sorted) {
+    if ("output" in config) {
+        Object.keys(config.output).forEach(element => {
+            if (typeof config.output[element] === 'object' && !Array.isArray(config.output[element])) {
+                sortOutputObject(config, config.output[element], element, sorted);
+            } else if (Array.isArray(config.output[element])) {
+                sortOutputArray(config, config.output[element], element, sorted);
+            } else {
+                sortOutputString(config, config.output[element], element, sorted);
+            }
+        });
+    }
+}
+
+// @function sortOutputObject (private) [Sort output key where it is an object] @param config @param obj @param element [Output key] @param sorted [Result object]
+function sortOutputObject(config, obj, element, sorted) {
+    obj.id = obj.id || getCustomId();
+    obj.outPath = element;
+    obj._type = element.endsWith("**") ? "copy" : "transform";
+    if ("order" in obj) {
+        var currentOrder = parseInt(obj.order);
+        sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
+        sorted.list.sorted[currentOrder].push(obj.id);
+    } else {
+        // if ("before" in obj) {
+        //     // sortBefore(config, obj, key, before, unsorted);
+        // } else if ("after" in obj) {
+        //     // after.push(obj);
+        // } else {
+        //     sorted.list.unsorted.push(obj.id);
+        //     sorted.data[obj.id] = {
+        //         status: "object",
+        //         obj: obj
+        //     };
+        // }
+        sorted.list.unsorted.push(obj.id);
+    }
+    sorted.data[obj.id] = {
+        status: "object",
+        obj: obj
+    };
     return obj;
 }
 
 
 
-// @function sortOutputArray (private) [Sort output key where it is an array] @param config @param obj @param element [Output key] @param status [Object which stores output object and status.]@param list [List with sorted and unsorted objects]
-function sortOutputArray(config, obj, element, status, list) {
+// @function sortOutputArray (private) [Sort output key where it is an array] @param config @param obj @param element [Output key] @param sorted [Result object]
+function sortOutputArray(config, obj, element, sorted) {
     var isCopy = element.endsWith("**");
     if (isCopy) {
         obj.forEach(currentObject => {
-            sortOutputObject(config, currentObject, element, status, list);
+            sortOutputObject(config, currentObject, element, sorted);
         });
     } else {
-        list.transformArray[element] = [];
-        obj.forEach(currentObject => {            
-            var currentO = sortOutputObject(config, currentObject, element, status, list, true);
-            list.transformArray[element].push(currentO.id);
+        sorted.list.transformArray[element] = [];
+        obj.forEach(currentObject => {
+            var currentO = sortOutputObject(config, currentObject, element, sorted, true);
+            sorted.list.transformArray[element].push(currentO.id);
         });
-
-
-        //   var tId = 0;
-        //   obj.forEach(currentObject => {
-        //     if (!currentObject.id) {
-        //       currentObject.id = "_" + tId;
-        //       tId++;
-        //     }
-        //     currentObject._waitTransform = element;
-        //     transformArrays[element] = transformArrays[element] || {
-        //       position: [],
-        //       promises: []
-        //     };
-        //     transformArrays[element].position.push(currentObject.id);
-        //     sortOutputObject(config, currentObject, element, status, list);
-        //   });
-
-
     }
 }
 
-// @function sortOutputString (private) [Sort output key where it is an string] @param config @param obj @param element [Output key] @param status [Object which stores output object and status.]@param list [List with sorted and unsorted objects]
-function sortOutputString(config, obj, element, status, list) {
+// @function sortOutputString (private) [Sort output key where it is an string] @param config @param obj @param element [Output key] @param sorted [Result object]
+function sortOutputString(config, obj, element, sorted) {
     var current = {};
     current.outPath = element;
     current.input = obj;
     current.id = getCustomId();
-    list.unsorted.push(current.id);
-    status[current.id] = {
-        triggered: "object",
+    current._type = element.endsWith("**") ? "copy" : "transform";
+    sorted.list.unsorted.push(current.id);
+    sorted.data[current.id] = {
+        status: "object",
         obj: current
     };
 }

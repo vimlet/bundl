@@ -3,7 +3,7 @@ const util = require("./util");
 const parse = require("./parse");
 const bundl = require("../index.js");
 
-// @function processInputUse (private) [Apply use functions to input]
+// @function processInputUse (private) [Apply use functions to input] @param inputsObject @param file
 async function processInputUse(inputsObject, file) {
   file.path = file.match;
   if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].use) {
@@ -31,7 +31,7 @@ async function processInputUse(inputsObject, file) {
   return file;
 }
 
-// @function processInputNameReplace (private) [Apply fileNameReplace to input]
+// @function processInputNameReplace (private) [Apply fileNameReplace to input] @param inputsObject @param file @param outputPath
 function processInputNameReplace(inputsObject, file, outputPath) {
   if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].fileNameReplace) {
     try {
@@ -43,7 +43,7 @@ function processInputNameReplace(inputsObject, file, outputPath) {
   return outputPath;
 }
 
-// @function processOutputUse (private) [Apply use functions to output]
+// @function processOutputUse (private) [Apply use functions to output] @param outputObject @param outputPath @param content
 async function processOutputUse(outputObject, outputPath, content) {
   var result = {
     path: outputPath,
@@ -67,7 +67,7 @@ async function processOutputUse(outputObject, outputPath, content) {
   return result;
 }
 
-// @function processOutputNameReplace (private) [Apply fileNameReplace to output]
+// @function processOutputNameReplace (private) [Apply fileNameReplace to output] @param outputObject @param outputPath
 function processOutputNameReplace(outputObject, outputPath) {  
   if (outputObject.fileNameReplace) {
     try {
@@ -79,7 +79,7 @@ function processOutputNameReplace(outputObject, outputPath) {
   return outputPath;
 }
 
-// @function processInputMeta (private) [Process meta]
+// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param cwdFilePath
 async function processInputMeta(file, inputsObject, cwdFilePath) {  
   if (typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) {
     content = await parse(file.content.toString(), {
@@ -91,6 +91,7 @@ async function processInputMeta(file, inputsObject, cwdFilePath) {
   }
 }
 
+// @function process (public) [Process given output copy entry] @param config @param outputEntry
 module.exports.process = async (config, outputEntry) => {  
   let copyPromises = [];
   let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");

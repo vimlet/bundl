@@ -11,7 +11,7 @@ module.exports.setupOutput = function(config){
 
 // @function queryParam (private) [Manage query param in outputs]
 function queryParam(config) {
-  if (typeof config.output != 'object') {
+  if ("output" in config && typeof config.output != 'object') {
     throw new Error("Bundl.config is bad formatted");
   }
   var output = {};

@@ -1,23 +1,15 @@
 const clean = require("./clean");
 const transform = require("./transform");
 const copy = require("./copy");
+const task = require("./task");
 const late = require("./late");
+const util = require("./util");
 const glob = require("@vimlet/commons-glob");
 const path = require("path");
 const configurator = require("./configurator");
 const sorter = require("./sorter");
 
-// @property currentBeforeId (private) [Index to give ids to before promises]
-var currentBeforeId = 0;
-// @property beforeRelation (private) [Map for before promises and their ids]
-var beforeRelation = {};
-// @property idOutputsRelation (private) [Map for output keys which have id]
-var idOutputsRelation = {};
-// @property transformArrays (private) [Add transform object array]
-var transformArrays = {};
-// @property buildCalls (private) [Number of sorted key plus 1 for unsorted plus 1 for after, plus beforeRelation objects.keys.length which is the number than build is going to be called. When it reaches 0, transformArray should be launched]
-var buildCalls;
-
+// @function build (public) [Launch build process]
 module.exports.build = async config => {
   if (!("log" in config) || config.log) {
     console.log("Build started...");
@@ -27,12 +19,28 @@ module.exports.build = async config => {
   await pack(config);
 };
 
+// @function runTask (public) [Run given task]
+module.exports.runTask = async (config, tasks)=>{
+  if(!Array.isArray(tasks)){
+    tasks = [tasks];
+  }  
+  config = configurator.setupOutput(config);
+  let sorted = sorter.process(config);
+  await Promise.all(tasks.map(async currentTask=>{
+    try{
+    await process(config, sorted, currentTask);
+    }catch(e){
+      console.log("Error", e);      
+    }
+  }));
+
+};
+
 // @function pack (private) [After clean, sort and start packing]
 async function pack(config) {
-  // let sorted = sort(config);
-  let sorted = sorter.sortOutput(config);
+  let sorted = sorter.process(config);
   await Promise.all([buildSorted(config, sorted), build(config, sorted, sorted.list.unsorted)]);
-  console.log("Build completed at: " + getTime());
+  console.log("Build completed at: " + util.getTime());
 }
 
 // @function buildSorted (private) [Build sorted elements] @param config @param sorted
@@ -60,18 +68,24 @@ async function buildObj(config, sorted, key) {
   return new Promise(async (resolve, reject) => {
     let hashes = {};
     var obj = sorted.data[key].obj;
-    var isCopy = obj.outPath.endsWith("**");
-    if(isCopy){
-      var current = await process(config, sorted, key, hashes);
-      await Promise.all(current.map(async cCopy =>{
-        cCopy = await cCopy;
-        await lateAndWrite(cCopy, hashes, config, sorted, key);
-      }));
-      sorted.data[key].status = "solved";
-    }else{
-      var current = await process(config, sorted, key, hashes);
-      sorted.data[key].status = "solved";
-      await lateAndWrite(current, hashes, config, sorted, key);
+    switch (obj._type) {
+      case "task":
+        await process(config, sorted, key, hashes);
+        sorted.data[key].status = "solved";
+        break;
+      case "copy":
+        var current = await process(config, sorted, key, hashes);
+        await Promise.all(current.map(async cCopy => {
+          cCopy = await cCopy;
+          await lateAndWrite(cCopy, hashes, config, sorted, key);
+        }));
+        sorted.data[key].status = "solved";
+        break;
+      case "transform":
+        var current = await process(config, sorted, key, hashes);
+        sorted.data[key].status = "solved";
+        await lateAndWrite(current, hashes, config, sorted, key);
+        break;
     }
     resolve();
   });
@@ -80,7 +94,7 @@ async function buildObj(config, sorted, key) {
 // @function lateAndWrite (private) [Launch late operations and write result to disk]
 async function lateAndWrite(obj, hashes, config, sorted, key) {
   return new Promise(async (resolve, reject) => {
-    if (sorted.list.transformArray[sorted.data[key].obj.outPath]) {      
+    if (sorted.list.transformArray[sorted.data[key].obj.outPath]) {
       await lateTransformArray(hashes, config, sorted, sorted.list.transformArray[sorted.data[key].obj.outPath]);
     } else {
       await late.process([obj], hashes, config);
@@ -90,22 +104,22 @@ async function lateAndWrite(obj, hashes, config, sorted, key) {
 }
 
 // @function lateTransformArray (private) [Launch late operations and write result to disk for transforms arrays]
-async function lateTransformArray(hashes, config, sorted, transformArray) {  
+async function lateTransformArray(hashes, config, sorted, transformArray) {
   return new Promise(async (resolve, reject) => {
     var allDone = true;
-    transformArray.forEach(currentTA => {      
-      if (sorted.data[currentTA].status != "solved") {        
+    transformArray.forEach(currentTA => {
+      if (sorted.data[currentTA].status != "solved") {
         allDone = false;
       }
     });
-    if (allDone) {      
+    if (allDone) {
       var obj;
       content = await transformArray.reduce(async (total, current, index, array) => {
         var solved = await sorted.data[current].promise;
         obj = solved;
         return await total + solved.content + (index < (array.length - 1) ? "\n" : "");
       }, "");
-      obj.content = content;      
+      obj.content = content;
       await late.process([obj], hashes, config);
     }
     resolve();
@@ -115,17 +129,26 @@ async function lateTransformArray(hashes, config, sorted, transformArray) {
 // @function process (private) [Launch promises] @param config @param sorted @param key @param hashes
 async function process(config, sorted, key, hashes) {
   return new Promise(async (resolve, reject) => {
+    if(sorted.data[key]){
     var obj = sorted.data[key].obj;
-    var isCopy = obj.outPath.endsWith("**");
-    var currentPromise;
-    if (isCopy) {
-      currentPromise = copy.process(config, obj);
-    } else {
-      currentPromise = transform.process(config, obj, hashes);
+    var currentPromise;    
+    switch (obj._type) {
+      case "task":
+          await task.process(config, obj);
+        break;
+      case "copy":
+          currentPromise = copy.process(config, obj);
+        break;
+      case "transform":
+          currentPromise = transform.process(config, obj, hashes);
+        break;
     }
     sorted.data[key].status = "triggered";
     sorted.data[key].promise = currentPromise;
     resolve(currentPromise);
+  }else{
+    reject("Not found " + key);
+  }
   });
 }
 
@@ -187,25 +210,3 @@ function matchSingleConfig(inputs, matches, filePath, outputKey) {
     }
   }
 }
-
-// @function getTime (private) [Return current time]
-function getTime() {
-  var today = new Date();
-  var dd = String(today.getDate()).padStart(2, '0');
-  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-  var yyyy = today.getFullYear();
-  var hours = today.getHours();
-  if (hours < 10) {
-    hours = "0" + hours;
-  }
-  var minutes = today.getMinutes();
-  if (minutes < 10) {
-    minutes = "0" + minutes;
-  }
-  var seconds = today.getSeconds();
-  if (seconds < 10) {
-    seconds = "0" + seconds;
-  }
-  today = dd + '/' + mm + '/' + yyyy + "/" + hours + ":" + minutes + ":" + seconds;
-  return today;
-};

@@ -2,6 +2,7 @@
 
 // Lib mode
 module.exports.build = require("./lib/pack").build;
+module.exports.runTask = require("./lib/pack").runTask;
 
 // Cli mode
 if (!module.parent) {
