@@ -2,7 +2,7 @@ module.exports = {
     inputBase: "tests/resources/order",
     outputBase: "tests/resources/order",
     output: {
-        "output/sort1.txt": {
+        "output/order1.txt": {
             use: async function (entry) {                            
                 await waitTest(4);                 
                 entry.content =  new Date().getTime();           
@@ -11,7 +11,7 @@ module.exports = {
             input: "input/**.txt",
             order: 1
         },
-        "output/sort2.txt": {
+        "output/order2.txt": {
             use: async function (entry) {
                 await waitTest(2);
                 entry.content =  new Date().getTime();
@@ -22,7 +22,7 @@ module.exports = {
             },
             order: 2
         },
-        "output/sort3.txt": {
+        "output/order3.txt": {
             use: async function (entry) { 
                 entry.content =  new Date().getTime(); 
                 return entry;
@@ -36,7 +36,7 @@ module.exports = {
             ],
             order: 3
         },
-        "output/sort4.txt": {
+        "output/order4.txt": {
             use: async function (entry) {                
                 await waitTest(1);
                 entry.content =  new Date().getTime(); 

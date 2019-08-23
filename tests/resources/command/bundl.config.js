@@ -44,6 +44,7 @@ module.exports = {
         },
         "output/sort3.txt": {
             use: async function (entry) { 
+                await waitTest(2);
                 entry.content =  new Date().getTime(); 
                 return entry;
             },

@@ -19,10 +19,10 @@ suite("bundl-order", () => {
     });
 
     test("order", async () => {
-        var result1 = (await readFile(path.join(resources, `order/output/sort1.txt`))).toString();
-        var result2 = (await readFile(path.join(resources, `order/output/sort2.txt`))).toString();
-        var result3 = (await readFile(path.join(resources, `order/output/sort3.txt`))).toString();
-        var result4 = (await readFile(path.join(resources, `order/output/sort4.txt`))).toString();        
+        var result1 = (await readFile(path.join(resources, `order/output/order1.txt`))).toString();
+        var result2 = (await readFile(path.join(resources, `order/output/order2.txt`))).toString();
+        var result3 = (await readFile(path.join(resources, `order/output/order3.txt`))).toString();
+        var result4 = (await readFile(path.join(resources, `order/output/order4.txt`))).toString();        
         var order = (parseInt(result4) < parseInt(result1)) && (parseInt(result1) < parseInt(result2)) && (parseInt(result2) < parseInt(result3));
         assert.isOk(order, `order order is not correct`);
     });

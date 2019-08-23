@@ -7,19 +7,39 @@ module.exports.process = function (config) {
             sorted: {},
             unsorted: [],
             transformArray: {},
-            before: [],
-            after: []
+            before: {},
+            after: {}
         },
-        data: {}
+        data: {},
+        open:[]
     };
     sortOutput(config, sorted);
-    sortTask(config, sorted);
+    sortTask(config, sorted);    
+    processBefore(sorted);
+    processAfter(sorted);    
     return sorted;
 };
 
+// @function processBefore (private) [After all objects have been added, add wait for before items] @param sorted
+function processBefore(sorted) {
+    for (key in sorted.list.before) {
+        sorted.list.before[key].forEach(beforeItem => {
+            sorted.data[beforeItem]._waitFor = sorted.data[beforeItem]._waitFor || [];
+            sorted.data[beforeItem]._waitFor.push(key);
+        });
+    }
+}
+// @function processAfter (private) [After all objects have been added, add wait for after items] @param sorted
+function processAfter(sorted) {
+    for (key in sorted.list.after) {
+        sorted.data[key]._waitFor = sorted.data[key]._waitFor || [];
+        sorted.data[key]._waitFor = sorted.data[key]._waitFor.concat(sorted.list.after[key]);
+    }
+}
+
 // @function sortTask (private) [Sort tasks] @param config @param sorted [Result object]
 function sortTask(config, sorted) {
-    if ("task" in config) {        
+    if ("task" in config) {
         Object.keys(config.task).forEach(element => {
             sortTaskObject(config, config.task[element], element, sorted);
         });
@@ -29,8 +49,8 @@ function sortTask(config, sorted) {
 // @function sortTaskObject (private) [Sort task key] @param config @param obj @param element [Output key] @param sorted [Result object]
 function sortTaskObject(config, obj, element, sorted) {
     obj.id = element;
-    obj._type = "task";    
-    if ("order" in obj) {        
+    obj._type = "task";
+    if ("order" in obj) {
         var currentOrder = parseInt(obj.order);
         sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
         sorted.list.sorted[currentOrder].push(obj.id);
@@ -73,18 +93,15 @@ function sortOutputObject(config, obj, element, sorted) {
         sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
         sorted.list.sorted[currentOrder].push(obj.id);
     } else {
-        // if ("before" in obj) {
-        //     // sortBefore(config, obj, key, before, unsorted);
-        // } else if ("after" in obj) {
-        //     // after.push(obj);
-        // } else {
-        //     sorted.list.unsorted.push(obj.id);
-        //     sorted.data[obj.id] = {
-        //         status: "object",
-        //         obj: obj
-        //     };
-        // }
-        sorted.list.unsorted.push(obj.id);
+        if ("before" in obj) {
+            var waitFor = obj.before.split(" ");
+            sorted.list.before[obj.id] = waitFor;
+        } else if ("after" in obj) {            
+            var doAfter = obj.after.split(" ");
+            sorted.list.after[obj.id] = doAfter;
+        } else {
+            sorted.list.unsorted.push(obj.id);
+        }
     }
     sorted.data[obj.id] = {
         status: "object",

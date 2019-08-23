@@ -5,15 +5,15 @@ module.exports = {
         "output/before1.txt": {
             id:"1",
             use: async function (entry) {                            
-                await waitTest(3);                 
+                await waitTest(4);                 
                 entry.content =  new Date().getTime();           
                 return entry;
             },
             input: "input/**.txt",
-            "before": "2 3"
+            before:"2"
         },
         "output/before2.txt": {
-            id: "2",
+            id:"2",
             use: async function (entry) {
                 await waitTest(2);
                 entry.content =  new Date().getTime();
@@ -21,14 +21,12 @@ module.exports = {
             },
             input: {
                 "input/**.txt": true
-            }
+            },
+            before:"3"
         },
         "output/before3.txt": {
-            id: "3",
+            id:"3",
             use: async function (entry) { 
-                console.log("LAUNCH 3");
-                
-                await waitTest(0);
                 entry.content =  new Date().getTime(); 
                 return entry;
             },
@@ -41,12 +39,33 @@ module.exports = {
             ]
         },
         "output/before4.txt": {
-            use: async function (entry) {      
+            id:"4",
+            use: async function (entry) {
+                await waitTest(1);
                 entry.content =  new Date().getTime(); 
                 return entry;
             },
             input: "input/**.txt",
-            before: "2"
+            before:"2"
+        },
+        "output/before5.txt": {
+            id:"5",
+            use: async function (entry) {
+                await waitTest(6);
+                entry.content =  new Date().getTime(); 
+                return entry;
+            },
+            input: "input/**.txt",
+            before:"2 6"
+        },
+        "output/before6.txt": {
+            id:"6",
+            use: async function (entry) {                
+                await waitTest(0);
+                entry.content =  new Date().getTime(); 
+                return entry;
+            },
+            input: "input/**.txt"
         }
     }
 }

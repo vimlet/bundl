@@ -111,7 +111,7 @@ module.exports.process = async (config, outputEntry) => {
     }
     let outputPath = path.join(outputBase, subPath).replace(/\\/g, "/");
     outputPath = processInputNameReplace(inputsObject, file, outputPath);
-    copyPromises.push(new Promise(async (resolve, reject) => {
+    copyPromises.push(await new Promise(async (resolve, reject) => {
       let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
       var usedData = await processOutputUse(outputEntry, outputPath, file.content);            
       usedData.path = processOutputNameReplace(outputEntry, usedData.path);
