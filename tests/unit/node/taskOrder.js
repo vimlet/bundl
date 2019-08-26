@@ -30,7 +30,7 @@ suite("bundl-taskOrder", () => {
     
     test("order", async () => {
         var result1 = (await statFile(path.join(resources, `taskOrder/output/task1.txt`))).mtime;
-        var result2 = (await statFile(path.join(resources, `taskOrder/output/taskOrder1.txt`))).mtime;       
+        var result2 = (await statFile(path.join(resources, `taskOrder/output/taskOrder2.txt`))).mtime;       
         var order = result1 < result2;
         assert.isOk(order, `order is not correct`);
     });

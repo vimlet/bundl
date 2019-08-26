@@ -37,7 +37,7 @@ module.exports = {
             order: 3
         },
         "output/order4.txt": {
-            use: async function (entry) {                
+            use: async function (entry) {
                 await waitTest(1);
                 entry.content =  new Date().getTime(); 
                 return entry;

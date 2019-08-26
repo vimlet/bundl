@@ -5,9 +5,10 @@ module.exports = {
 
         // // ---  Output Object ---
         "output/1/**": {
-            use: async function (entry) {
+            id:"1",
+            use: async function (entry) {                
                 await waitTest(3);
-                entry.content = new Date().getTime();
+                entry.content = new Date().getTime();                
                 return entry;
             },
             input: "input/**.txt",
@@ -15,9 +16,9 @@ module.exports = {
         },
         "output/2/**": {
             id:"2",
-            use: async function (entry) {                            
+            use: async function (entry) {                     
                 await waitTest(2);                 
-                entry.content =  new Date().getTime();           
+                entry.content =  new Date().getTime();                           
                 return entry;
             },
             input: {
@@ -28,7 +29,7 @@ module.exports = {
             id: "3",
             use: async function (entry) { 
                 await waitTest(0);
-                entry.content =  new Date().getTime(); 
+                entry.content =  new Date().getTime();                 
                 return entry;
             },
             input: [

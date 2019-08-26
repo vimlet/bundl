@@ -1,23 +1,58 @@
 const bundl = require("../index.js");
+const pack = require("./pack");
 
-// @function processUse (private) [Process use function]
+// @function processUse (private) [Process use function] @param taskObject
 async function processUse(taskObject) {
-  return new Promise(async (resolve,reject)=>{
+  return new Promise(async (resolve, reject) => {
     var result;
     if ("use" in taskObject) {
       if (Array.isArray(taskObject.use)) {
         for (var i = 0; i < taskObject.use.length; i++) {
           result = await taskObject.use[i](result, bundl);
         }
-      } else {        
-        result = await taskObject.use(result, bundl);        
+      } else {
+        result = await taskObject.use(result, bundl);
       }
     }
     resolve();
   });
 };
 
-// @function process (public) [Process given task object]
+// @function processRun (private) [Process runs and runp] @param config @param taskObject
+async function processRun(config, taskObject) {
+  if ("runs" in taskObject && "runp" in taskObject) {
+    await Promise.all([processRunP(config, taskObject), processRunS(config, taskObject)]);    
+  } else if ("runp" in taskObject) {
+    await processRunP(config, taskObject);
+  } else if ("runs" in taskObject) {
+    await processRunS(config, taskObject);
+  }
+}
+
+// @function processRunP (private) [Process secuencial tasks] @param config @param taskObject
+async function processRunP(config, taskObject) {
+  return new Promise(async (resolve, reject) => {
+    var tasksP = taskObject.runp.split(" ");
+    await Promise.all(tasksP.map(async taskp => {
+      await pack.runTask(config, taskp);
+    }));
+    resolve();
+  });
+}
+
+// @function processRunS (private) [Process secuencial tasks] @param config @param taskObject
+async function processRunS(config, taskObject) {
+  return new Promise(async (resolve, reject) => {
+    var tasksS = taskObject.runs.split(" ");
+    for (tasks of tasksS) {
+      await pack.runTask(config, tasks);
+    }
+    resolve();
+  });
+}
+
+// @function process (public) [Process given task object] @param config @param taskObject
 module.exports.process = async (config, taskObject) => {
   content = await processUse(taskObject);
+  await processRun(config, taskObject);
 };

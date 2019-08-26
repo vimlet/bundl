@@ -78,7 +78,7 @@ function handleOutputHash(config, hashes, content, outputKey, outputObject, outp
     hashes[outputPath] = hash;
     if (outputObject.id) {
       hashes[outputObject.id] = hash;
-    }
+    }    
     outputPath = outputPath.replace("{{hash}}", hash);
   }
   return outputPath;
@@ -109,11 +109,5 @@ module.exports.process = async (config, outputObject, hashes) => {
     outputPath: outputPath,
     content: content
   };
-
-  if("_waitTransform" in outputObject){
-    result._waitTransform = outputObject._waitTransform;
-    result.id = outputObject.id;
-  }
-
   return result;
 };

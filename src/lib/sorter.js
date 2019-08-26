@@ -11,12 +11,12 @@ module.exports.process = function (config) {
             after: {}
         },
         data: {},
-        open:[]
+        hashes:{}
     };
     sortOutput(config, sorted);
-    sortTask(config, sorted);    
+    sortTask(config, sorted);
     processBefore(sorted);
-    processAfter(sorted);    
+    processAfter(sorted);
     return sorted;
 };
 
@@ -54,17 +54,19 @@ function sortTaskObject(config, obj, element, sorted) {
         var currentOrder = parseInt(obj.order);
         sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
         sorted.list.sorted[currentOrder].push(obj.id);
-        sorted.data[obj.id] = {
-            status: "object",
-            obj: obj
-        };
-    } else {
-        sorted.list.unsorted.push(obj.id);
-        sorted.data[obj.id] = {
-            status: "object",
-            obj: obj
-        };
+    }  else {
+        if ("before" in obj) {
+            var waitFor = obj.before.split(" ");
+            sorted.list.before[obj.id] = waitFor;
+        } else if ("after" in obj) {            
+            var doAfter = obj.after.split(" ");
+            sorted.list.after[obj.id] = doAfter;
+        }
     }
+    sorted.data[obj.id] = {
+        status: "object",
+        obj: obj
+    };
     return obj;
 }
 

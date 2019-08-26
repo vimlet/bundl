@@ -14,7 +14,7 @@ async function processLateMetaHash(hashes, result) {
         hashes: hashes
       }
     });
-  }
+  }  
   return result;
 };
 

@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const rimraf = promisify(require("rimraf"));
 const readFile = promisify(fs.readFile);
+const statFile = promisify(fs.stat);
 
 const bundl = require("../../../src/index.js");
 
@@ -19,11 +20,11 @@ suite("bundl-order", () => {
     });
 
     test("order", async () => {
-        var result1 = (await readFile(path.join(resources, `order/output/order1.txt`))).toString();
-        var result2 = (await readFile(path.join(resources, `order/output/order2.txt`))).toString();
-        var result3 = (await readFile(path.join(resources, `order/output/order3.txt`))).toString();
-        var result4 = (await readFile(path.join(resources, `order/output/order4.txt`))).toString();        
-        var order = (parseInt(result4) < parseInt(result1)) && (parseInt(result1) < parseInt(result2)) && (parseInt(result2) < parseInt(result3));
+        var result1 = (await statFile(path.join(resources, `order/output/order1.txt`))).mtime;
+        var result2 = (await statFile(path.join(resources, `order/output/order2.txt`))).mtime;
+        var result3 = (await statFile(path.join(resources, `order/output/order3.txt`))).mtime;
+        var result4 = (await statFile(path.join(resources, `order/output/order4.txt`))).mtime;   
+        var order = result4 < result1 && result1 < result2 && result2 < result3;
         assert.isOk(order, `order order is not correct`);
     });
 

@@ -24,7 +24,8 @@
     "start": "node src/index.js",
     "postinstall": "node src/version.js",
     "doc": "cd docs && npm i && npm run doc",
-    "test": "npx intern config=@node"
+    "test": "npx intern config=@node",
+    "test:wip": "npx intern config=internWip.json@node"
   },
   "license": "MIT",
   "dependencies": {

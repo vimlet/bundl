@@ -20,20 +20,22 @@ module.exports.build = async config => {
 };
 
 // @function runTask (public) [Run given task]
-module.exports.runTask = async (config, tasks) => {
-  if (!Array.isArray(tasks)) {
-    tasks = [tasks];
-  }
-  config = configurator.setupOutput(config);
-  let sorted = sorter.process(config);
-  await Promise.all(tasks.map(async currentTask => {
-    try {
-      await process(config, sorted, currentTask);
-    } catch (e) {
-      console.log("Error", e);
+module.exports.runTask = async (config, tasks) => {  
+  return new Promise(async (resolve, reject) => {
+    if (!Array.isArray(tasks)) {
+      tasks = tasks.split(" ");
     }
-  }));
-
+    config = configurator.setupOutput(config);
+    let sorted = sorter.process(config);
+    await Promise.all(tasks.map(async currentTask => {
+      try {
+        await process(config, sorted, currentTask);
+      } catch (e) {
+        console.log("Error", e);
+      }
+    }));
+    resolve();    
+  });
 };
 
 // @function pack (private) [After clean, sort and start packing]
@@ -62,9 +64,9 @@ async function buildAfter(config, sorted) {
     }
     // Remove those which have to be waited for so they won't be launched several times as elements which should be waited will be launched on its own
     for (var key in sorted.list.after) {
-      sorted.list.after[key].forEach(waitFor=>{
+      sorted.list.after[key].forEach(waitFor => {
         var index = afterArray.indexOf(waitFor);
-        if(index > -1){
+        if (index > -1) {
           afterArray.splice(index, 1);
         }
       });
@@ -77,7 +79,7 @@ async function buildAfter(config, sorted) {
 // @function build (private) [Build an array of objs] @param config @param sorted @param objs
 async function build(config, sorted, objs) {
   return new Promise(async (resolve, reject) => {
-    await Promise.all(objs.map(async key => {      
+    await Promise.all(objs.map(async key => {
       await buildObj(config, sorted, key);
     }));
     resolve();
@@ -87,28 +89,27 @@ async function build(config, sorted, objs) {
 // @function buildObj (private) [Build an obj] @param config @param sorted @param key
 async function buildObj(config, sorted, key) {
   return new Promise(async (resolve, reject) => {
-    let hashes = {};
     var obj = sorted.data[key].obj;
     switch (obj._type) {
       case "task":
-        await process(config, sorted, key, hashes);
+        await process(config, sorted, key);
         sorted.data[key].status = "solved";
         break;
       case "copy":
-        var current = await process(config, sorted, key, hashes);
+        var current = await process(config, sorted, key);
         if (current) {
           await Promise.all(current.map(async cCopy => {
             cCopy = await cCopy;
-            await lateAndWrite(cCopy, hashes, config, sorted, key);
+            await lateAndWrite(cCopy, config, sorted, key);
           }));
         }
         sorted.data[key].status = "solved";
         break;
       case "transform":
-        var current = await process(config, sorted, key, hashes);
+        var current = await process(config, sorted, key);
         if (current) {
           sorted.data[key].status = "solved";
-          await lateAndWrite(current, hashes, config, sorted, key);
+          await lateAndWrite(current, config, sorted, key);
         }
         break;
     }
@@ -116,20 +117,20 @@ async function buildObj(config, sorted, key) {
   });
 }
 
-// @function lateAndWrite (private) [Launch late operations and write result to disk]
-async function lateAndWrite(obj, hashes, config, sorted, key) {
+// @function lateAndWrite (private) [Launch late operations and write result to disk] @param obj @param config @param sorted @param key
+async function lateAndWrite(obj, config, sorted, key) {
   return new Promise(async (resolve, reject) => {
     if (sorted.list.transformArray[sorted.data[key].obj.outPath]) {
-      await lateTransformArray(hashes, config, sorted, sorted.list.transformArray[sorted.data[key].obj.outPath]);
+      await lateTransformArray(config, sorted, sorted.list.transformArray[sorted.data[key].obj.outPath]);
     } else {
-      await late.process([obj], hashes, config);
+      await late.process([obj], sorted.hashes, config);
     }
     resolve();
   });
 }
 
-// @function lateTransformArray (private) [Launch late operations and write result to disk for transforms arrays]
-async function lateTransformArray(hashes, config, sorted, transformArray) {
+// @function lateTransformArray (private) [Launch late operations and write result to disk for transforms arrays] @param config @param sorted @param transformArray
+async function lateTransformArray(config, sorted, transformArray) {
   return new Promise(async (resolve, reject) => {
     var allDone = true;
     transformArray.forEach(currentTA => {
@@ -145,14 +146,14 @@ async function lateTransformArray(hashes, config, sorted, transformArray) {
         return await total + solved.content + (index < (array.length - 1) ? "\n" : "");
       }, "");
       obj.content = content;
-      await late.process([obj], hashes, config);
+      await late.process([obj], sorted.hashes, config);
     }
     resolve();
   });
 }
 
-// @function process (private) [Launch promises] @param config @param sorted @param key @param hashes
-async function process(config, sorted, key, hashes) {
+// @function process (private) [Launch promises] @param config @param sorted @param key
+async function process(config, sorted, key) {
   return new Promise(async (resolve, reject) => {
     if (sorted.data[key]) {
       if (sorted.data[key].status === "object") {
@@ -169,13 +170,13 @@ async function process(config, sorted, key, hashes) {
             currentPromise = copy.process(config, obj);
             break;
           case "transform":
-            currentPromise = transform.process(config, obj, hashes);
+            currentPromise = transform.process(config, obj, sorted.hashes);
             break;
         }
         sorted.data[key].status = "triggered";
         sorted.data[key].promise = currentPromise;
         resolve(currentPromise);
-      } else {        
+      } else {
         resolve();
       }
     } else {
@@ -188,9 +189,9 @@ async function process(config, sorted, key, hashes) {
 async function waitForOthers(config, sorted, key) {
   return new Promise(async (resolve, reject) => {
     await Promise.all(sorted.data[key]._waitFor.map(async waitFor => {
-      if(sorted.data[waitFor].status === "object"){        
+      if (sorted.data[waitFor].status === "object") {
         await buildObj(config, sorted, waitFor);
-      }else if(sorted.data[waitFor].status === "triggered"){
+      } else if (sorted.data[waitFor].status === "triggered") {
         await sorted.data[waitFor].promise;
       }
     }));
