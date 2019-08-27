@@ -24,17 +24,17 @@ async function processInputUse(inputsObject, files) {
   return files;
 }
 
-// @function processInputJoin (private) [Join given files content for output] @param files @param inputsObject @param hashes
-async function processInputJoin(files, inputsObject, hashes) {
+// @function processInputJoin (private) [Join given files content for output] @param files @param inputsObject @param hashes @param outputParse
+async function processInputJoin(files, inputsObject, hashes, outputParse) {
   return await files.reduce(async (total, current, index, array) => {    
-    current.content = await processInputMeta(current, inputsObject, hashes);
+    current.content = await processInputMeta(current, inputsObject, hashes, parse);
     return await total + current.content + (index < (array.length - 1) ? "\n" : "");
   }, "");
 }
 
-// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param hashes
-async function processInputMeta(file, inputsObject, hashes) {  
-  if (typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) {
+// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param hashes @param outputParse
+async function processInputMeta(file, inputsObject, hashes, outputParse) {  
+  if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) || outputParse) {    
     content = await parse(file.content.toString(), {
       data: {
         hashes: hashes
@@ -96,7 +96,7 @@ module.exports.process = async (config, outputObject, hashes) => {
   }), inputsObject);  
   // Process input
   files = await processInputUse(inputsObject, files);
-  let content = await processInputJoin(files, inputsObject, hashes);  
+  let content = await processInputJoin(files, inputsObject, hashes, outputObject.parse);  
   // Process output
   content = await processOutputUse(outputObject, outputPath, content);
   // Enable hashing support

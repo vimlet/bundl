@@ -47,7 +47,7 @@ module.exports = {
       use: async function () {
         await mkDirRecursive("tests/resources/taskOrder/output");
         await writeFile("tests/resources/taskOrder/output/task1.txt", "abc");             
-        await waitTest(2);
+        await waitTest(5);
       },
       order: 1
     }

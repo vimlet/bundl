@@ -79,9 +79,9 @@ function processOutputNameReplace(outputObject, outputPath) {
   return outputPath;
 }
 
-// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param cwdFilePath
-async function processInputMeta(file, inputsObject, cwdFilePath) {  
-  if (typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) {
+// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param cwdFilePath @param outputParse
+async function processInputMeta(file, inputsObject, cwdFilePath, outputParse) {
+  if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) ||outputParse) {
     content = await parse(file.content.toString(), {
       basePath: path.dirname(cwdFilePath).replace(/\\/g, "/")
     });
@@ -93,7 +93,7 @@ async function processInputMeta(file, inputsObject, cwdFilePath) {
 
 // @function process (public) [Process given output copy entry] @param config @param outputEntry
 module.exports.process = async (config, outputEntry) => {  
-  let copyPromises = [];
+  let copyPromises = [];  
   let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");
   let inputsObject = outputEntry.input;
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {
@@ -102,7 +102,7 @@ module.exports.process = async (config, outputEntry) => {
   await Promise.all(files.map(async file => {
     var cwdFilePath = file.file;
     file = await processInputUse(inputsObject, file);         
-    file.content = await processInputMeta(file, inputsObject, cwdFilePath);    
+    file.content = await processInputMeta(file, inputsObject, cwdFilePath, outputEntry.parse);    
     let subPath;    
     if (path.basename(file.pattern) == file.pattern) {
       subPath = file.path.substring(0);

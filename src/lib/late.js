@@ -6,29 +6,16 @@ const mkdir = promisify(fs.mkdir);
 const parse = require("./parse");
 const path = require("path");
 
-async function processLateMetaHash(hashes, result) {
-  if (result.parse) {
-    result.content = await parse(result.content, {
-      data: {
-        hashParse: true,
-        hashes: hashes
-      }
-    });
-  }  
-  return result;
-};
-
 async function writeResult(result, config) {
   if (!await exists(result.outputParent)) {
     try {
-      await mkDirRecursive(result.outputParent);
+      await mkdirRecursive(result.outputParent);
     } catch (error) {
       // Ignore error since sibling files will try to create the same directory
     }
   }
 
-
-  async function mkDirRecursive(folder) {
+  async function mkdirRecursive(folder) {
     return new Promise(async (resolve, reject) => {
       try {
         var existingFolder = await getExistingPath(folder);
@@ -82,8 +69,6 @@ module.exports.process = async (results, hashes, config) => {
 
   results.map(result => {
     let late = async () => {
-      // Use meta to replace hashes
-      result = await processLateMetaHash(hashes, result);
       // Write results to disk
       await writeResult(result, config);
       return result;
