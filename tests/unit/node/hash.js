@@ -26,6 +26,5 @@ suite("bundl-hash", () => {
         var result = (await readFile(path.join(resources,`hash/output/${name}`, files[0]))).toString();
         assert.strictEqual(result, "a\nb\nc\nd", `Hash output mismatch - ${name}`);
     });
-
     
 });

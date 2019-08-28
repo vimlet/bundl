@@ -5,7 +5,7 @@ module.exports = {
         "output/before1.txt": {
             id:"1",
             use: async function (entry) {                            
-                await waitTest(4);                 
+                await waitTest(5);                 
                 entry.content =  new Date().getTime();           
                 return entry;
             },
@@ -15,7 +15,7 @@ module.exports = {
         "output/before2.txt": {
             id:"2",
             use: async function (entry) {
-                await waitTest(2);
+                await waitTest(3);
                 entry.content =  new Date().getTime();
                 return entry;
             },
@@ -27,6 +27,7 @@ module.exports = {
         "output/before3.txt": {
             id:"3",
             use: async function (entry) { 
+                await waitTest(1);
                 entry.content =  new Date().getTime(); 
                 return entry;
             },
@@ -41,7 +42,7 @@ module.exports = {
         "output/before4.txt": {
             id:"4",
             use: async function (entry) {
-                await waitTest(1);
+                await waitTest(2);
                 entry.content =  new Date().getTime(); 
                 return entry;
             },
@@ -51,7 +52,7 @@ module.exports = {
         "output/before5.txt": {
             id:"5",
             use: async function (entry) {
-                await waitTest(6);
+                await waitTest(7);
                 entry.content =  new Date().getTime(); 
                 return entry;
             },
@@ -61,7 +62,7 @@ module.exports = {
         "output/before6.txt": {
             id:"6",
             use: async function (entry) {                
-                await waitTest(0);
+                await waitTest(1);
                 entry.content =  new Date().getTime(); 
                 return entry;
             },
@@ -75,6 +76,6 @@ function waitTest(amount) {
         amount = amount || 1;
         setTimeout(() => {
             resolve("Waited for");
-        }, (100 * amount));
+        }, (500 * amount));
     });
 }

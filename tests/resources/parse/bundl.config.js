@@ -19,7 +19,7 @@ module.exports = {
         },
         "output/4/index.html?parse=true": {
             input: {
-                "input/**.html": {
+                "input/index.html": {
                 }
             },
             order: 2
@@ -34,6 +34,20 @@ module.exports = {
                 return entry;
             },
             order: 2
+        },
+        "output/6/file.html?parse=true": {
+            input: {
+                "input/file.html": {
+                }
+            },
+            order: 2
+        },
+        "output/7/filename.html?parse=true": {
+            input: {
+                "input/filename.html": {
+                }
+            },
+            order: 2
         }
     }
 }
@@ -43,6 +57,6 @@ function waitTest(amount) {
         amount = amount || 1;
         setTimeout(() => {
             resolve("Waited for");
-        }, (100 * amount));
+        }, (500 * amount));
     });
 }

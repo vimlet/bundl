@@ -123,7 +123,7 @@ async function lateAndWrite(obj, config, sorted, key) {
     if (sorted.list.transformArray[sorted.data[key].obj.outPath]) {
       await lateTransformArray(config, sorted, sorted.list.transformArray[sorted.data[key].obj.outPath]);
     } else {
-      await late.process([obj], sorted.hashes, config);
+      await late.process([obj], sorted.meta, config);
     }
     resolve();
   });
@@ -146,7 +146,7 @@ async function lateTransformArray(config, sorted, transformArray) {
         return await total + solved.content + (index < (array.length - 1) ? "\n" : "");
       }, "");
       obj.content = content;
-      await late.process([obj], sorted.hashes, config);
+      await late.process([obj], sorted.meta, config);
     }
     resolve();
   });
@@ -170,7 +170,7 @@ async function process(config, sorted, key) {
             currentPromise = copy.process(config, obj);
             break;
           case "transform":
-            currentPromise = transform.process(config, obj, sorted.hashes);
+            currentPromise = transform.process(config, obj, sorted.meta);
             break;
         }
         sorted.data[key].status = "triggered";

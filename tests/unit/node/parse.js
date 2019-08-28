@@ -55,5 +55,21 @@ suite("bundl-parse", () => {
         assert.strictEqual(result, "Hi I'm another template.", `copy hash output mismatch - ${name}`);
     });
 
+    test("file", async () => {
+        var name = "6/file.html";
+        var result = (await readFile(path.join(resources, `parse/output/${name}`))).toString();
+        var files = await readdir(path.join(resources, `parse/output/1`));        
+        var exists = result.indexOf(path.join("output/1",files[0]).replace(new RegExp(/\\/,"gm"),"/")) > -1;
+        assert.isOk(exists, "Parse file is not importing src correctly");
+    });
+    
+    test("fileName", async () => {
+        var name = "7/filename.html";
+        var result = (await readFile(path.join(resources, `parse/output/${name}`))).toString();
+        var files = await readdir(path.join(resources, `parse/output/1`));
+        var exists = result.indexOf(files[0]) > -1;
+        assert.isOk(exists, "Parse filename is not importing src correctly");
+    });
+
 
 });

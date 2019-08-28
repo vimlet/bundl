@@ -22,7 +22,7 @@ module.exports = {
             },
             {
                 use: async function (entry) {
-                    await waitTest(0);
+                    await waitTest(1);
                     return entry;
                 },
                 "input": ["input/b.txt"],
@@ -30,7 +30,7 @@ module.exports = {
             },
             {
                 use: async function (entry) {
-                    await waitTest(2);
+                    await waitTest(3);
                     return entry;
                 },
                 order: 0,
@@ -58,7 +58,7 @@ module.exports = {
             },
             {
                 use: async function (entry) {
-                    await waitTest(0);
+                    await waitTest(1);
                     return entry;
                 },
                 "input": ["input/b.txt"],
@@ -66,7 +66,7 @@ module.exports = {
             },
             {
                 use: async function (entry) {
-                    await waitTest(2);
+                    await waitTest(3);
                     return entry;
                 },
                 order: 0,
@@ -83,6 +83,6 @@ function waitTest(amount) {
         amount = amount || 1;
         setTimeout(() => {
             resolve("Waited for");
-        }, (100 * amount));
+        }, (500 * amount));
     });
 }

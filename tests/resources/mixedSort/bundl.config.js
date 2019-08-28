@@ -4,7 +4,7 @@ module.exports = {
     output: {
         "output/mixedSort1.txt": {
             use: async function (entry) {                                
-                await waitTest(4);
+                await waitTest(5);
                 entry.content = new Date().getTime();                                
                 return entry;
             },
@@ -13,7 +13,7 @@ module.exports = {
         },
         "output/mixedSort2.txt": {
             use: async function (entry) {             
-                await waitTest(5);
+                await waitTest(6);
                 entry.content = new Date().getTime(); 
                 return entry;
             },
@@ -24,6 +24,7 @@ module.exports = {
         },
         "output/mixedSort3.txt": {
             use: async function (entry) {
+                await waitTest(1);
                 entry.content = new Date().getTime();
                 return entry;
             },
@@ -38,7 +39,7 @@ module.exports = {
         },
         "output/mixedSort4.txt": {
             use: async function (entry) {                
-                await waitTest(1);                
+                await waitTest(2);                
                 entry.content = new Date().getTime();
                 return entry;
             },
@@ -47,7 +48,7 @@ module.exports = {
         },
         "output/mixedSort5.txt": {
             use: async function (entry) {                
-                await waitTest(1);
+                await waitTest(2);
                 entry.content = new Date().getTime();
                 return entry;
             },
@@ -55,20 +56,22 @@ module.exports = {
         },
         "output/mixedSort6.txt": {
             use: async function (entry) {
+                await waitTest(1);
                 entry.content = new Date().getTime();
                 return entry;
             },
             input: "input/**.txt"
         },
         "output/mixedSort7.txt": [{
-            use: async function (entry) {  
+            use: async function (entry) { 
+                await waitTest(1); 
                 entry.content = new Date().getTime();                                            
                 return entry;
             },
             input: "input/**.txt"
         }, {
             use: async function (entry) {                             
-                await waitTest(1);
+                await waitTest(2);
                 entry.content = new Date().getTime();  
                 return entry;
             },
@@ -80,7 +83,7 @@ module.exports = {
         "output/mixedSort8.txt": {
             id:"8",
             use: async function (entry) {
-                await waitTest(4);                
+                await waitTest(5);                
                 entry.content = new Date().getTime();
                 return entry;
             },
@@ -90,7 +93,7 @@ module.exports = {
         "output/mixedSort9.txt": {
             id:"9",
             use: async function (entry) {
-                await waitTest(2);
+                await waitTest(3);
                 entry.content = new Date().getTime();
                 return entry;
             },
@@ -98,7 +101,7 @@ module.exports = {
         },
         "output/mixedSort10.txt": [{
             use: async function (entry) {
-                await waitTest(8);
+                await waitTest(9);
                 entry.content = new Date().getTime();
                 return entry;
             },
@@ -106,7 +109,7 @@ module.exports = {
             before: "8"
         }, {
             use: async function (entry) {
-                await waitTest(1);
+                await waitTest(2);
                 entry.content = new Date().getTime();
                 return entry;
             },
@@ -116,7 +119,7 @@ module.exports = {
         }],
         "output/mixedSort11.txt": {
             use: async function (entry) {
-                await waitTest(2);
+                await waitTest(3);
                 entry.content = new Date().getTime();
                 return entry;
             },
@@ -131,6 +134,6 @@ function waitTest(amount) {
         amount = amount || 1;
         setTimeout(() => {
             resolve("Waited for");
-        }, (100 * amount));
+        }, (500 * amount));
     });
 }

@@ -19,6 +19,6 @@ function waitTest(amount) {
         amount = amount || 1;
         setTimeout(() => {
             resolve("Waited for");
-        }, (100 * amount));
+        }, (500 * amount));
     });
 }

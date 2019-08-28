@@ -18,6 +18,10 @@ module.exports = {
     // // ---  Output Object ---
     "output/taskOrder2.txt": {
       input: "input/**.txt",
+      use: async function (entry) {        
+        await waitTest(1);
+        return entry;
+      },
       order: 2
     },
     "output/taskOrder3.txt": {
@@ -47,7 +51,7 @@ module.exports = {
       use: async function () {
         await mkDirRecursive("tests/resources/taskOrder/output");
         await writeFile("tests/resources/taskOrder/output/task1.txt", "abc");             
-        await waitTest(5);
+        await waitTest(6);
       },
       order: 1
     }
@@ -60,7 +64,7 @@ function waitTest(amount) {
       amount = amount || 1;
       setTimeout(() => {
           resolve("Waited for");
-      }, (100 * amount));
+      }, (500 * amount));
   });
 }
 

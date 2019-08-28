@@ -24,20 +24,20 @@ async function processInputUse(inputsObject, files) {
   return files;
 }
 
-// @function processInputJoin (private) [Join given files content for output] @param files @param inputsObject @param hashes @param outputParse
-async function processInputJoin(files, inputsObject, hashes, outputParse) {
+// @function processInputJoin (private) [Join given files content for output] @param files @param inputsObject @param meta @param outputParse
+async function processInputJoin(files, inputsObject, meta, outputParse) {
   return await files.reduce(async (total, current, index, array) => {    
-    current.content = await processInputMeta(current, inputsObject, hashes, parse);
+    current.content = await processInputMeta(current, inputsObject, meta, parse);
     return await total + current.content + (index < (array.length - 1) ? "\n" : "");
   }, "");
 }
 
-// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param hashes @param outputParse
-async function processInputMeta(file, inputsObject, hashes, outputParse) {  
+// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param meta @param outputParse
+async function processInputMeta(file, inputsObject, meta, outputParse) {  
   if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) || outputParse) {    
     content = await parse(file.content.toString(), {
       data: {
-        hashes: hashes
+        meta: meta
       },
       basePath: path.dirname(file.path).replace(/\\/g, "/")
     });
@@ -71,13 +71,21 @@ async function processOutputUse(outputObject, outputPath, content) {
   return result.content;
 };
 
-// @function handleOutputHash (private) [Generate hash for file name] @param config @param hashes @param content @param outputKey @param outputObject @param outputPath
-function handleOutputHash(config, hashes, content, outputKey, outputObject, outputPath) {
-  if (outputKey.includes("{{hash}}")) {
+// @function handleOutputMeta (private) [Generate hash for file name] @param config @param meta @param content @param outputKey @param outputObject @param outputPath
+function handleOutputMeta(config, meta, content, outputKey, outputObject, outputPath) {
+  if (outputKey.includes("{{hash}}")) {    
     let hash = md5(content).substring(0, config.hashLength);
-    hashes[outputPath] = hash;
+    var file = outputKey.replace("{{hash}}", hash);
+    var filename = path.basename(file);    
+    meta[outputPath] = meta[outputPath] || {};
+    meta[outputPath].hash = hash;
+    meta[outputPath].file = file;
+    meta[outputPath].filename = filename;
     if (outputObject.id) {
-      hashes[outputObject.id] = hash;
+      meta[outputObject.id] = meta[outputObject.id] || {};
+      meta[outputObject.id].hash = hash;
+      meta[outputObject.id].file = file;
+      meta[outputObject.id].filename = filename;
     }    
     outputPath = outputPath.replace("{{hash}}", hash);
   }
@@ -85,8 +93,8 @@ function handleOutputHash(config, hashes, content, outputKey, outputObject, outp
 }
 
 
-// @function process (public) [Process given output transform entry] @param config @param outputEntry
-module.exports.process = async (config, outputObject, hashes) => {  
+// @function process (public) [Process given output transform entry] @param config @param outputEntry @param meta
+module.exports.process = async (config, outputObject, meta) => {  
   // Read input files by match
   let outputPath = path.join(config.outputBase, outputObject.outPath).replace(/\\/g, "/");
   let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
@@ -96,11 +104,11 @@ module.exports.process = async (config, outputObject, hashes) => {
   }), inputsObject);  
   // Process input
   files = await processInputUse(inputsObject, files);
-  let content = await processInputJoin(files, inputsObject, hashes, outputObject.parse);  
+  let content = await processInputJoin(files, inputsObject, meta, outputObject.parse);  
   // Process output
   content = await processOutputUse(outputObject, outputPath, content);
   // Enable hashing support
-  outputPath = handleOutputHash(config, hashes, content, outputObject.outPath, outputObject, outputPath);
+  outputPath = handleOutputMeta(config, meta, content, outputObject.outPath, outputObject, outputPath);
   
   // Return result
   let result = {

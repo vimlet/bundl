@@ -4,7 +4,7 @@ module.exports = {
     output: {
         "output/order1.txt": {
             use: async function (entry) {                            
-                await waitTest(4);                 
+                await waitTest(5);                 
                 entry.content =  new Date().getTime();           
                 return entry;
             },
@@ -13,7 +13,7 @@ module.exports = {
         },
         "output/order2.txt": {
             use: async function (entry) {
-                await waitTest(2);
+                await waitTest(3);
                 entry.content =  new Date().getTime();
                 return entry;
             },
@@ -24,6 +24,7 @@ module.exports = {
         },
         "output/order3.txt": {
             use: async function (entry) { 
+                await waitTest(1);
                 entry.content =  new Date().getTime(); 
                 return entry;
             },
@@ -38,7 +39,7 @@ module.exports = {
         },
         "output/order4.txt": {
             use: async function (entry) {
-                await waitTest(1);
+                await waitTest(2);
                 entry.content =  new Date().getTime(); 
                 return entry;
             },
@@ -53,6 +54,6 @@ function waitTest(amount) {
         amount = amount || 1;
         setTimeout(() => {
             resolve("Waited for");
-        }, (100 * amount));
+        }, (500 * amount));
     });
 }

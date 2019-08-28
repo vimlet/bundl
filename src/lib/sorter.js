@@ -11,7 +11,7 @@ module.exports.process = function (config) {
             after: {}
         },
         data: {},
-        hashes:{}
+        meta:{}
     };
     sortOutput(config, sorted);
     sortTask(config, sorted);
