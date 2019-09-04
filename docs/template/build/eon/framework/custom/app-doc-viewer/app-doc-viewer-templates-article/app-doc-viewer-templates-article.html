@@ -49,13 +49,18 @@
                 var el = this;
                 el._refs.script.innerHTML = value;
             },
-            // @function goToId (public) [Scroll to given id] @param id 
-            goToId: function (id) {
+            // @function goToId (public) [Scroll to given id] @param id @param isFirst [Flag to trigger onDraw if the link is open for the first time]
+            goToId: function (id, isFirst) {
                 var el = this;
+                id = id.replace(new RegExp(/ +/, "g"), "_-_");
                 setTimeout(function () {
                     if (el._misc.scroll.querySelector("#" + id)) {
                         el._misc.scroll.scrollTo(el._misc.scroll.querySelector("#" + id)
                             .offsetTop, null, 0.0);
+                        if (isFirst) {
+                            el._misc.drawn = true;
+                            eon.triggerCallback("onDraw", el, null);
+                        }
                     }
                 }, 0);
             }
@@ -88,39 +93,36 @@
             onScrolled: function () {
                 var el = this;
                 el._misc.screnHeight = screen.height;
-                el._misc.scrollCounter = 0; // Slow down onScroll check
                 el._misc.scroll.onScrolled(function (data) {
-                    el._misc.scrollCounter++;
-                    if (el._misc.scrollCounter > 10) {
-                        el._misc.scrollCounter = 0;
-                        if (el._misc.drawn || true) {
-                            var currentLink;
-                            for (var navigationIndex = 0; navigationIndex < el._misc.navigationLink
-                                .length; navigationIndex++) {
-                                if (el._misc.navigationLink[navigationIndex].getBoundingClientRect()
-                                    .top < el._misc
-                                    .screnHeight - 100) {
-                                    currentLink = el._misc.navigationLink[navigationIndex];
-                                } else {
-                                    break;
-                                }
+                    if (el._misc.drawn) {
+                        var currentLink;
+                        for (var navigationIndex = 0; navigationIndex < el._misc.navigationLink
+                            .length; navigationIndex++) {
+                            // if (el._misc.navigationLink[navigationIndex].getBoundingClientRect()
+                            //     .top < el._misc
+                            //     .screnHeight - 100) {                                    
+                            if (el._misc.navigationLink[navigationIndex].getBoundingClientRect()
+                                .top < 100) {
+                                currentLink = el._misc.navigationLink[navigationIndex];
+                            } else {
+                                break;
                             }
-                            if (currentLink) {
-                                eon.triggerCallback("onIdReached", el, null, [currentLink.id]);
-                            }
+                        }
+                        if (currentLink) {
+                            var unEscapedId = currentLink.id.replace(new RegExp(/_-_/, "g"),
+                                " ");
+                            eon.triggerCallback("onIdReached", el, null, [unEscapedId]);
                         }
                     }
                 });
             }
         },
 
-
         onCreated: function () {
             var el = this;
             eon.createCallback("onIdReached", el);
+            eon.createCallback("onDraw", el);
         },
-
-
 
         onRender: function () {
             var el = this;
@@ -129,6 +131,7 @@
             if (el.links) {
                 var links = el.links.split(",");
                 links.forEach(function (link) {
+                    link = link.replace(new RegExp(/ +/, "g"), "_-_");
                     el._misc.navigationLink.push(el.querySelector("#" + link));
                 });
             }
@@ -142,7 +145,10 @@
                 var hash = decodeURIComponent(window.location.hash);
                 var link = hash.split("link=")[1] ? hash.split("link=")[1].split("&")[0] : null;
                 if (link) {
-                    el.goToId(link);
+                    el.goToId(link, true);
+                } else {
+                    el._misc.drawn = true;
+                    eon.triggerCallback("onDraw", el, null);
                 }
             }
             el._onScrolled();

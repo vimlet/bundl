@@ -80,7 +80,7 @@
                 el._misc.currentArticle = content.querySelector("app-doc-viewer-templates-article");
                 el._misc.currentApi = content.querySelector("app-doc-viewer-templates-api");
                 if (el._misc.currentArticle) {
-                    el._misc.currentArticle.onReady(function () {
+                    el._misc.currentArticle.onDraw(function () {
                         eon.triggerCallback("onDraw", el);
                     });
                     el._misc.currentArticle.onIdReached(function (id) {

@@ -23,3 +23,24 @@ module.exports = {
   }
 };
 ```
+
+Another example using tasks:
+
+```[javascript]
+module.exports = {
+  output: {
+    "dist/bundle.js": {
+      id: "bundle-js",
+      input: "src/js/**.js"
+    }
+  },
+  task:{
+    task1:{
+      use: async function(){
+        // Do something
+      },
+      after:"bundle-js"
+    }
+  }
+};
+```

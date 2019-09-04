@@ -43,9 +43,13 @@ var parseLater = [];
                         "g"
                     ),
     codeBlockLanguage: new RegExp(
-                        "^\\[(?:(?!\\[)[\\s\\S])*\\](\\r\\n|\\r|\\n){1}",
-                        "g"
-                    ),
+                                        "^\\[(?:(?!\\[)[\\s\\S])*\\](\\r\\n|\\r|\\n){1}",
+                                        "g"
+                                    ),
+    codeBlockLanguageGit: new RegExp(
+                                                        /^```\S+(\r\n|\r|\n){1}/,
+                                                        "g"
+                                                    ),
     whiteLines: new RegExp(
                         "^[ \\t]+$",
                         "gm"
@@ -55,7 +59,7 @@ var parseLater = [];
                         "g"
                     ),
     tip: new RegExp(
-                        "@`(?:(?!`)[\\s\\S])*`",
+                        /@`(?:(?!(`|(\r\n|\r|\n)|@@\[\d+\]@@))[\s\S])*`/,
                         "gm"
                     ),
     tipIcon: new RegExp(
@@ -179,7 +183,6 @@ function replaceBrEnding(data){
     });
 }
 function splitLanguage(tag) {
-    var result = "";
     var matches = tag.match(regex.codeBlockLanguage);
     if (matches) {
         var language = cleanMatch(matches[0], "[", "]");
@@ -333,8 +336,9 @@ function parseNavigationLink(data) {
     if(match){
         match = match[0];
         var inner = getInner(match);
-        var result = '<div class="app-md-viewer-t app-md-viewer-t1" id="' + inner + '">' + parsePlainText(inner) + '</div>';
-        navigationLinks.push(inner);
+        var innerEscaped = inner.replace(new RegExp(/ +/,"g"),"_-_");
+        var result = '<div class="app-md-viewer-t app-md-viewer-t1" id="' + innerEscaped + '">' + parsePlainText(inner) + '</div>';
+        navigationLinks.push(innerEscaped);
         return result;
     }else{
         return null;
@@ -369,8 +373,23 @@ function parseCodeBlock(data) {
     var codeBlockResults = [];
     if (matches) {
         for (var i = 0; i < matches.length; i++) {
-            var clean = cleanMatch(matches[i], "```", "```");
-            var splitted = splitLanguage(clean);
+            var language = matches[i].match(regex.codeBlockLanguageGit);
+            var code = cleanMatch(matches[i].replace(language, ""),"","```");
+            var splitted;
+            if(language){
+                splitted = [];
+                language = "" + language;
+                language = cleanMatch(language, "```","");
+                if(language.endsWith("]") && language.startsWith("[")){
+                    language = cleanMatch(language, "[","]");
+                }
+                splitted.push(language);
+                splitted.push(code);
+                
+            }else{           
+                var clean = cleanMatch(matches[i], "```", "```");
+                splitted = splitLanguage(clean);
+            }
             var appEditor = '<div class="app-md-viewer-code-container"><app-code language="'+splitted[0]+'"><code>'+ escapeHTML(splitted[1]) +'</code></app-code></div>';
             codeBlockResults.push(appEditor);
         }
@@ -416,7 +435,9 @@ function parseTable(data) {
                     table += '<eon-row>'
                     var content = cleanMatch(matchLine[j], "|", "|").split("|");
                     content.forEach(function(c){
-                        table+= '<eon-cell>' + parsePlainText(c) + '</eon-cell>';
+                        c = parseCode(c);
+                        c = parsePlainText(c);
+                        table+= '<eon-cell>' + c + '</eon-cell>';
                     });
                     table +='</eon-row>';
                 }
@@ -692,6 +713,10 @@ function parseBlocks(data){
 function parseReplacements(data){   
     return data.replace(regex.replacements, function (data) {
         var count = cleanMatch(data,"@@[","]@@");
+        var recursive = parseLater[count].match(regex.replacements);
+        if(recursive){
+            parseLater[count] = parseReplacements(parseLater[count]);
+        }
         return parseLater[count];
     });
 }

@@ -35,6 +35,9 @@ app-combobox .eon-combo-main {
 eon-overlay .eon-combo-dropdown eon-item{
     padding:0px 5px;
 }
+eon-overlay .eon-combo-dropdown eon-item span{
+    margin-left:7px;
+}
 eon-overlay .eon-combo-dropdown  eon-item eon-searchbar{
     width:100%;
     height:100%;

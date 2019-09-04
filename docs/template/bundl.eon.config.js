@@ -19,10 +19,10 @@ module.exports = {
           "input": {
               "less/**.less": {
                 "use": async function (entry) {
-                  try {
-                    entry.fileName = entry.fileName.replace(".less", ".css");
+                  try {                                        
+                    entry.path = entry.path.replace(".less", ".css");
                     entry.content = (await require("less").render(entry.content.toString("utf8"), {
-                      filename: require("path").resolve(entry.file),
+                      filename: require("path").join("src",entry.path),
                     })).css;
                   } catch (error) {
                     console.log(error);

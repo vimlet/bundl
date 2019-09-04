@@ -52,6 +52,7 @@ Paths parameters and values of the config might use glob patterns where `*` and 
 |**watch**|Path to a directory to keep looking for changes.|
 |**clean**|If set to true, outputBase will be empty before start packing.|
 |**output**|The output object, contains the output paths as keys with input patterns or objects as values.|
+|**task**|The task object, contains the task name as keys with configuration object as values.|
 
 *Example:*
 ```[javascript]
@@ -103,6 +104,8 @@ output: {
 |**id**|Identification for hashes and other parse functions.|
 |**use**|`function(entry){return entry;}` Use custom code to modify the output.|
 |**input**|A string or a configuration object for the input files.|
+|**before**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished before given ids object.|
+|**after**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished after given ids object.|
 
 *Example:*
 ```[javascript]
@@ -511,3 +514,29 @@ use: async function(entry, bundl) {
   return entry;
 }
 ```
+
+[Tasks]<>
+
+It works similar to output key but a task doesn't write to disk and they don't trigger by themselves.
+
+### Properties
+
+|Property|Description|
+|--------|-----------|
+|**use**|`function(previousUse){return result;}` Use custom code. In case of an array of functions `previousUse` is the return of the previous function in the array.|
+|**order**|Specify an order and make it works synchronously with other ordered entries. Ordered tasks will be triggered on build.|
+|**before**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished before given ids object. This key will also trigger the task.|
+|**after**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished after given ids object. This key will also trigger the task.|
+|**runp**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched paralleled. `runp` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
+|**runs**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched sequentially. `runs` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
+
+### How to run a task
+
+* Command line:
+
+`bundl run "taskId"`
+
+* Run tasks on build:
+
+Any task which is sorted in the configuration file (order, before or after) will be triggered on build.
+
