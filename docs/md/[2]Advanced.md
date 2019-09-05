@@ -37,7 +37,9 @@ Paths parameters and values of the config might use glob patterns where `*` and 
 
 "**.js" Matches any file ending with `.js` for the current directory and subdirectories.
 
-["**", "!**test**"] Matches all files except the ones that contain `test`.
+input:{"**":true, "!**test**":true} Matches all files except the ones that contain `test`. 
+Note that ["**", "!**test**"] won't work because they are treated as different input objects.
+["**", "!**test**"] = [{input:{"**":true}},{input:{"!input/b.txt":true}}]
 ```
 
 ## Configuration Object (Root)

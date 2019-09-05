@@ -1,14 +1,24 @@
 {
+  "api": {
+    "include": [
+      "../src/lib/**/*.js"
+    ],
+    "entry": "api",
+    "extension": false,
+    "band": "#18c796",
+    "hoverColorText": "white",
+    "version": "1.0.0",
+    "selectedColorText": "white"
+  },
   "article": [{
     "include": [
       "md/**/*.md"
     ],
-    "entry":"manual",
+    "entry": "manual",
     "extension": false,
-    "output": "release/manual",
     "band": "#18c796",
     "hoverColorText": "white",
-    "version":"1.0.0",
+    "version": "1.0.0",
     "selectedColorText": "white"
   }],
   "main": {

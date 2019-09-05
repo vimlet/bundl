@@ -1,5 +1,4 @@
 <script type="text/javascript">
-
   eon.element({
 
     name: "eon-tree",
@@ -137,7 +136,7 @@
         if (el.store) {
           // TODO - Store based refresh...
           el.buildStoreTree();
-        } else {          
+        } else {
           // Append new refreshed tree nodes
           el._misc.srcNodes.forEach(function (cNode) {
             parentNode = cNode._refs.parentNode;
@@ -151,7 +150,7 @@
                 parentNode._refs.wrapper.appendChild(cNode);
               }
               filterNodes[cNode.path] = cNode;
-            } else if (!filter) {           
+            } else if (!filter) {
               // Append node belonging to a tree node
               if (parentNode.tagName.toLowerCase() == "eon-tree-node") {
                 parentNode._refs.wrapper.appendChild(cNode);
@@ -198,7 +197,7 @@
         @description Select given node at tree
         @param {object} node [Tree node]
       */
-      selectNode: function (node) {        
+      selectNode: function (node) {
         var el = this;
         // Deselect previous selected node
         if (el.selectedNode) {
@@ -211,6 +210,21 @@
         // Select node
         el.selectedNode = node;
         node.selected = true;
+
+        el._refs.scroll.onReady(function () {
+          setTimeout(function () {
+            var maxHeight = Math.max(document.body.scrollHeight, document.body.offsetHeight,
+              document.documentElement.clientHeight, document.documentElement.scrollHeight, document
+              .documentElement
+              .offsetHeight);
+            var nodePosition = node.getBoundingClientRect().top;
+            if (nodePosition > maxHeight) {
+              var dif = nodePosition - maxHeight + node.offsetHeight;
+              el._refs.scroll.scrollTo(dif, null, 0);
+            }
+          }, 0);
+        });
+
         eon.triggerCallback("onNodeSelected", el, el, [node]);
       },
       /*
@@ -429,7 +443,8 @@
             var fragment = document.createDocumentFragment();
             var orderFragment = document.createDocumentFragment();
             var x, y;
-            var sortArray = [], elm;
+            var sortArray = [],
+              elm;
 
             // Store object nodes into an array
             for (var i = 0; i < nodes.length; i++) {
@@ -449,15 +464,27 @@
               n2 = b[0].toLowerCase();
               // Compare order 0 (Nodes with order = 0 are moved to the last tree position)
               if ((o1 === 0 && o2 !== 0) || (o2 === 0 && o1 !== 0)) {
-                if (o1 === 0) { return 1; }
-                if (o2 === 0) { return -1; }
+                if (o1 === 0) {
+                  return 1;
+                }
+                if (o2 === 0) {
+                  return -1;
+                }
               }
               // Compare order
-              if (o1 > o2) { return 1; }
-              if (o1 < o2) { return -1; }
+              if (o1 > o2) {
+                return 1;
+              }
+              if (o1 < o2) {
+                return -1;
+              }
               // Compare type 
-              if (t1 < t2) { return -1; }
-              if (t1 > t2) { return 1; }
+              if (t1 < t2) {
+                return -1;
+              }
+              if (t1 > t2) {
+                return 1;
+              }
               // Ensure multiple languages accents correct sorting
               return n1.localeCompare(n2);
             });
@@ -493,7 +520,8 @@
         var nodes = node._refs.wrapper.children;
         var alphaFragment = document.createDocumentFragment();
         var orderFragment = document.createDocumentFragment();
-        var sortArray = [], elm, nodeRef;
+        var sortArray = [],
+          elm, nodeRef;
 
         if (nodes[0]) {
           // Store object nodes into an array
@@ -514,15 +542,27 @@
             n2 = b[0].toLowerCase();
             // Compare order 0 (Nodes with order = 0 are moved to the last tree position)
             if ((o1 === 0 && o2 !== 0) || (o2 === 0 && o1 !== 0)) {
-              if (o1 === 0) { return 1; }
-              if (o2 === 0) { return -1; }
+              if (o1 === 0) {
+                return 1;
+              }
+              if (o2 === 0) {
+                return -1;
+              }
             }
             // Compare order
-            if (o1 > o2) { return 1; }
-            if (o1 < o2) { return -1; }
+            if (o1 > o2) {
+              return 1;
+            }
+            if (o1 < o2) {
+              return -1;
+            }
             // Compare type 
-            if (t1 < t2) { return -1; }
-            if (t1 > t2) { return 1; }
+            if (t1 < t2) {
+              return -1;
+            }
+            if (t1 > t2) {
+              return 1;
+            }
             // Ensure multiple languages accents correct sorting
             return n1.localeCompare(n2);
           });
@@ -740,7 +780,9 @@
         // Build nodes structure
         srcNode = srcNodes.shift();
         // Store source nodes
-        el._misc.srcNodesPaths[srcNode.getAttribute("path")] = { type: srcNode.getAttribute("type") };
+        el._misc.srcNodesPaths[srcNode.getAttribute("path")] = {
+          type: srcNode.getAttribute("type")
+        };
         el._misc.srcNodes.push(srcNode);
         // Append them to the tree
         if (srcNode.tagName.toLowerCase() !== "eon-scroll") {
@@ -750,7 +792,7 @@
       scroll.appendChild(tree);
       el.appendChild(scroll);
     },
-    onTransformed: function () {      
+    onTransformed: function () {
       var el = this;
       // Tree structure creation
       el._setUpTree();

@@ -23,13 +23,23 @@ suite("bundl-input", () => {
     test("input1", async () => {
         var name = "input1";
         var result = (await readFile(path.join(resources, `input/output/${name}.txt`))).toString();
-        assert.strictEqual(result, "a\nb\nc", `Output mismatch - ${name}`);
+        assert.notStrictEqual(result, "a\nb\nc", `Output mismatch - ${name}`);
     });
 
     test("input2", async () => {
         var name = "input2";
         var result = (await readFile(path.join(resources, `input/output/${name}.txt`))).toString();
         assert.strictEqual(result, "a\nb\nc", `Output mismatch - ${name}`);
+    });
+    test("input3", async () => {
+        var name = "input3";
+        var result = (await readFile(path.join(resources, `input/output/${name}.txt`))).toString();
+        assert.strictEqual(result, "a\nd\nc\nd", `Output mismatch - ${name}`);
+    });
+    test("input4", async () => {
+        var name = "input4";
+        var result = (await readFile(path.join(resources, `input/output/${name}.txt`))).toString();
+        assert.strictEqual(result, "a\nc", `Output mismatch - ${name}`);
     });
 
 });

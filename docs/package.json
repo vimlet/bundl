@@ -6,6 +6,6 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@vimlet/doc": "2.1.0"
+    "@vimlet/doc": "2.1.3"
   }
 }

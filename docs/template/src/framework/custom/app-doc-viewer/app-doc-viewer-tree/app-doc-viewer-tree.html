@@ -36,7 +36,7 @@
 
         functions: {
             // @function select (private) [Select item at tree] @param namePath @param link [Link in document]
-            select: function (namePath, link) {                
+            select: function (namePath, link) {
                 var el = this;
                 el._refs.tree.onReady(function () {
                     el.onTreeReady(function () {
@@ -45,7 +45,7 @@
                             if (!link) {                                
                                 if (node.namePath == namePath) {                                    
                                     found = true;
-                                    node.onReady(function () {                                        
+                                    node.onReady(function () {
                                         el._refs.tree.selectNode(node);
                                     });
                                 }
