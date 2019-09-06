@@ -519,7 +519,23 @@ use: async function(entry, bundl) {
 
 [Tasks]<>
 
-It works similar to output key but a task doesn't write to disk and they don't trigger by themselves.
+Tasks are the angular piece of any automation system. Sometimes you need to perform process which don't involve output files so here is where the task system takes place.
+For example you can launch tests after a build or run a server, anything you want. Forget about bash scripts or external task runners, bundle is your all in one.
+
+### Configuration
+
+```javascript
+module.exports = {
+  task:{
+    task1:{
+      use: async function(){
+        // Do something
+      },
+      after:"bundle-js"
+    }
+  }
+};
+```
 
 ### Properties
 
@@ -532,13 +548,67 @@ It works similar to output key but a task doesn't write to disk and they don't t
 |**runp**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched paralleled. `runp` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
 |**runs**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched sequentially. `runs` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
 
+
+```javascript
+module.exports = {
+  task:{
+    task1:{
+      use: async function(){
+        // Do something
+      }
+    },
+    task2:{
+      use: async function(){
+        // Do something
+      }
+    },
+    task3:{
+      runp:"task1 task2"
+    }
+  }
+};
+```
+
+
 ### How to run a task
 
 * Command line:
 
 `bundl run "taskId"`
 
+Following the previous example:
+```
+bundl run "task3"
+```
+Will run task1 and then task2 in a parallel way.
+
+
 * Run tasks on build:
 
 Any task which is sorted in the configuration file (order, before or after) will be triggered on build.
 
+```javascript
+module.exports = {
+  output: {
+    "dist/bundle.js": {
+      order: 0,
+      id: "example",
+      input: "src/**.js"
+    }
+  },
+  task:{
+    task1:{
+      use: async function(){
+        // Do something
+      },
+      after:"example"
+    },
+    task2:{
+      use: async function(){
+        // Do something
+      },
+      order:1
+    }
+  }
+};
+```
