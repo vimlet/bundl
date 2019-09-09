@@ -34,7 +34,7 @@ module.exports = async function () {
         let config = require(configPath);
         let watchPath = cli.result.watch || config.watch;
         let run = cli.result.run;
-
+    
         if (run) {
           await pack.runTask(loadash.cloneDeep(config), run);          
         } else {

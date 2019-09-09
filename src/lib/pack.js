@@ -20,7 +20,7 @@ module.exports.build = async config => {
 };
 
 // @function runTask (public) [Run given task]
-module.exports.runTask = async (config, tasks) => {  
+module.exports.runTask = async (config, tasks) => {
   return new Promise(async (resolve, reject) => {
     if (!Array.isArray(tasks)) {
       tasks = tasks.split(" ");
@@ -34,7 +34,7 @@ module.exports.runTask = async (config, tasks) => {
         console.log("Error", e);
       }
     }));
-    resolve();    
+    resolve();
   });
 };
 
@@ -189,9 +189,18 @@ async function process(config, sorted, key) {
 async function waitForOthers(config, sorted, key) {
   return new Promise(async (resolve, reject) => {
     await Promise.all(sorted.data[key]._waitFor.map(async waitFor => {
-      if (sorted.data[waitFor].status === "object") {
+
+
+      if (sorted.data[waitFor] && sorted.data[waitFor].status === "object") {
+        // if (sorted.data[waitFor].status === "object") {
+
         await buildObj(config, sorted, waitFor);
-      } else if (sorted.data[waitFor].status === "triggered") {
+
+
+      } else if (sorted.data[waitFor] && sorted.data[waitFor].status === "triggered") {
+        // } else if (sorted.data[waitFor].status === "triggered") {
+
+
         await sorted.data[waitFor].promise;
       }
     }));
@@ -201,48 +210,149 @@ async function waitForOthers(config, sorted, key) {
 
 // @function buildSingle (public) [Build single file which has been modified. Used at watch mode] @param config @param filePath @param event [Watcher trigger event]
 module.exports.buildSingle = async function (config, filePath, event) {
+  if (!("log" in config) || config.log) {
+    console.log("File modified: " + filePath);
+  }
   config = configurator.setupOutput(config);
-  config._isWatch = true;
-  filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
-  var matches = [];
-  for (var outputKey in config.output) {
-    if (!Array.isArray(config.output[outputKey])) {
-      var inputs = config.output[outputKey].input;
-      matchSingleConfig(inputs, matches, filePath, outputKey);
-    } else {
-      config.output[outputKey].forEach(function (cOut) {
-        var inputs = cOut.input;
+  if (config.watchMode.indexOf("all") > -1) {
+    await pack(config);
+  } else {
+    config._isWatch = true;
+    filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
+    var matches = [];
+    for (var outputKey in config.output) {
+      if (!Array.isArray(config.output[outputKey])) {
+        var inputs = config.output[outputKey].input;
         matchSingleConfig(inputs, matches, filePath, outputKey);
+      } else {
+        config.output[outputKey].forEach(function (cOut) {
+          var inputs = cOut.input;
+          matchSingleConfig(inputs, matches, filePath, outputKey);
+        });
+      }
+    }
+    if (event && event === "unlink") {
+      await clean(config, {
+        filePath: filePath,
+        matches: matches
+      });
+    } else {
+      // If not unlink, check if it is a hash because modifications should delete old hashes
+      var hashes = [];
+      matches.forEach(mat => {
+        if (mat.indexOf("{{hash}}") >= 0) {
+          hashes.push(mat);
+        }
+      });
+      await clean(config, {
+        filePath: filePath,
+        matches: hashes
       });
     }
-  }
-  if (event && event === "unlink") {
-    await clean(config, {
-      filePath: filePath,
-      matches: matches
-    });
-  } else {
-    // If not unlink, check if it is a hash because modifications should delete old hashes
-    var hashes = [];
-    matches.forEach(mat => {
-      if (mat.indexOf("{{hash}}") >= 0) {
-        hashes.push(mat);
+    var newOutput = {};
+    matches.forEach(match => {
+      if (config.output[match]) {
+        newOutput[match] = config.output[match];
       }
     });
-    await clean(config, {
-      filePath: filePath,
-      matches: hashes
-    });
-  }
-  var newOutput = {};
-  matches.forEach(match => {
-    if (config.output[match]) {
-      newOutput[match] = config.output[match];
+
+    var newTask = {};
+    if (config.watchMode.length === 1 && config.watchMode[0] === "single") {
+      // config.tasks = newTask;
+    } else if (config.watchMode.indexOf("sorted") > -1) {
+      addOrderedToMatch(config, newOutput, newTask);
+
+      // Add before after items
+      var tempBefAft = {
+        output: {},
+        task: {}
+      };
+      // Add already registered keys
+      for (var newOutKey in newOutput) {
+        tempBefAft.output[newOutKey] = true;
+      }
+      for (var newTaskKey in newTask) {
+        tempBefAft.task[newTaskKey] = true;
+      }
+      
+      for (var key in tempBefAft.output) {
+        addBeforeAfterToMatch(config, tempBefAft, key);
+      }
+      for (var key in tempBefAft.task) {
+        addBeforeAfterToMatch(config, tempBefAft, key);
+      }
     }
-  });
-  config.output = newOutput;
-  await pack(config);
+    config.task = newTask;
+    config.output = newOutput;
+    await pack(config);
+  }
 };
+
+// @function addBeforeAfterToMatch (private) [Add items with before or after to match] @param config @param tempBefAft @param key
+function addBeforeAfterToMatch(config, tempBefAft, key) {
+  beforeAfterById(config, tempBefAft, key);
+  beforeAfterByBefore(config, tempBefAft, key);
+  beforeAfterByAfter(config, tempBefAft, key);
+}
+
+function beforeAfterById(config, tempBefAft, key){
+  if(config.output && config.output[key] && "id" in config.output[key]){
+    var currentId = config.output[key].id;
+    for(var outKey in config.output){
+      if("before" in config.output[outKey]){
+        var currentBefore = config.output[outKey].before.split(" ");
+        currentBefore.forEach(cB=>{
+          if(cB === currentId){
+            if(!tempBefAft.output[outKey]){
+              tempBefAft.output[outKey] = true;
+              addBeforeAfterToMatch(config, tempBefAft, outKey);
+            }            
+          }
+        });
+      }
+      if("after" in config.output[outKey]){
+        var currentAfter = config.output[outKey].after.split(" ");
+        currentAfter.forEach(cA=>{
+          if(cA === currentId){
+            if(!tempBefAft.output[outKey]){
+              tempBefAft.output[outKey] = true;
+              addBeforeAfterToMatch(config, tempBefAft, outKey);
+            }            
+          }
+        });
+      }
+    }
+    
+  }
+  
+}
+
+
+
+// @function addOrderedToMatch (private) [Add items with order to match] @param config @param newOutput @param newTask
+function addOrderedToMatch(config, newOutput, newTask) {
+  var tempOutput = [];
+  for (var key in newOutput) {
+    if ("order" in newOutput[key]) {
+      for (var outKey in config.output) {
+        if ("order" in config.output[outKey]) {
+          tempOutput.push(outKey);
+        }
+      }
+      if (config.task) {
+        for (var taskKey in config.task) {
+          if ("order" in config.task[taskKey]) {
+            newTask[taskKey] = config.task[taskKey];
+          }
+        }
+      }
+    }
+  }
+  tempOutput.forEach(tOut => {
+    newOutput[tOut] = config.output[tOut];
+  });
+}
+
 
 // @function matchSingleConfig (private) [Check whether an input match with modified file] @param inputs @param matches @param filePath @param outputKey
 function matchSingleConfig(inputs, matches, filePath, outputKey) {

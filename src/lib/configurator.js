@@ -5,6 +5,7 @@ module.exports.setupOutput = function(config){
   config.outputBase = "outputBase" in config ? config.outputBase : "";
   config.inputBase = "inputBase" in config ? config.inputBase : "";
   config.clean = "clean" in config ? config.clean : false;
+  config.watchMode = config.watchMode ? config.watchMode.split(" ") : ["single"];
   config = queryParam(config);
   return config;
 };
