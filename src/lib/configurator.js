@@ -4,8 +4,8 @@ module.exports.setupOutput = function(config){
   config.hashLength = "hashLength" in config ? config.hashLength : 7;
   config.outputBase = "outputBase" in config ? config.outputBase : "";
   config.inputBase = "inputBase" in config ? config.inputBase : "";
-  config.clean = "clean" in config ? config.clean : false;
-  config.watchMode = config.watchMode ? config.watchMode.split(" ") : ["single"];
+  config.clean = "clean" in config ? config.clean : false;  
+  config.watchMode = "watchMode" in config ? Array.isArray(config.watchMode) ? config.watchMode : config.watchMode.split(" ") : ["single"];
   config = queryParam(config);
   return config;
 };

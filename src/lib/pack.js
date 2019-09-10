@@ -4,10 +4,10 @@ const copy = require("./copy");
 const task = require("./task");
 const late = require("./late");
 const util = require("./util");
-const glob = require("@vimlet/commons-glob");
 const path = require("path");
 const configurator = require("./configurator");
 const sorter = require("./sorter");
+const packWatch = require("./packWatch");
 
 // @function build (public) [Launch build process]
 module.exports.build = async config => {
@@ -223,11 +223,11 @@ module.exports.buildSingle = async function (config, filePath, event) {
     for (var outputKey in config.output) {
       if (!Array.isArray(config.output[outputKey])) {
         var inputs = config.output[outputKey].input;
-        matchSingleConfig(inputs, matches, filePath, outputKey);
+        packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
       } else {
         config.output[outputKey].forEach(function (cOut) {
           var inputs = cOut.input;
-          matchSingleConfig(inputs, matches, filePath, outputKey);
+          packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
         });
       }
     }
@@ -254,14 +254,11 @@ module.exports.buildSingle = async function (config, filePath, event) {
       if (config.output[match]) {
         newOutput[match] = config.output[match];
       }
-    });
-
+    });    
+   
     var newTask = {};
-    if (config.watchMode.length === 1 && config.watchMode[0] === "single") {
-      // config.tasks = newTask;
-    } else if (config.watchMode.indexOf("sorted") > -1) {
-      addOrderedToMatch(config, newOutput, newTask);
-
+    if (config.watchMode.indexOf("sorted") > -1) {
+      packWatch.addOrderedToMatch(config, newOutput, newTask);
       // Add before after items
       var tempBefAft = {
         output: {},
@@ -273,13 +270,18 @@ module.exports.buildSingle = async function (config, filePath, event) {
       }
       for (var newTaskKey in newTask) {
         tempBefAft.task[newTaskKey] = true;
-      }
-      
-      for (var key in tempBefAft.output) {
-        addBeforeAfterToMatch(config, tempBefAft, key);
+      }            
+      for (var key in tempBefAft.output) {        
+        packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
       }
       for (var key in tempBefAft.task) {
-        addBeforeAfterToMatch(config, tempBefAft, key);
+        packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
+      }
+      for (var outKey in tempBefAft.output) {
+        newOutput[outKey] = config.output[outKey];
+      }
+      for (var taskKey in tempBefAft.task) {
+        newTask[taskKey] = config.task[taskKey];
       }
     }
     config.task = newTask;
@@ -287,83 +289,3 @@ module.exports.buildSingle = async function (config, filePath, event) {
     await pack(config);
   }
 };
-
-// @function addBeforeAfterToMatch (private) [Add items with before or after to match] @param config @param tempBefAft @param key
-function addBeforeAfterToMatch(config, tempBefAft, key) {
-  beforeAfterById(config, tempBefAft, key);
-  beforeAfterByBefore(config, tempBefAft, key);
-  beforeAfterByAfter(config, tempBefAft, key);
-}
-
-function beforeAfterById(config, tempBefAft, key){
-  if(config.output && config.output[key] && "id" in config.output[key]){
-    var currentId = config.output[key].id;
-    for(var outKey in config.output){
-      if("before" in config.output[outKey]){
-        var currentBefore = config.output[outKey].before.split(" ");
-        currentBefore.forEach(cB=>{
-          if(cB === currentId){
-            if(!tempBefAft.output[outKey]){
-              tempBefAft.output[outKey] = true;
-              addBeforeAfterToMatch(config, tempBefAft, outKey);
-            }            
-          }
-        });
-      }
-      if("after" in config.output[outKey]){
-        var currentAfter = config.output[outKey].after.split(" ");
-        currentAfter.forEach(cA=>{
-          if(cA === currentId){
-            if(!tempBefAft.output[outKey]){
-              tempBefAft.output[outKey] = true;
-              addBeforeAfterToMatch(config, tempBefAft, outKey);
-            }            
-          }
-        });
-      }
-    }
-    
-  }
-  
-}
-
-
-
-// @function addOrderedToMatch (private) [Add items with order to match] @param config @param newOutput @param newTask
-function addOrderedToMatch(config, newOutput, newTask) {
-  var tempOutput = [];
-  for (var key in newOutput) {
-    if ("order" in newOutput[key]) {
-      for (var outKey in config.output) {
-        if ("order" in config.output[outKey]) {
-          tempOutput.push(outKey);
-        }
-      }
-      if (config.task) {
-        for (var taskKey in config.task) {
-          if ("order" in config.task[taskKey]) {
-            newTask[taskKey] = config.task[taskKey];
-          }
-        }
-      }
-    }
-  }
-  tempOutput.forEach(tOut => {
-    newOutput[tOut] = config.output[tOut];
-  });
-}
-
-
-// @function matchSingleConfig (private) [Check whether an input match with modified file] @param inputs @param matches @param filePath @param outputKey
-function matchSingleConfig(inputs, matches, filePath, outputKey) {
-  for (var inputKey in inputs) {
-    if (typeof inputs[inputKey] === "object" &&
-      !Array.isArray(inputs[inputKey]) && "watch" in inputs[inputKey]) {
-      if (glob.match(filePath, inputs[inputKey].watch).length > 0) {
-        matches.push(outputKey);
-      }
-    } else if (glob.match(filePath, inputKey).length > 0) {
-      matches.push(outputKey);
-    }
-  }
-}

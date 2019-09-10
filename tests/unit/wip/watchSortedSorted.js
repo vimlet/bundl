@@ -39,30 +39,30 @@ suite("bundl-watchSortedSorted", () => {
     });
 
 
-    // // Modify file from parse folder and check the modification at the output
-    // test("watchSortedSorted parse", async () => {
-    //     var name = "parse/1.txt";
-    //     var result = (await readFile(path.join(resources, `watchSortedSorted/output/${name}`))).toString();
-    //     assert.strictEqual(result, "I'm 1 I'm 2", `Output mismatch - ${name}`);
-    //     await writeFile(path.join(resources, `watchSortedSorted/input/parse/1.vmt`), "Test");
-    //     await waitTest(1);
-    //     var result2 = (await readFile(path.join(resources, `watchSortedSorted/output/${name}`))).toString();
-    //     assert.strictEqual(result2, "Test", `Output mismatch - ${name}`);
-    // });
+    // Modify file from parse folder and check the modification at the output
+    test("watchSortedSorted parse", async () => {
+        var name = "parse/1.txt";
+        var result = (await readFile(path.join(resources, `watchSortedSorted/output/${name}`))).toString();
+        assert.strictEqual(result, "I'm 1 I'm 2", `Output mismatch - ${name}`);
+        await writeFile(path.join(resources, `watchSortedSorted/input/parse/1.vmt`), "Test");
+        await waitTest(1);
+        var result2 = (await readFile(path.join(resources, `watchSortedSorted/output/${name}`))).toString();
+        assert.strictEqual(result2, "Test", `Output mismatch - ${name}`);
+    });
 
-    // // Modify file from copy folder and check the modification at the output
-    // test("watchSortedSorted copy", async () => {
-    //     var name = "copy/test1.txt";
-    //     var result = JSON.stringify(await readdir(path.join(resources, `watchSortedSorted/output/copy`)));
-    //     var expected = JSON.stringify(await readdir(path.join(resources, `watchSortedSorted/input/copy`)));
-    //     assert.strictEqual(result, expected, `Output mismatch - ${name}`);
-    //     var result1 = (await readFile(path.join(resources, `watchSortedSorted/output/${name}`))).toString();
-    //     assert.strictEqual(result1, "test1", `Output mismatch - ${name}`);
-    //     await writeFile(path.join(resources, `watchSortedSorted/input/copy/test1.txt`), "Test");
-    //     await waitTest(1);
-    //     var result2 = (await readFile(path.join(resources, `watchSortedSorted/output/${name}`))).toString();
-    //     assert.strictEqual(result2, "Test", `Output mismatch - ${name}`);
-    // });
+    // Modify file from copy folder and check the modification at the output
+    test("watchSortedSorted copy", async () => {
+        var name = "copy/test1.txt";
+        var result = JSON.stringify(await readdir(path.join(resources, `watchSortedSorted/output/copy`)));
+        var expected = JSON.stringify(await readdir(path.join(resources, `watchSortedSorted/input/copy`)));
+        assert.strictEqual(result, expected, `Output mismatch - ${name}`);
+        var result1 = (await readFile(path.join(resources, `watchSortedSorted/output/${name}`))).toString();
+        assert.strictEqual(result1, "test1", `Output mismatch - ${name}`);
+        await writeFile(path.join(resources, `watchSortedSorted/input/copy/test1.txt`), "Test");
+        await waitTest(1);
+        var result2 = (await readFile(path.join(resources, `watchSortedSorted/output/${name}`))).toString();
+        assert.strictEqual(result2, "Test", `Output mismatch - ${name}`);
+    });
 
     // Modify file from parse which run before task1 and and check the modification at the output task
     test("watchSortedSorted task1 after parse copy", async () => {
@@ -72,9 +72,7 @@ suite("bundl-watchSortedSorted", () => {
         assert.strictEqual(result, "Task1", `Output mismatch`);
         await waitTest(1);
         await rimraf(path.join(resources, `watchSortedSorted/output/task/task1.txt`));
-        await rimraf(path.join(resources, `watchSortedSorted/output/task/task2.txt`));
-        console.log("TASKS DELETED");
-        
+        await rimraf(path.join(resources, `watchSortedSorted/output/task/task2.txt`));        
         await waitTest(2);
         await writeFile(path.join(resources, `watchSortedSorted/input/parse/1.vmt`), "Test2");
         await writeFile(path.join(resources, `watchSortedSorted/input/parseCopy/1.vmt`), "Test2");
