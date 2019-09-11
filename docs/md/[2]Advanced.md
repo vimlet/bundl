@@ -456,8 +456,24 @@ module.exports = {
 
 If watch property is added to an input object and watch mode is globally enabled, it will watch the given path for that input instead of the input key.
 
+*Example:*
+```[javascript]
+module.exports = {
+  watch: ["src", "doc"],
+  output: {
+    output/path:{
+      input:"src/**/*.vmt",
+      watch:"src/**/*.*"
+    }
+  }
+};
+```
+
+The example above will build all vimlet meta template files **.vmt** but the watcher will look for any file ***.*** meaning that for example if a vimlet meta imported file **.vmi** is changed within the watched directory its output will be triggered.
+
 [Order]<>
-An `order` property can be added to both output and input objects, to determine the order of how files will be processed. In this way we can force a synchronous behaviour with other ordered entries. Non-ordered keys will be processed at the end in asynchronous way.
+An `order` property can be added to both output and input objects, to determine the order of how files will be processed. In this way we can force a synchronous behavior with other ordered entries. Non-ordered keys will be processed in asynchronous way.
+Order value is a positive integer and it is non exclusive which means that more than one entry may have the same order. Entries with same order index will run asynchronously while keeping their global order.
 
 *Example:*
 ```[javascript]
@@ -469,9 +485,42 @@ output: {
   "file2.js": {
     order": 1,
     input: "file2.js"
+  },
+  "file3.js": {
+    order": 1,
+    input: "file2.js"
+  },
+  "file4.js": {
+    order": 2,
+    input: "file2.js"
   }
 }
 ```
+In the example above **file1.js** will be the first one, once it is finished and written to disk **file2.js** and **file3.js** will run at the same time. When both finish then **file4.js** will be triggered.
+
+Task with order property will be auto launched when build.
+## Before & after
+Entries can also be sorted using *before* or *after* key. They make the entry to run before another entry or wait in after case to run after given entry id.
+
+*Example:*
+```[javascript]
+output: {
+  "file1.js": {
+    before: "file2",
+    input: "file1.js"
+  },
+  "file2.js": {
+    id:"file2",
+    after:"file3",
+    input: "file2.js"
+  },
+  "file3.js": {
+    id:"file3",
+    input: "file2.js"
+  }
+}
+```
+In the example above both **file1.js** and **file3.js** will be triggered since the build process starts because they do not have to wait for anything. On the other hand, **file2.js** runs after *file3* and also *file1.js* goes before it so it will wait until both finished to start.
 
 [Run]<>
 

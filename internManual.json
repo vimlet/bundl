@@ -1,0 +1,11 @@
+{
+  "node": {
+    "suites": ["tests/unit/manual/**.js"]
+  },
+  
+  "configs": {
+    "node": {
+      "environments+": ["node"]
+    }   
+  }
+}

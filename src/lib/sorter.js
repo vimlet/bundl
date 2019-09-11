@@ -11,7 +11,7 @@ module.exports.process = function (config) {
             after: {}
         },
         data: {},
-        meta:{}
+        meta: {}
     };
     sortOutput(config, sorted);
     sortTask(config, sorted);
@@ -21,7 +21,7 @@ module.exports.process = function (config) {
 };
 
 // @function processBefore (private) [After all objects have been added, add wait for before items] @param sorted
-function processBefore(sorted) {
+function processBefore(sorted) {    
     for (key in sorted.list.before) {
         sorted.list.before[key].forEach(beforeItem => {
             sorted.data[beforeItem]._waitFor = sorted.data[beforeItem]._waitFor || [];
@@ -38,9 +38,9 @@ function processAfter(sorted) {
 }
 
 // @function sortTask (private) [Sort tasks] @param config @param sorted [Result object]
-function sortTask(config, sorted) {
+function sortTask(config, sorted) {    
     if ("task" in config) {
-        Object.keys(config.task).forEach(element => {
+        Object.keys(config.task).forEach(element => {            
             sortTaskObject(config, config.task[element], element, sorted);
         });
     }
@@ -54,11 +54,11 @@ function sortTaskObject(config, obj, element, sorted) {
         var currentOrder = parseInt(obj.order);
         sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
         sorted.list.sorted[currentOrder].push(obj.id);
-    }  else {
+    } else {
         if ("before" in obj) {
             var waitFor = obj.before.split(" ");
             sorted.list.before[obj.id] = waitFor;
-        } else if ("after" in obj) {            
+        } else if ("after" in obj) {
             var doAfter = obj.after.split(" ");
             sorted.list.after[obj.id] = doAfter;
         }
@@ -98,7 +98,7 @@ function sortOutputObject(config, obj, element, sorted) {
         if ("before" in obj) {
             var waitFor = obj.before.split(" ");
             sorted.list.before[obj.id] = waitFor;
-        } else if ("after" in obj) {            
+        } else if ("after" in obj) {
             var doAfter = obj.after.split(" ");
             sorted.list.after[obj.id] = doAfter;
         } else {

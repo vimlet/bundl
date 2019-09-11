@@ -42,5 +42,21 @@ suite("bundl-watch", () => {
         var expected = `["a.txt","b.txt","c.txt"]`;                
         assert.strictEqual(result, expected, `Output mismatch - ${name}`);
     });
+    
+    test("task after", async () => {
+        var name = "task/task1";
+        var result = (await readFile(path.join(resources, `watch/output/${name}.txt`))).toString();
+        assert.strictEqual(result, "Task1", `Output mismatch - ${name}`);
+    });
+    test("task order", async () => {
+        var name = "task/task2";
+        var result = (await readFile(path.join(resources, `watch/output/${name}.txt`))).toString();
+        assert.strictEqual(result, "Task2", `Output mismatch - ${name}`);
+    });
+    // test("task referenced from output", async () => {
+    //     var name = "task/task3";
+    //     var result = (await readFile(path.join(resources, `watch/output/${name}.txt`))).toString();
+    //     assert.strictEqual(result, "Task3", `Output mismatch - ${name}`);
+    // });
 
 });

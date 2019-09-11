@@ -214,78 +214,72 @@ module.exports.buildSingle = async function (config, filePath, event) {
     console.log("File modified: " + filePath);
   }
   config = configurator.setupOutput(config);
-  if (config.watchMode.indexOf("all") > -1) {
-    await pack(config);
-  } else {
-    config._isWatch = true;
-    filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
-    var matches = [];
-    for (var outputKey in config.output) {
-      if (!Array.isArray(config.output[outputKey])) {
-        var inputs = config.output[outputKey].input;
-        packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
-      } else {
-        config.output[outputKey].forEach(function (cOut) {
-          var inputs = cOut.input;
-          packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
-        });
-      }
-    }
-    if (event && event === "unlink") {
-      await clean(config, {
-        filePath: filePath,
-        matches: matches
-      });
+  config._isWatch = true;
+  filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
+  var matches = [];
+  for (var outputKey in config.output) {
+    if (!Array.isArray(config.output[outputKey])) {
+      var inputs = config.output[outputKey].input;
+      packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
     } else {
-      // If not unlink, check if it is a hash because modifications should delete old hashes
-      var hashes = [];
-      matches.forEach(mat => {
-        if (mat.indexOf("{{hash}}") >= 0) {
-          hashes.push(mat);
-        }
-      });
-      await clean(config, {
-        filePath: filePath,
-        matches: hashes
+      config.output[outputKey].forEach(function (cOut) {
+        var inputs = cOut.input;
+        packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
       });
     }
-    var newOutput = {};
-    matches.forEach(match => {
-      if (config.output[match]) {
-        newOutput[match] = config.output[match];
-      }
-    });    
-   
-    var newTask = {};
-    if (config.watchMode.indexOf("sorted") > -1) {
-      packWatch.addOrderedToMatch(config, newOutput, newTask);
-      // Add before after items
-      var tempBefAft = {
-        output: {},
-        task: {}
-      };
-      // Add already registered keys
-      for (var newOutKey in newOutput) {
-        tempBefAft.output[newOutKey] = true;
-      }
-      for (var newTaskKey in newTask) {
-        tempBefAft.task[newTaskKey] = true;
-      }            
-      for (var key in tempBefAft.output) {        
-        packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
-      }
-      for (var key in tempBefAft.task) {
-        packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
-      }
-      for (var outKey in tempBefAft.output) {
-        newOutput[outKey] = config.output[outKey];
-      }
-      for (var taskKey in tempBefAft.task) {
-        newTask[taskKey] = config.task[taskKey];
-      }
-    }
-    config.task = newTask;
-    config.output = newOutput;
-    await pack(config);
   }
+  if (event && event === "unlink") {
+    await clean(config, {
+      filePath: filePath,
+      matches: matches
+    });
+  } else {
+    // If not unlink, check if it is a hash because modifications should delete old hashes
+    var hashes = [];
+    matches.forEach(mat => {
+      if (mat.indexOf("{{hash}}") >= 0) {
+        hashes.push(mat);
+      }
+    });
+    await clean(config, {
+      filePath: filePath,
+      matches: hashes
+    });
+  }
+  var newOutput = {};
+  matches.forEach(match => {
+    if (config.output[match]) {
+      newOutput[match] = config.output[match];
+    }
+  });
+
+  var newTask = {};
+  packWatch.addOrderedToMatch(config, newOutput, newTask);
+  // Add before after items
+  var tempBefAft = {
+    output: {},
+    task: {}
+  };
+  // Add already registered keys
+  for (var newOutKey in newOutput) {
+    tempBefAft.output[newOutKey] = true;
+  }
+  for (var newTaskKey in newTask) {
+    tempBefAft.task[newTaskKey] = true;
+  }
+  for (var key in tempBefAft.output) {
+    packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
+  }
+  for (var key in tempBefAft.task) {
+    packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
+  }
+  for (var outKey in tempBefAft.output) {
+    newOutput[outKey] = config.output[outKey];
+  }
+  for (var taskKey in tempBefAft.task) {
+    newTask[taskKey] = config.task[taskKey];
+  }
+  config.task = newTask;
+  config.output = newOutput;
+  await pack(config);
 };
