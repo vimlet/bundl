@@ -1,0 +1,131 @@
+@element: break-range;
+
+@{element} {
+  & {
+    padding-left: 10px;
+    box-sizing: border-box;
+    opacity: 1;
+    transition: all .4s;
+    padding: 10px;
+    background: #ebebebab;
+    margin-bottom: 10px;
+    position: relative;
+    padding: 30px 20px 20px 20px;
+  }
+
+  &.@{element}-hidden {
+    opacity: 0;
+  }
+
+  .eon-date-description {
+    height: 0 !important;
+  }
+  .eon-combo-description {
+    height: 0 !important;
+  }
+
+  .@{element}-field {
+    // flex-grow: 1;
+    flex-basis: auto;
+    flex-grow: 1;
+  }
+
+  .form-rows {
+    align-items: flex-end;
+  }
+
+  .form-rows:not(:last-child) {
+    margin-bottom: 5px;
+  }
+
+  .@{element}-editable {
+    display: flex;
+    flex-grow: 1;
+  }
+
+  .@{element}-from, .@{element}-to {
+    display: flex;
+  }
+
+  .@{element}-cols {
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+  }
+
+  eon-variable {
+    width: 100%;
+  }
+
+  .@{element}-actions {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    flex-grow: 0;
+    top: 12px;
+    right: 12px;
+  }
+  .@{element}-actions > .action-icon {
+    margin-left: 10px;
+  }
+
+  .@{element}-actions .delete-icon,
+  .@{element}-actions .action-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 24px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    color: #38c6bb;
+    transition: opacity .2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+  .@{element}-actions .delete-icon:hover,
+  .@{element}-actions .action-icon:hover {
+    opacity: 0.7;
+  }
+
+  .@{element}-actions .action-location {
+    color: #ea4335;
+  }
+  .@{element}-actions .action-notes {
+    color: #fbbc05;;
+  }
+
+  @media (max-width: 925px) {
+    .@{element}-editable, .@{element}-type {
+      display: flex;
+      flex-grow: 1;
+      flex-direction: column;
+    }
+    .@{element}-type .@{element}-field{
+      margin: 0;
+    }
+  }
+  @media (max-width: 700px) {
+    & {
+      margin-top: 30px;
+      padding: 30px 20px 20px 20px;
+    }
+    .form-rows {
+      align-items: center;
+    }
+    .@{element}-editable, .@{element}-type {
+      width: 100%;
+    }
+    .@{element}-from, .@{element}-to {
+      flex-direction: column;
+    }
+    .@{element}-from, .@{element}-cols:first-child {
+      margin-bottom: 15px;
+    }
+    .@{element}-field:first-child {
+      margin-right: 10px;
+    }
+    .@{element}-type .@{element}-field{
+      margin: 0;
+    }
+  }
+}

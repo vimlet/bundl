@@ -1,0 +1,24 @@
+@element: registry-entry;
+
+@{element} {
+  & {
+    display: flex;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+  }
+
+  .registry-label {
+    max-width: 100px;
+  }
+
+  .registry-empty {
+    max-width: 0;
+    min-width: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .registry-label {
+      max-width: 24px;
+    }
+  }
+}

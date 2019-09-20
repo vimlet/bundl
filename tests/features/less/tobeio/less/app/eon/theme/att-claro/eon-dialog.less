@@ -1,0 +1,30 @@
+@import "variables.less";
+@element: eon-dialog;
+
+eon-dialog[theme="@{theme}"],
+div[data-theme="@{theme}"] eon-dialog,
+body[data-theme="@{theme}"] eon-dialog {
+  .@{element}-content {
+    padding: 25px 25px 0 25px;
+  }
+  .@{element}-heading {
+    background-color: @eonFrontColor;
+    color: @white;
+    padding: 15px;
+    font-weight: 400;
+    font-size: 19px;
+  }
+  .@{element}-footer {
+    padding: 25px;
+  }
+
+  @media (max-width: 600px), (max-height: 600px) { 
+    .@{element}-content {
+      padding: 10px;
+    }
+    .@{element}-footer {
+      padding: 15px 20px 20px 20px;
+    }
+  }
+}
+

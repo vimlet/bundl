@@ -1,0 +1,45 @@
+@element: dealer-summary;
+
+@{element} {
+  & {
+      display: flex;
+      padding: 15px 20px;
+      justify-content: space-between;
+      margin-bottom: 10px;
+  }
+  .@{element}-field {
+      display: flex;
+      font-size: 18px;
+  }
+  .@{element}-label {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 10px; 
+  }
+  .@{element}-value {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+}
+
+
+@media (max-width: 500px) {
+
+  @{element} {
+
+    & {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 15px;
+    }
+
+    .@{element}-field {
+      display: flex;
+      font-size: 15px;
+  }
+
+  }  
+
+}

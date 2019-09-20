@@ -262,10 +262,10 @@ module.exports.buildSingle = async function (config, filePath, event) {
   };
   // Add already registered keys
   for (var newOutKey in newOutput) {
-    tempBefAft.output[newOutKey] = true;
+    tempBefAft.output[newOutKey] = newOutput[newOutKey];
   }
   for (var newTaskKey in newTask) {
-    tempBefAft.task[newTaskKey] = true;
+    tempBefAft.task[newTaskKey] = newTask[newTaskKey];
   }
   for (var key in tempBefAft.output) {
     packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
@@ -274,7 +274,7 @@ module.exports.buildSingle = async function (config, filePath, event) {
     packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
   }
   for (var outKey in tempBefAft.output) {
-    newOutput[outKey] = config.output[outKey];
+    newOutput[outKey] = tempBefAft.output[outKey]; 
   }
   for (var taskKey in tempBefAft.task) {
     newTask[taskKey] = config.task[taskKey];

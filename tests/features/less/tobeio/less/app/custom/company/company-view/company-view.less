@@ -1,0 +1,96 @@
+@element: company-view;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  & .visible {
+    display: flex !important;
+  }
+  
+  & > * {
+    margin-top: 10px;
+  }
+
+  member-bar,
+  member-grid,
+  plans-bar,
+  plans-grid {
+    display: none;
+  }
+  
+  .info-box .admin-info {
+    display: none;
+  }
+  .info-box .admin-info-field.visible {
+    display: inline-block !important;
+  }
+  // TEMP - Move to theme
+  .info-box .admin-info-field input{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    // max-width: 250px;
+  }
+}
+
+company-info {
+  display: flex;
+  width: 100%;
+}
+
+ // INVITATION DIALOG
+#member-invitation-dialog eon-section[type = footer] {
+  padding: 20px 20px;
+  justify-content: center;
+}
+ #member-invitation-dialog .invitation-info {
+  display: flex;
+  align-items: center;
+  width: 70%;
+  max-width: 550px;
+  align-items: center;
+  justify-content: center;
+}
+#member-invitation-dialog .invitation-info i {
+  width: 70px;
+  height: 70px;
+  cursor: pointer;
+}
+#member-invitation-dialog #invitation-code {
+  flex-grow: 1;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  width: 100%;
+  height: 70px;
+  border: none;
+  outline: none;
+  font-size: 40px;
+}
+
+#plans-add-dialog,
+#plans-edit-dialog {
+  width: 900px;
+  max-width: 900px !important;
+  max-height: 600px !important;
+  height: 100%;
+}
+
+@media (max-width: 600px), (max-height: 600px) {
+  #plans-add-dialog, #plans-edit-dialog{
+    height: ~"calc(100% - 40px)";
+    max-height: none !Important;
+  }
+}
+
+@media (max-width: 500px) {
+  #member-invitation-dialog .invitation-info {
+    width: 100%;
+  }
+}

@@ -1,0 +1,41 @@
+
+@import "variables.less";
+@element: eon-button;
+
+eon-button[theme="@{theme}"],
+div[data-theme="@{theme}"] eon-button,
+body[data-theme="@{theme}"] eon-button {
+  & .@{element}-button {
+    background-position: center;
+    transition: background @animation, box-shadow @animation;
+  }
+  &[design="filled"] .@{element}-button:hover {
+    background: @ripple-filled-bg1-hover radial-gradient(circle, transparent 1%, @ripple-filled-bg1-hover 1%) center/15000%; 
+    box-shadow: @boxshadow-filled-hover;
+  }
+  &[design="filled"] .@{element}-button:active {
+    background-color: @ripple-filled-bg1;
+    background-size: 100%;
+    transition: background 0s; 
+  }
+  & .@{element}-button:hover {
+    background: @ripple-inner-bg1-hover radial-gradient(circle, transparent 1%, @ripple-inner-bg1-hover 1%) center/15000%; 
+  }
+  & .@{element}-button:active {
+    background-color: @ripple-inner-bg1;
+    background-size: 100%;
+    transition: background 0s;
+  }
+  
+  &.delete-button .@{element}-button {
+    border-color: #f3e0e0;
+  }
+  &.delete-button .@{element}-button:active {
+    background-color: #faf4f4;
+  }
+  &.delete-button .@{element}-button:hover {
+    background: #f3e0e0 radial-gradient(circle, transparent 1%, #f3e0e0 1%) center/15000%; 
+  }
+}
+
+

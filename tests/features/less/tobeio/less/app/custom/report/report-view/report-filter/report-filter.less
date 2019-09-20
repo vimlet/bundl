@@ -1,0 +1,173 @@
+@element: report-filter;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+  }
+  .box {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    border-radius: 20px;
+    padding: 0 10px 0 0;
+    background: #eef7f9;
+    min-height: 38px;
+    max-height: 40px;
+    width: auto;
+    overflow: hidden;
+    flex: none;
+  }
+  .box > * {
+    margin-left: 10px;
+  }
+  .box.hide {
+    display: none;
+  }
+  .box > .spacer {
+    border-right: 1px solid #dcdcdc;
+    width: 0;
+    height: 18px;
+    margin-left: 18px;
+    flex: none;
+  }
+  .box > .search {
+    width: 30px;
+    position: relative;
+  }
+  .box > .search > .search-clickable {
+    position: absolute;
+    height: calc(100% + 20px);
+    width: calc(100% + 20px);
+    cursor: pointer;
+  }
+
+  & .visible {
+    display: block !important;
+    top: 30px;
+  }
+}
+
+.@{element}-title {
+  display: flex;
+  padding: 10px 4px 10px;
+  font-size: 18px;
+}
+
+.@{element}-content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.@{element}-content > * {
+  flex-grow: 1;
+}
+
+.@{element}-content > *:not(:first-child) {
+  margin-left: 10px;
+}
+.@{element}-content > eon-combo{
+  flex-grow: 1;
+  max-width: 100px;
+  min-width: 100px;
+}
+
+
+.@{element}-field-date {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-left: 10px;
+  max-width: 200px;
+  position: relative;
+  max-width: 110px;
+  width: 120px;
+}
+
+.@{element}-field-date {
+  margin-left: 10px;
+}
+.@{element}-field-date > span:first-child {
+  margin-right: 10px;
+  width: 100%;
+  text-align: center;
+}
+.@{element}-date {
+  position: relative;
+  width: 300px !important;
+}
+.@{element}-date-clickable {
+  position: absolute;
+  height: calc(100% + 20px);
+  width: calc(100% + 20px);
+  cursor: pointer;
+}
+.@{element}-date-overlay {
+  position: fixed;
+  margin: 0;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  -webkit-transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 0);
+  -moz-transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 0);
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 0);
+}
+.@{element}-date-opaque {
+  opacity: 1;
+}
+.@{element}-date-device {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.@{element}-date-device .@{element}-date {
+  width: 90%;
+  max-width: 90%;
+  min-width: 90%;
+  position: relative;
+}
+@media screen and (orientation: landscape) {
+  .@{element}-date-device .@{element}-date {
+    height: 90%;
+    min-height: 90%;
+    max-height: 90%;
+  }
+}
+
+.@{element}-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  // align-self: flex-end;
+  height: 30px;
+}
+.@{element}-pagination > span {
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.@{element}-pagination-left-clickable,
+.@{element}-pagination-right-clickable {
+  position: absolute;
+  height: calc(100% + 20px);
+  width: calc(100% + 20px);
+  cursor: pointer;
+}
+
+
+@media (max-width: 500px) {
+  @{element} {
+    flex-direction: column;
+  }
+  .@{element}-pagination {
+    margin-top: 10px;
+  }
+}

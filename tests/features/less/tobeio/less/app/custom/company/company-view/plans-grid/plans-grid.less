@@ -1,0 +1,59 @@
+@element: plans-grid;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+    
+  }
+}
+
+
+.@{element}-titles {
+  display: flex;
+  font-size: 18px;
+  overflow: hidden;
+}
+.@{element}-titles > eon-variable,
+.@{element}-titles > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  min-width: 115px;
+  height: 50px;
+  background: #e2e2e2;
+  font-weight: 400;
+}
+.@{element}-titles > .grid-empty {
+  width: 360px;
+  max-width: 360px;
+}
+.@{element}-titles > .@{element}-edit {
+  width: 100px;
+  flex: none;
+}
+.@{element}-entries {
+  overflow: hidden;
+}
+
+.@{element}-entries > plans-entry {
+  height: 50px;
+}
+
+.@{element}-entries > plans-entry:not(:last-child){
+  // TEMP - Move to theme
+  // border-bottom: 1px solid #e5e5e5;
+}
+
+// @media (max-width: 1024px) {
+//   .@{element}-titles {
+//     display: none;
+//   }
+// }
+@media (max-width: 500px) {
+  @{element} {
+    width: 100%;
+  }
+}
+  

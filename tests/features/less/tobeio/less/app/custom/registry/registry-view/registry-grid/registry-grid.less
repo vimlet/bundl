@@ -1,0 +1,86 @@
+@element: registry-grid;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.@{element}-titles {
+  display: flex;
+  font-size: 18px;
+  overflow: hidden;
+}
+.@{element}-titles > .@{element}-spacer {
+  display: flex;
+  flex-grow: 1;
+  max-width: 100px;
+  min-width: 24px;
+}
+.@{element}-titles > eon-variable {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  min-width: 50px;
+  height: 50px;
+  background: #e2e2e2;
+  font-weight: 400;
+}
+.@{element}-titles > .grid-empty {
+  max-width: 50px;
+}
+
+.@{element}-titles > .@{element}-edit {
+  display: none;
+  width: 100px;
+  flex: none;
+}
+.@{element}-entries {
+  overflow: hidden;
+  position: relative;
+}
+.@{element}-entries::before {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: calc(100% - 10px);
+  top: 10px;
+  left: 6px;
+  bottom: 0;
+  display: block;
+  background-color: #e5e5e5;
+  z-index: 0;
+}
+
+.@{element}-entries > registry-grid-entry {
+  height: auto;
+}
+
+.@{element}-entries > .registry-block {
+  display: flex;
+}
+
+.@{element}-entries registry-entry:not(:nth-child(2)),
+.@{element}-entries registry-card:not(:nth-child(2)){
+  // TEMP - Move to theme
+  border-top: 0 solid #e5e5e5;
+}
+
+.grid-row {
+  margin-left: 10px;
+}
+
+@media (max-width: 1024px) {
+  .@{element}-titles {
+    display: none;
+  }
+  // .@{element}-titles > eon-variable {
+  //   height: 30px;
+  //   font-size: 16px;
+  // }
+  // .@{element}-titles > .@{element}-spacer {
+  //   max-width: 24px;
+  // }
+}

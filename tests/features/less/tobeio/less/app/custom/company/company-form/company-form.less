@@ -1,0 +1,55 @@
+@element: company-form;
+
+@{element} {
+  & #company-delete {
+    display: none;
+  }
+  & #company-delete.visible {
+    display: block !important;
+  }
+
+  .permissions-grouptitle {
+    padding: 0 0 15px 0;
+    font-size: 18px;
+    text-decoration: underline;
+  }
+  .permissions-column {
+    display: flex;
+    flex-direction: column;
+  }
+  .permission-checks {
+    margin-bottom: 6px;
+  }
+
+}
+
+.form-plan {
+    width: 20%;
+}
+
+.form-expire {
+    display: flex;
+}
+
+.form-slider {
+    width: 40%;
+}
+
+.form-expire eon-combo {
+    width: auto !important;
+    min-width: 100px;
+}
+.form-expire eon-combo:first-child {
+    margin-right: 10px;
+}
+
+
+@media (max-width: 800px) { 
+    .form-plan {
+        width: 100%;
+    }   
+
+    .form-slider {
+        width: auto;
+    }
+}

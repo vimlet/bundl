@@ -1,0 +1,60 @@
+@element: member-grid;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+
+.@{element}-titles {
+  display: flex;
+  font-size: 18px;
+  overflow: hidden;
+}
+.@{element}-titles > eon-variable,
+.@{element}-titles > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  min-width: 115px;
+  height: 50px;
+  background: #e2e2e2;
+  font-weight: 400;
+}
+.@{element}-titles > .@{element}-icon {
+  min-width: 80px;
+  max-width: 80px;
+  flex: none;
+}
+.@{element}-entries {
+  overflow: hidden;
+}
+
+.@{element}-entries > member-entry {
+  height: 50px;
+  padding: 5px 0;
+}
+
+.@{element}-entries > member-card:first-child {
+  // TEMP - Move to theme
+  border-top: 1px solid #e5e5e5;
+}
+
+.member-title-avatar {
+  max-width: 62px !important;
+  min-width: 62px !important;
+}
+.member-avatar {
+  max-width: 36px;
+  min-width: 36px;
+  align-self: center;
+}
+
+@media (max-width: 1024px) {
+  .@{element}-titles {
+    display: none;
+  }
+}

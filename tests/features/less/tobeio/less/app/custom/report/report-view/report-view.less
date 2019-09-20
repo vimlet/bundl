@@ -1,0 +1,63 @@
+@element: report-view;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+  }
+  & > * {
+    margin-top: 10px;
+  }
+  report-filter[search="false"] {
+    margin-bottom: 10px;
+  }
+  report-filter[search="false"] > .report-filter-content {
+    margin-top: 0;
+  }
+
+}
+
+#export-dialog {
+  width: 400px;
+  max-width: 400px !important;
+}
+
+#export-dialog .eon-dialog-content{
+  padding: 20px 20px 0 20px !important;
+  text-align: center;
+  font-size: 20px;
+}
+
+#export-dialog .eon-dialog-footer eon-button:first-child {
+  margin-right: 20px;
+}
+
+#export-dialog .export-icon {
+ color: #a1a9a8;
+ transition: .2s cubic-bezier(0.4, 0, 0.2, 0);
+ cursor: pointer;
+}
+#export-dialog .export-icon:first-child {
+  margin-right: 30px;
+}
+#export-dialog .export-icon:hover {
+  color: #38c6bb;
+  background-color: transparent;
+}
+
+#export-dialog .export-icon i {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 50px;
+}
+
+.@{element}-title {
+  font-size: 20px;
+  font-weight: bold;
+  border-bottom: 1px solid #88dbd4;
+  padding: 12px 0 12px 4px;
+  display: flex;
+}

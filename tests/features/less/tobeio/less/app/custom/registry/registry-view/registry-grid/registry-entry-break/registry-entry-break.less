@@ -1,0 +1,70 @@
+@element: registry-entry-break;
+
+@{element} {
+  & {
+    display: flex;
+  }
+
+  .edit.visible {
+    display: flex !important;
+  }
+
+  .registry-empty {
+    max-width: 0;
+    min-width: 0 !important;
+  }
+
+  .break-label {
+    font-size: 14px;
+    color: #38c6bb;
+    font-weight: bold;
+    max-width: 100px;
+    margin-right: 16px;
+  }
+  .break-label > i {
+    display: none;
+  }
+
+  .registry-entry {
+    display: flex;
+    position: relative;
+    border-top: 0px solid #e5e5e5;
+  }
+
+  .grid-action {
+    cursor: pointer;
+    // color: #38c6bb;
+    background-color: #eef7f9;
+    // text-decoration: underline;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+  }
+
+  .hide {
+    visibility: hidden;
+  }
+
+
+  .edit {
+    display: none !important;
+  }
+
+  @media (max-width: 600px) {
+    .registry-label {
+      max-width: 24px;
+      min-width: 24px !important;
+    }
+    .break-label {
+      margin-right: 0;
+    }
+    .break-label > span {
+      display: none;
+    }
+    .break-label > i {
+      display: flex;
+      font-size: 24px;
+    }
+  }
+}

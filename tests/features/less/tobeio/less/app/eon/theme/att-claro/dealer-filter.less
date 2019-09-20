@@ -1,0 +1,26 @@
+@import "variables.less";
+@element: dealer-filter;
+
+@{element}[theme="@{theme}"],
+div[data-theme="@{theme}"] @{element},
+body[data-theme="@{theme}"] @{element} {
+
+  // Fields
+  .@{element}-field-date > i{
+    transition: color .2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+  .@{element}-field-date:hover > i{
+    color: @fg1-hover;
+  }
+  .search,
+  .@{element}-pagination-left,
+  .@{element}-pagination-right {
+    transition: color .2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+  .search:hover,
+  .@{element}-pagination-left:hover,
+  .@{element}-pagination-right:hover {
+    color: @fg1-hover;
+  }
+  
+}

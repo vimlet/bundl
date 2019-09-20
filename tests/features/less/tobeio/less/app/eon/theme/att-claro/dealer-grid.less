@@ -1,0 +1,12 @@
+@import "variables.less";
+@element: dealer-grid;
+
+@{element}[theme="@{theme}"],
+div[data-theme="@{theme}"] @{element},
+body[data-theme="@{theme}"] @{element} {
+  .@{element}-titles > eon-variable {
+    background-color: @eonFrontColor;
+    color: @fg1-tobe;
+  }
+  
+}

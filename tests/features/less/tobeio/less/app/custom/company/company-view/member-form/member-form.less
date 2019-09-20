@@ -1,0 +1,35 @@
+@element: member-form;
+
+@{element} {
+
+  & .delete-button {
+    display: none;
+  }
+  & .delete-button.visible {
+    display: block !important;
+  }
+  
+  & .eon-number-data {
+    display: none !important;
+  }
+
+  & eon-number[name="breakHours"] {
+    max-width: 130px;
+  }
+
+  & .member-checks {
+    margin-bottom: 6px;
+  }
+
+  .member-create-workweek {
+    display: flex;
+    align-items: center;
+    color: #38c6bb;
+    text-decoration: underline;
+    height: 38px;
+    max-width: 160px;
+    cursor: pointer;
+  }
+
+
+}

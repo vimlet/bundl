@@ -1,0 +1,12 @@
+@import "variables.less";
+@element: registry-grid;
+
+registry-grid[theme="@{theme}"],
+div[data-theme="@{theme}"] registry-grid,
+body[data-theme="@{theme}"] registry-grid {
+  .@{element}-titles > div {
+    background-color: @eonFrontColor;
+    color: @fg1-tobe;
+  }
+  
+}

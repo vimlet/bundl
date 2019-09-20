@@ -1,0 +1,39 @@
+@element: company-bar;
+
+@{element} {
+  & {
+    display: flex;
+  }
+  & .visible {
+    display: flex !important;
+  }
+
+  .admin-info {
+    display: none;
+  }
+}
+
+.@{element}-combo {
+  margin-right: 5px;
+  width: 150px !important;
+}
+.@{element}-combo .eon-combo-main {
+  color: #ffffff !important;
+}
+
+.@{element}-combo input::-webkit-input-placeholder {
+  color: #ffffff !important;
+  opacity: 1;
+}
+
+.@{element}-create {
+  margin-right: 15px;
+}
+.@{element}-leave {
+  margin-left: 15px;
+  display: none !important;
+}
+.@{element}-leave.visible {
+  display: flex !important;
+}
+

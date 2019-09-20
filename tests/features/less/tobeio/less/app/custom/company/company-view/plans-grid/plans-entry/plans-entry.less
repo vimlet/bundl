@@ -1,0 +1,29 @@
+@element: plans-entry;
+
+@{element} {
+  & {
+    display: flex;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+    border-top: 0px solid #e5e5e5;
+  }
+  &  > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    min-width: 115px;
+    min-height: 30px;
+  }
+  & > .@{element}-edit {
+    width: 100px;
+    flex: none;
+    cursor: pointer;
+    // TEMP - Move to theme
+    color: #4285f4;
+  }
+  .@{element}-empty {
+    width: 360px;
+    max-width: 360px;
+  }
+}

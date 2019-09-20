@@ -1,0 +1,140 @@
+@element: dealer-filter;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+  }
+
+  & .member-spacer {
+    display: none !important;
+  }
+
+  & .member-spacer.visible {
+    display: flex !important;
+  }
+  .box {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    border-radius: 20px;
+    padding: 0 10px 0 0;
+    background: #eef7f9;
+    min-height: 38px;
+    max-height: 40px;
+    width: auto;
+    overflow: hidden;
+    flex: none;
+  }
+  .box > * {
+    margin-left: 10px;
+  }
+  .box > .spacer {
+    border-right: 1px solid #dcdcdc;
+    width: 0;
+    height: 18px;
+    flex: none;
+  }
+  .box > .search {
+    width: 30px;
+    position: relative;
+  }
+  .box > .search > .search-clickable {
+    position: absolute;
+    height: calc(100% + 20px);
+    width: calc(100% + 20px);
+    cursor: pointer;
+  }
+}
+
+.@{element}-title {
+  display: flex;
+  padding: 10px 4px 10px;
+  font-size: 18px;
+}
+
+.@{element}-content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.@{element}-content > * {
+  flex-grow: 1;
+}
+.@{element}-content > *:not(:first-child) {
+  margin-left: 10px;
+}
+
+.@{element}-members {
+  flex-grow: 1;
+  max-width: 150px;
+  min-width: 150px;
+  margin-left: 0 !important;
+  margin-right: 10px;
+}
+.@{element}-members.visible {
+  display: flex !important;
+}
+
+.@{element}-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.@{element}-pagination > span {
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;    
+  position: relative;
+}
+
+.@{element}-pagination-left-clickable,
+.@{element}-pagination-right-clickable {
+  position: absolute;
+  height: calc(100% + 20px);
+  width: calc(100% + 20px);
+  cursor: pointer;
+}
+
+.@{element}-range-date {
+  max-width: 200px;
+}
+
+// TEMP - Move to theme
+.eon-date-overlay .eon-date-calendar {
+  width: 300px !important;
+}
+
+.nav-disabled {
+  color: #c7cccb;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .@{element}-pagination {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 500px) {
+  @{element} .box {
+    flex: inherit;
+    max-height: 100%;
+    width: 100%;
+    padding: 0;
+    justify-content: center;
+  }
+  @{element} .box > span {
+    width: 30px;
+    cursor: pointer;
+    width: 100%;
+    height: 40px;
+  }
+
+  .@{element}-members {
+    margin-left: 22px !important;
+  }
+}
+
+

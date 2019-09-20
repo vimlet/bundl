@@ -1,0 +1,39 @@
+@import "variables.less";
+@element: eon-loading;
+
+eon-loading[theme="@{theme}"],
+div[data-theme="@{theme}"] eon-loading,
+body[data-theme="@{theme}"] eon-loading {
+
+  & {
+    background-color: white;
+    z-index: 995;
+  }
+  &.expanded {
+    background-color: white !important;
+  }
+  & .eon-fg1{
+    color: white;
+  }
+  & .eon-bg1{
+    background-color: white;
+  }
+  & .eon-loading-rotator {
+    color: #38c6bb !important;
+  }
+  & .eon-loading-loading {
+    background-color: white;
+    opacity: 1;
+    visibility: visible;
+  }
+  &.eon-loading-active {
+    display: flex;
+    width: 100%;
+    left: 0;
+    top: 0;
+  }
+  &.eon-loading-active:not(.plan-day-mask) {
+    height: calc(100vh - 80px);
+    margin-top: 80px;
+  }
+}

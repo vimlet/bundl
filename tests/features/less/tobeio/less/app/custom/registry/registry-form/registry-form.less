@@ -1,0 +1,67 @@
+@element: registry-form;
+
+@{element} {
+  & {
+    color: inherit;
+    height: 100%;
+  }
+  & .breaks-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    // Breaks mobile layout
+    // max-height: 420px;
+  }
+  .@{element}-ranges {
+    overflow: hidden;
+  }
+  
+  & .bar-button {
+    max-width: 200px;
+  }
+  eon-form {
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  .eon-date-description {
+    display: none;
+  }
+  .form-time-combo .eon-combo-description {
+    display: none;
+  }
+  .form-grow {
+    flex-grow: 1;
+    margin-bottom: 15px;
+  }
+
+  .form-margins {
+    margin: 10px 0 15px 0;
+  }
+
+  .form-group {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .registry-autofill {
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    // visibility: hidden;
+  }
+  eon-toggle {
+    padding: 5px;
+  }
+  @media (max-width: 800px) {
+    .breaks-content .form-rows > * {
+      flex-basis: auto;
+      margin-bottom: 0 !important;
+    }
+    .form-margins {
+      margin: 10px 0 0 0;
+    }
+  }
+}

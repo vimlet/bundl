@@ -1,0 +1,24 @@
+@element: report-entry;
+
+@{element} {
+  & {
+    display: flex;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+    border-top: 0 solid #e5e5e5;
+  }
+  &  > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-basis: 0;
+    flex-grow: 1;
+    min-width: 115px;
+    min-height: 30px;
+  }
+
+  &  > .report-entry-alias {
+    justify-content: start !important;
+  }
+
+}

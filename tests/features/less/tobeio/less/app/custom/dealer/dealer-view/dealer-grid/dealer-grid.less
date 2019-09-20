@@ -1,0 +1,64 @@
+@element: dealer-grid;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.@{element}-titles {
+  display: flex;
+  font-size: 18px;
+  overflow: hidden;
+}
+.@{element}-titles > eon-variable {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  min-width: 50px;
+  height: 50px;
+  background: #e2e2e2;
+  font-weight: 400;
+}
+.@{element}-titles > .@{element}-edit {
+  width: 100px;
+  flex: none; 
+}
+.@{element}-entries {
+  overflow: hidden;
+}
+
+.@{element}-entries > @{element}-entry {
+  height: 50px;
+  padding: 5px 0;
+}
+
+.@{element}-entries > app-@{element}-entry:not(:last-child){
+  // TEMP - Move to theme
+  // border-bottom: 1px solid #e5e5e5;
+}
+
+.@{element}-action {
+  width: 150px;
+  max-width: 150px;
+  display: flex;
+}
+
+.@{element}-action > div{
+  height: 100%;
+  flex-grow: 1;
+  cursor: pointer;
+  color: #38c6bb;
+  font-size: 25px;
+  min-height: 50px;
+  min-width: 50px;
+}
+
+@media (max-width: 1024px) {
+  .@{element}-titles {
+    display: none;
+  }
+
+}

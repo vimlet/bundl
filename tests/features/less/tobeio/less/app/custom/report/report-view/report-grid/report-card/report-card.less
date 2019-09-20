@@ -1,0 +1,81 @@
+@element: report-card;
+
+@{element} {
+  & {
+    position: relative;
+    align-items: center;
+    display: flex;
+    padding-left: 10px;
+    box-sizing: border-box;
+    // background: #eef7f9;
+    // box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+  }
+
+  .grid-action {
+    width: 50px;
+  }
+}
+
+.@{element}-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  flex-basis: 0;
+  padding: 15px 0;
+}
+
+.@{element}-item > eon-variable {
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.@{element}-item > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.@{element}-user {
+  margin-left: 10px;
+  max-width: 100px;
+  word-break: break-word;
+}
+
+.@{element}-item-main{
+  display: flex;
+  align-items: center;
+  flex: none;
+  padding-left: 10px;
+  flex-basis: 0;
+}
+.@{element}-item > .@{element}-item-blured {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+  color: #9e9e9e;
+}
+
+.@{element}-spacer {
+  height: 72px;
+  margin: auto 0 auto 0;
+  display: flex;
+  width: 3px;
+  // TEMP - move to theme
+  background-color: #eaeaea;
+}
+
+@media (max-width: 500px) {
+  @{element} {
+    font-size: 14px;
+  }
+  .@{element}-edit {
+    width: 22px;
+    font-size: 18px !important;
+  }
+  .@{element}-item-main {
+    padding-left: 0;
+  }
+}

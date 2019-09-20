@@ -1,0 +1,13 @@
+@import "variables.less";
+@element: registry-grid;
+
+registry-grid[theme="@{theme}"],
+div[data-theme="@{theme}"] @{element},
+body[data-theme="@{theme}"] @{element} {
+  .@{element}-titles > div,
+  .@{element}-titles > eon-variable {
+    background-color: @eonFrontColor;
+    color: @fg1-tobe;
+  }
+  
+}

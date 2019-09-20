@@ -1,0 +1,61 @@
+@element: registry-card-break;
+
+@{element} {
+  & {
+    display: flex;
+  }
+
+  .edit.visible {
+    display: flex !important;
+  }
+
+  .break-label {
+    font-size: 14px;
+    color: #38c6bb;
+    font-weight: bold;
+    max-width: 100px;
+    margin-right: 16px;
+  }
+  .break-label > i {
+    display: none;
+  }
+
+  .registry-entry {
+    display: flex;
+    position: relative;
+  }
+
+  .grid-action  {
+    min-width: 10px !important;
+  }
+
+  .grid-action.spacer-cell {
+    max-width: 31px;
+  }
+
+  .edit {
+    display: none !important;
+  }
+
+  @media (max-width: 600px) {
+    .registry-label {
+      max-width: 24px;
+      min-width: 24px !important;
+    }
+    .break-label {
+      margin-right: 0;
+    }
+    .break-label > span {
+      display: none;
+    }
+    .break-label > i {
+      display: flex;
+      font-size: 24px;
+    }
+  }
+  // @media (max-width: 500px) {
+  //   .grid-action.spacer-cell {
+  //     max-width: 31px;
+  //   }
+  // }
+}

@@ -1,0 +1,70 @@
+@element: app-foldable;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [type="header"] {
+    display: flex;
+    height: 50px;
+    padding: 5px 0;
+    overflow: hidden;
+  }
+
+  [type="header"] > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    // min-width: 115px;
+    min-height: 30px;
+  }
+
+  .@{element}-expand {
+    flex: none;
+    min-width: 50px !important;
+    max-width: 50px;
+    width: 50px;
+    position: relative;
+  }
+
+  .@{element}-expand > span{
+    position: absolute;
+    height: calc(100% + 10px);
+    width: calc(100% + 10px);
+    cursor: pointer;
+  }
+
+  .@{element}-disabled {
+    color: #c7cccb;
+    pointer-events: none;
+  }
+  .@{element}-disabled > span {
+    cursor: default;
+  }
+
+  [type="content"] {
+    display: flex;
+    height: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .@{element}-expand {
+      min-width: 32px !important;
+      max-width: 32px;
+    }
+  }
+
+  @media (max-width: 500px) {
+    [type="header"] > div {
+      font-size: 14px;
+    }
+    .@{element}-expand {
+      font-size: 18px !important;
+    }
+  }
+
+  
+}

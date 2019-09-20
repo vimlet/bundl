@@ -1,0 +1,110 @@
+@element: registry-view;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+  }
+  & > * {
+    margin-top: 10px;
+  }
+  // & > *:not(registry-view-filter) {
+    
+  //   border: 1px solid #e5e5e5;
+  //   background: white;
+  //   border-radius: 1px;
+  // }
+  eon-placeholder {
+    display: none;
+  }
+
+  registry-filter[search="false"] {
+    margin-bottom: 10px;
+  }
+  registry-filter[search="false"] > .registry-filter-content {
+    margin-top: 0;
+  }
+}
+.@{element}-title {
+  font-size: 20px;
+  font-weight: bold;
+  border-bottom: 1px solid #88dbd4;
+  padding: 12px 0 12px 4px;
+  display: flex;
+}
+
+.@{element}-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.@{element}-start, .@{element}-end {
+  display: flex;
+  width: 100%;
+}
+
+
+& eon-combo[name="member"] {
+  display: none;
+}
+// TODO
+& eon-combo[name="member"].enable {
+  display: block;
+}
+
+.@{element}-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.@{element}-actions > * {
+  margin-left: 15px;
+}
+
+#registry-edit-dialog,
+#registry-create-dialog {
+  width: 900px;
+  max-width: 900px !important;
+  max-height: 630px !important;
+  height: 100%;
+}
+#entry-location-dialog {
+  width: 600px;
+  max-width: 600px !important;
+  max-height: 464px !important;
+  height: 100%;
+}
+#entry-location-dialog .location-map{
+  height: 300px;
+}
+#show-notes-dialog {
+  width: 600px;
+  max-width: 600px !important;
+  max-height: 360px !important;
+  height: 100%;
+}
+#edit-notes-dialog .note-text{
+  width: 100%;
+}
+
+#registry-edit-dialog .eon-dialog-content,
+#registry-create-dialog .eon-dialog-content {
+  // padding-top: 25px;
+}
+
+@media (max-width: 700px) { 
+  .registry-view-col {
+    flex-direction: column;
+  }
+  .@{element}-col .@{element}-field:first-child {
+    margin-right: 0;
+  }
+  .@{element}-field {
+    // flex-grow: 1;
+    // flex-basis: auto;
+    // min-width: initial;
+    // width: 100%;
+    // max-width: initial;
+  }
+}

@@ -1,0 +1,12 @@
+@import "variables.less";
+@element: report-grid;
+
+report-grid[theme="@{theme}"],
+div[data-theme="@{theme}"] report-grid,
+body[data-theme="@{theme}"] report-grid {
+  .@{element}-titles > div {
+    background-color: @eonFrontColor;
+    color: @fg1-tobe;
+  }
+  
+}

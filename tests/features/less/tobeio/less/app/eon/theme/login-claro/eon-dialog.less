@@ -1,0 +1,16 @@
+@import "variables.less";
+@element: eon-dialog;
+
+@{element}[theme="@{theme}"] {
+  color: #2d2d2d !important;
+}
+
+@{element}[theme="@{theme}"],
+div[data-theme="@{theme}"] @{element},
+body[data-theme="@{theme}"] @{element} {
+  .@{element}-heading {
+    background-color: @eonFrontColor;
+    color: #38c6bb !important;
+    padding: 15px;
+  }
+}

@@ -1,0 +1,91 @@
+@element: plans-form;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  eon-form {
+    height: 100%;
+  }
+
+  .form-group {
+    height: 100%;
+  }
+
+  & .delete-button {
+    display: none;
+  }
+  & .delete-button.visible {
+    display: block !important;
+  }
+
+  .swipeButtons {
+    margin-bottom: 20px !important;
+  }
+
+  .check-group {
+    display: flex;
+    flex-wrap: wrap
+  }
+  .@{element}-toggle {
+    padding: 5px 3px;
+  }
+  .@{element}-check {
+    flex-grow: 1;
+    min-width: 250px;
+    max-width: 250px;
+    padding: 5px 0 !important;
+    margin-right: 10px;
+  }
+
+  .plan-manage-row {
+    justify-content: flex-end;
+  }
+
+  .add-plan {
+    margin-left: 10px;
+    max-width: 72px;
+  }
+  // TODO - theme
+  .add-plan .eon-button-button {
+    color: white;
+  }
+
+  .plans-combo {
+    display: block;
+    max-width: 170px;
+    height: 36px;
+    width: 100%;
+    background-color: #38c6bb;
+    border-radius: 20px;
+    padding: 2px 10px;
+    color: white;
+  }
+  // TODO - theme
+  .plans-combo .eon-combo-main {
+    height: 100% !important;
+    color: white;
+  }
+  .plans-combo .eon-fg2 {
+    color: white;
+    font-size: 18px;
+  }
+
+  .plans-scroll .eon-scroll-content {
+    max-height: 100%;
+  }
+
+  .plans-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .day-range {
+    display: flex;
+    flex-direction: column;
+  }
+
+}
