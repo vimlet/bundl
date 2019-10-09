@@ -8,56 +8,27 @@ const exists = promisify(fs.exists);
 const path = require("path");
 
 module.exports = {
-  inputBase: "tests/resources/taskOrder",
-  outputBase: "tests/resources/taskOrder",
+  inputBase: "tests/resources/taskComplete",
+  outputBase: "tests/resources/taskComplete",
   output: {
-
-    // --- Output String ---
-    "output/taskOrder1.txt": "input/**.txt",
-
-    // // ---  Output Object ---
-    "output/taskOrder2.txt": {
-      input: "input/**.txt",
-      use: async function (entry) {        
-        await waitTest(1);
-        return entry;
-      },
-      order: 2
-    },
-    "output/taskOrder3.txt": {
+    "output/join1.txt": {
+      id:"1",
       input: {
         "input/**.txt": true
       }
-    },
-    "output/taskOrder4.txt": {
-      input: [
-        "input/a.txt",
-        "input/b.txt",
-        {
-          "input/c.txt": true
-        }
-      ]
-    },
-
-    // // --- Output Array ---
-    "output/taskOrder5.txt": [
-      "input/a.txt",
-      "input/b.txt",
-      "input/c.txt"
-    ]
+    }
   },
-  "tasks": {
-    "taskOrder1": {
+  tasks: {
+    "task1": {
       use: async function () {
-        await mkDirRecursive("tests/resources/taskOrder/output");
-        await writeFile("tests/resources/taskOrder/output/task1.txt", "abc");             
-        await waitTest(6);
+        await waitTest(10);
+        await mkDirRecursive("tests/resources/taskComplete/output");
+        await writeFile("tests/resources/taskComplete/output/task1.txt", "abc");
       },
-      order: 1
+      after: "1"
     }
   }
 }
-
 
 function waitTest(amount) {
   return new Promise((resolve, reject) => {

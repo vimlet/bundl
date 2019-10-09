@@ -46,7 +46,7 @@ module.exports = {
 
 
     },
-    task: {
+    tasks: {
         task1: {
             after: "watch2",
             use: async function (prev, bundl) {

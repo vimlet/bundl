@@ -24,6 +24,9 @@ module.exports.process = function (config) {
 function processBefore(sorted) {    
     for (key in sorted.list.before) {
         sorted.list.before[key].forEach(beforeItem => {
+            if(!sorted.data[beforeItem]){
+                throw new Error("Looking for an id that doesn't exists. Id: " + beforeItem);
+            }
             sorted.data[beforeItem]._waitFor = sorted.data[beforeItem]._waitFor || [];
             sorted.data[beforeItem]._waitFor.push(key);
         });
@@ -39,9 +42,9 @@ function processAfter(sorted) {
 
 // @function sortTask (private) [Sort tasks] @param config @param sorted [Result object]
 function sortTask(config, sorted) {    
-    if ("task" in config) {
-        Object.keys(config.task).forEach(element => {            
-            sortTaskObject(config, config.task[element], element, sorted);
+    if ("tasks" in config) {
+        Object.keys(config.tasks).forEach(element => {            
+            sortTaskObject(config, config.tasks[element], element, sorted);
         });
     }
 }
@@ -102,7 +105,10 @@ function sortOutputObject(config, obj, element, sorted) {
             var doAfter = obj.after.split(" ");
             sorted.list.after[obj.id] = doAfter;
         } else {
-            sorted.list.unsorted.push(obj.id);
+            var currentOrder = 0;
+            sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
+            sorted.list.sorted[currentOrder].push(obj.id);
+            // sorted.list.unsorted.push(obj.id);
         }
     }
     sorted.data[obj.id] = {

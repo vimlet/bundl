@@ -19,7 +19,7 @@ module.exports = {
       }
     }
   },
-  task: {
+  tasks: {
     "taskLaunch1": {
       use: async function () {
         await mkDirRecursive("tests/resources/taskLaunch/output");

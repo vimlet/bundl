@@ -41,7 +41,7 @@ module.exports = {
       }
     }
   },
-  task: {
+  tasks: {
     task1: {
       after: "parseCopy",
       use: async function (prev, bundl) {

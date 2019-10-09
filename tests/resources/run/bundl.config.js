@@ -8,7 +8,7 @@ const path = require("path");
 module.exports = {
     inputBase:"tests/resources/run",
     outputBase:"tests/resources/run",
-    "task": {
+    "tasks": {
       "run1":{
         use: async function(){
           await mkDirRecursive("tests/resources/run/output");

@@ -382,7 +382,7 @@ is the same as:
 
 [Copy]<>
 
-If any output key ends with **, it will be interpreted as `copy` task, and all the input files will be copied to that output path.
+If any output key ends with **, it will be interpreted as `copy` command, and all the input files will be copied to that output path.
 
 *Example:*
 ```[javascript]
@@ -472,7 +472,7 @@ module.exports = {
 The example above will build all vimlet meta template files **.vmt** but the watcher will look for any file ***.*** meaning that for example if a vimlet meta imported file **.vmi** is changed within the watched directory its output will be triggered.
 
 [Order]<>
-An `order` property can be added to both output and input objects, to determine the order of how files will be processed. In this way we can force a synchronous behavior with other ordered entries. Non-ordered keys will be processed in asynchronous way.
+An `order` property can be added to output object, to determine the order of how files will be processed. In this way we can force a synchronous behavior with other ordered entries. Non-ordered keys will be processed as order 0.
 Order value is a positive integer and it is non exclusive which means that more than one entry may have the same order. Entries with same order index will run asynchronously while keeping their global order.
 
 *Example:*
@@ -575,7 +575,7 @@ For example you can launch tests after a build or run a server, anything you wan
 
 ```javascript
 module.exports = {
-  task:{
+  tasks:{
     task1:{
       use: async function(){
         // Do something
@@ -600,7 +600,7 @@ module.exports = {
 
 ```javascript
 module.exports = {
-  task:{
+  tasks:{
     task1:{
       use: async function(){
         // Do something
@@ -645,7 +645,7 @@ module.exports = {
       input: "src/**.js"
     }
   },
-  task:{
+  tasks:{
     task1:{
       use: async function(){
         // Do something

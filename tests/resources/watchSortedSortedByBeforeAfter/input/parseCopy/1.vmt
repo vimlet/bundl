@@ -1,1 +1,1 @@
-Test2
+I'm 1 <% template('2.vmi');%>

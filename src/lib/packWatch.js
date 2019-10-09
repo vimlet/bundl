@@ -26,7 +26,7 @@ function beforeAfterByAfter(config, tempBefAft, key) {
 // @function addBeforeAfterByAfter (private) [Add items with after to temporal before after config] @param config @param tempBefAft @param currentAfter
 function addBeforeAfterByAfter(config, tempBefAft, currentAfter) {
   currentAfter.forEach(cA => {
-    if (config.task && config.task[cA]) {
+    if (config.tasks && config.tasks[cA]) {
       addToItsPlace(config, tempBefAft, cA);
     } else if (config.output) {
       for (var outKey in config.output) {
@@ -59,7 +59,7 @@ function beforeAfterByBefore(config, tempBefAft, key) {
 // @function addBeforeAfterByBefore (private) [Add items with before to temporal before after config] @param config @param tempBefAft @param currentBefore
 function addBeforeAfterByBefore(config, tempBefAft, currentBefore) {
   currentBefore.forEach(cB => {
-    if (config.task && config.task[cB]) {
+    if (config.tasks && config.tasks[cB]) {
       addToItsPlace(config, tempBefAft, cB);
     } else if (config.output) {
       for (var outKey in config.output) {
@@ -135,18 +135,18 @@ function addBeforeAfterByIdOutput(config, tempBefAft, currentId) {
       }
     }
   }
-  if (config.task) {
-    for (var taskKey in config.task) {
-      if ("before" in config.task[taskKey]) {
-        var currentBefore = config.task[taskKey].before.split(" ");
+  if (config.tasks) {
+    for (var taskKey in config.tasks) {
+      if ("before" in config.tasks[taskKey]) {
+        var currentBefore = config.tasks[taskKey].before.split(" ");
         currentBefore.forEach(cB => {
           if (cB === currentId) {
             addToItsPlace(config, tempBefAft, taskKey);
           }
         });
       }
-      if ("after" in config.task[taskKey]) {
-        var currentAfter = config.task[taskKey].after.split(" ");
+      if ("after" in config.tasks[taskKey]) {
+        var currentAfter = config.tasks[taskKey].after.split(" ");
         currentAfter.forEach(cA => {
           if (cA === currentId) {
             addToItsPlace(config, tempBefAft, taskKey);
@@ -160,7 +160,7 @@ function addBeforeAfterByIdOutput(config, tempBefAft, currentId) {
 
 // @function beforeAfterById (private) [Check if given id is linked to any before or after at task] @param config @param tempBefAft @param key
 function beforeAfterByIdTask(config, tempBefAft, key) {
-  if (config.task && config.task[key]) {
+  if (config.tasks && config.tasks[key]) {
     for (var outKey in config.output) {
       if ("before" in config.output[outKey]) {
         var currentBefore = config.output[outKey].before.split(" ");
@@ -189,7 +189,7 @@ function addToItsPlace(config, tempBefAft, key) {
       tempBefAft.output[key] = config.output[key];
       module.exports.addBeforeAfterToMatch(config, tempBefAft, key);
     }
-  } else if (config.task && config.task[key]) {
+  } else if (config.tasks && config.tasks[key]) {
     if (!tempBefAft.task[key]) {
       tempBefAft.task[key] = true;
       module.exports.addBeforeAfterToMatch(config, tempBefAft, key);
@@ -237,10 +237,10 @@ function addToItsPlace(config, tempBefAft, key) {
 //       }
 //     }
 //   }
-//   if (config.task) {
-//     for (var taskKey in config.task) {
-//       if ("order" in config.task[taskKey]) {
-//         newTask[taskKey] = config.task[taskKey];
+//   if (config.tasks) {
+//     for (var taskKey in config.tasks) {
+//       if ("order" in config.tasks[taskKey]) {
+//         newTask[taskKey] = config.tasks[taskKey];
 //       }
 //     }
 //   }
@@ -279,10 +279,10 @@ function addOrderedToMatch(config, newOutput, newTask) {
       }
     }
   }
-  if (config.task) {
-    for (var taskKey in config.task) {
-      if ("order" in config.task[taskKey]) {
-        newTask[taskKey] = config.task[taskKey];
+  if (config.tasks) {
+    for (var taskKey in config.tasks) {
+      if ("order" in config.tasks[taskKey]) {
+        newTask[taskKey] = config.tasks[taskKey];
       }
     }
   }
