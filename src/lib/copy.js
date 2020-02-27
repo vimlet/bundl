@@ -79,11 +79,14 @@ function processOutputNameReplace(outputObject, outputPath) {
   return outputPath;
 }
 
-// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param cwdFilePath @param outputParse
-async function processInputMeta(file, inputsObject, cwdFilePath, outputParse) {
+// @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param cwdFilePath @param outputParse @param meta
+async function processInputMeta(file, inputsObject, cwdFilePath, outputParse, meta) {
   if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) ||outputParse) {
     content = await parse(file.content.toString(), {
-      basePath: path.dirname(cwdFilePath).replace(/\\/g, "/")
+      basePath: path.dirname(cwdFilePath).replace(/\\/g, "/"),
+      data: {
+        meta: meta
+      }
     });
     return content;
   } else {
@@ -91,8 +94,8 @@ async function processInputMeta(file, inputsObject, cwdFilePath, outputParse) {
   }
 }
 
-// @function process (public) [Process given output copy entry] @param config @param outputEntry
-module.exports.process = async (config, outputEntry) => {  
+// @function process (public) [Process given output copy entry] @param config @param outputEntry @param meta
+module.exports.process = async (config, outputEntry, meta) => {  
   let copyPromises = [];  
   let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");
   let inputsObject = outputEntry.input;
@@ -102,7 +105,7 @@ module.exports.process = async (config, outputEntry) => {
   await Promise.all(files.map(async file => {
     var cwdFilePath = file.file;
     file = await processInputUse(inputsObject, file);         
-    file.content = await processInputMeta(file, inputsObject, cwdFilePath, outputEntry.parse);    
+    file.content = await processInputMeta(file, inputsObject, cwdFilePath, outputEntry.parse, meta);    
     let subPath;    
     if (path.basename(file.pattern) == file.pattern) {
       subPath = file.path.substring(0);

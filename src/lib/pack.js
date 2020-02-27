@@ -170,7 +170,7 @@ async function process(config, sorted, key) {
             await task.process(config, obj);
             break;
           case "copy":
-            currentPromise = copy.process(config, obj);
+            currentPromise = copy.process(config, obj, sorted.meta);
             break;
           case "transform":
             currentPromise = transform.process(config, obj, sorted.meta);
