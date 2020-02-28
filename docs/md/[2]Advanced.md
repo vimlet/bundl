@@ -52,7 +52,7 @@ Note that ["**", "!**test**"] won't work because they are treated as different i
 |**inputBase**|Files will be looking for from this directory.|
 |**log**|If set to false, hides verbose output.|
 |**watch**|Path to a directory to keep looking for changes.|
-|**clean**|If set to true, outputBase will be empty before start packing.|
+|**clean**|If set to true, outputBase will be empty before start packing. It can also be a directory or an array of directories so they will be cleaned|
 |**output**|The output object, contains the output paths as keys with input patterns or objects as values.|
 |**task**|The task object, contains the task name as keys with configuration object as values.|
 

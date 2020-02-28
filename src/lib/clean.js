@@ -1,4 +1,6 @@
-const { promisify } = require("util");
+const {
+  promisify
+} = require("util");
 const fs = require("fs");
 const exists = promisify(fs.exists);
 const fsRemove = promisify(fs.unlink);
@@ -8,9 +10,23 @@ const glob = require("@vimlet/commons-glob");
 const util = require("./util");
 
 module.exports = async (config, options) => {
-  if (config.clean && config.outputBase) {
+  if (config.clean && typeof config.clean == "boolean") {
+    if (config.clean && config.outputBase) {
+      if (!config._isWatch) {
+        rimraf.sync(path.resolve(config.outputBase));
+      } else {
+        await cleanWatch(config, options);
+      }
+    }
+  } else if (config.clean) {    
+    if (!Array.isArray(config.clean)) {
+      config.clean = [config.clean];
+    }
     if (!config._isWatch) {
-      rimraf.sync(path.resolve(config.outputBase));
+      config.clean.forEach(element => {
+        var currentFolder = config.outputBase ? path.join(config.outputBase, element) : path.resolve(element);
+        rimraf.sync(currentFolder);
+      });
     } else {
       await cleanWatch(config, options);
     }
@@ -51,7 +67,7 @@ async function cleanWatch(config, options) {
           } else {
             let outputPath = path.join(config.outputBase, outMatch).replace(/\\/g, "/");
             outputPath = escapeRegExp(outputPath);
-            outputPath = outputPath.replace("\\{\\{hash\\}\\}", "[0-9a-zA-F]{" + config.hashLength + "}");            
+            outputPath = outputPath.replace("\\{\\{hash\\}\\}", "[0-9a-zA-F]{" + config.hashLength + "}");
             let outputFiles = await glob.files(path.join(config.outputBase, "**").replace(/\\/g, "/"));
             var erasable = [];
             outputFiles.forEach(oF => {
