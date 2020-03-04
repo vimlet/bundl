@@ -101,7 +101,7 @@ output: {
 
 |Property|Description|
 |--------|-----------|
-|**parse**|Enable [Meta](https://github.com/vimlet/vimlet-meta) template syntax parsing.|
+|**parse**|Enable [Meta](https://github.com/vimlet/vimlet-meta) template syntax parsing. Note that meta runs on each single file individually even when enabling parse at output object, it only means that meta will run for every file.|
 |**order**|Specify an order and make it works synchronously with other ordered entries. Non-ordered keys will be processed at the end in asynchronous way.|
 |**id**|Identification for hashes and other parse functions.|
 |**use**|`function(entry){return entry;}` Use custom code to modify the output.|
@@ -186,11 +186,59 @@ input: [
 ]
 ```
 
+[Meta]<>
+
+[@vimlet/meta](https://github.com/vimlet/vimlet-meta) is a tool that generate files parsing templates. [@vimlet/meta](https://github.com/vimlet/vimlet-meta) is builtin **@vimlet/bundl**.
+
+You can have your files parsed by enabling parse attribute.
+It can be done either at the *output object* such as any of the *inputs*.
+If it is enabled at *output object* all files will be parsed but still they will be parsed individually.
+
+Templates can be just parsed if you set *parse* to true
+
+*Example:*
+```[javascript]
+"index.html": {
+  parse: true,
+  input: {
+    "html/index.html": true
+  }
+}
+```
+*Or:*
+```[javascript]
+"index.html": {
+  input: {
+    "html/index.html": {
+    parse: true
+    }
+  }
+}
+```
+
+You can also set data for [@vimlet/meta](https://github.com/vimlet/vimlet-meta) by setting parse to an object with the data like so:
+```[javascript]
+"index.html": {
+  input: {
+    "html/index.html": {
+    parse: {name:"John Doe"}
+    }
+  }
+}
+```
+In the case above meta will be enabled and it will be initialized with `data.name = "John Doe"`.
+
+If you need more information regarding meta please visit [https://github.com/vimlet/vimlet-meta](https://github.com/vimlet/vimlet-meta).
+
+
+
 [Hashing]<>
 
 You can interpolate a shortened file hash as part of the output path key with `{{hash}}`, this will be inserted as a part of the key. 
-This is useful for tracking changes or busting caches, since the hash will change when any input file for a given output is modified
-When `"parse": true`, it's recommend to add an `id` property, so you can retrieve the name using `<%= hash(id); %>`
+
+This is useful for tracking changes or busting caches, since the hash will change when any input file for a given output is modified.
+
+When `"parse": true`, it's recommend to add an `id` property, so you can retrieve the name using `<% hash(id); %>`
 
 *Example:*
 ```[javascript]
@@ -201,6 +249,13 @@ output: {
   }
 }
 ```
+
+If you want to get your hash printed you can call to the *echo* function: `<% echo(hash(id)); %>` or the shortcut `<%= hash(id); %>`
+*Example:*
+```[javascript]
+readFile("bundle." + <%= hash(id); %> + ".js");
+```
+The above example would read a file named `"bundle.<hash_code_here>.js"`
 
 [Use]<>
 
