@@ -6,18 +6,18 @@ const parse = promisify(meta.parse);
 
 meta.sandbox = {
   "hash": function (id) {          
-    if (this.data.meta && this.data.meta[id] && this.data.meta[id].hash) {
-      this.echo(this.data.meta[id].hash);
+    if (this.data.__meta && this.data.__meta[id] && this.data.__meta[id].hash) {
+      return this.data.__meta[id].hash;
     }
   },
   "file": function (id) {
-    if (this.data.meta && this.data.meta[id] && this.data.meta[id].file) {
-      this.echo(this.data.meta[id].file);
+    if (this.data.__meta && this.data.__meta[id] && this.data.__meta[id].file) {
+      this.echo(this.data.__meta[id].file);
     }
   },
   "filename": function (id) {
-    if (this.data.meta && this.data.meta[id] && this.data.meta[id].filename) {
-      this.echo(this.data.meta[id].filename);
+    if (this.data.__meta && this.data.__meta[id] && this.data.__meta[id].filename) {
+      this.echo(this.data.__meta[id].filename);
     }
   }
 };

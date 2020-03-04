@@ -14,7 +14,7 @@ module.exports.build = async config => {
   if (!("log" in config) || config.log) {
     console.log("Build started...");
   }
-  config = configurator.setupOutput(config);
+  config = configurator.setupOutput(config);  
   await clean(config);
   await pack(config);
 };
@@ -41,7 +41,7 @@ module.exports.runTask = async (config, tasks) => {
 // @function pack (private) [After clean, sort and start packing]
 async function pack(config) {
   return new Promise(async (resolve, reject) => {
-    let sorted = sorter.process(config);
+    let sorted = sorter.process(config);    
     await Promise.all([buildSorted(config, sorted), build(config, sorted, sorted.list.unsorted), buildAfter(config, sorted)]);
     console.log("Build completed at: " + util.getTime());
     resolve();
@@ -172,7 +172,7 @@ async function process(config, sorted, key) {
           case "copy":
             currentPromise = copy.process(config, obj, sorted.meta);
             break;
-          case "transform":
+          case "transform":            
             currentPromise = transform.process(config, obj, sorted.meta);
             break;
         }

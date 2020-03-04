@@ -12,8 +12,8 @@ module.exports = {
         },
         "output/3/meta.txt": {
             input: {
-                "input/**.vmt": {
-                }
+                "input/**.vmt": {},
+                "!input/metadata/**.vmt":{}
             },
             parse: true
         },
@@ -27,7 +27,8 @@ module.exports = {
         "output/5/**?parse=true": {
             input: {
                 "input/**.vmt": {
-                }
+                },
+                "!input/metadata/**.vmt":{}
             },
             use:async function(entry){
                 entry.path = entry.path.replace(".vmt",".txt");
@@ -48,6 +49,24 @@ module.exports = {
                 }
             },
             order: 2
+        },
+        "output/8/meta.txt": {
+            input: {
+                "input/metadata/**.vmt": {
+                }
+            },
+            parse: {name:"data"}
+        },
+        "output/9/**": {
+            input: {
+                "input/metadata/**.vmt": {
+                }
+            },
+            use:async function(entry){
+                entry.path = entry.path.replace(".vmt",".txt");
+                return entry;
+            },
+            parse: {name:"data"}
         }
     }
 }

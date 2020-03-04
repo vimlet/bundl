@@ -8,13 +8,13 @@ async function processInputUse(inputsObject, file) {
   file.path = file.match;
   if (inputsObject[file.pattern] instanceof Object && inputsObject[file.pattern].use) {
     if (Array.isArray(inputsObject[file.pattern].use)) {
-      for(const func of inputsObject[file.pattern].use){
+      for (const func of inputsObject[file.pattern].use) {
         file = await func({
           match: file.match,
           pattern: file.pattern,
           path: file.path,
           content: file.content
-        },bundl);       
+        }, bundl);
       }
     } else {
       file = await inputsObject[file.pattern].use({
@@ -22,9 +22,9 @@ async function processInputUse(inputsObject, file) {
         pattern: file.pattern,
         path: file.path,
         content: file.content
-      },bundl);
+      }, bundl);
     }
-  }else{
+  } else {
     file.path = file.match;
   }
   delete file.file;
@@ -47,28 +47,28 @@ function processInputNameReplace(inputsObject, file, outputPath) {
 async function processOutputUse(outputObject, outputPath, content) {
   var result = {
     path: outputPath,
-    content:content
+    content: content
   };
   if (outputObject.use) {
-    if (Array.isArray(outputObject.use)) {      
+    if (Array.isArray(outputObject.use)) {
       for (var i = 0; i < outputObject.use.length; i++) {
         result = await outputObject.use[i]({
           path: result.path,
           content: result.content
-        },bundl);
+        }, bundl);
       }
     } else {
       result = await outputObject.use({
         path: outputPath,
         content: content
-      },bundl);
+      }, bundl);
     }
   }
   return result;
 }
 
 // @function processOutputNameReplace (private) [Apply fileNameReplace to output] @param outputObject @param outputPath
-function processOutputNameReplace(outputObject, outputPath) {  
+function processOutputNameReplace(outputObject, outputPath) {
   if (outputObject.fileNameReplace) {
     try {
       outputPath = outputPath.replace(outputObject.fileNameReplace[0], outputObject.fileNameReplace[1]);
@@ -81,12 +81,16 @@ function processOutputNameReplace(outputObject, outputPath) {
 
 // @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param cwdFilePath @param outputParse @param meta
 async function processInputMeta(file, inputsObject, cwdFilePath, outputParse, meta) {
-  if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) ||outputParse) {
+  if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) || outputParse) {
+    var data = {__meta: meta};    
+    if(outputParse && typeof outputParse  === "object"){
+      for(var key in outputParse){
+        data[key] = outputParse[key];
+      }
+    }
     content = await parse(file.content.toString(), {
       basePath: path.dirname(cwdFilePath).replace(/\\/g, "/"),
-      data: {
-        meta: meta
-      }
+      data: data
     });
     return content;
   } else {
@@ -95,8 +99,8 @@ async function processInputMeta(file, inputsObject, cwdFilePath, outputParse, me
 }
 
 // @function process (public) [Process given output copy entry] @param config @param outputEntry @param meta
-module.exports.process = async (config, outputEntry, meta) => {  
-  let copyPromises = [];  
+module.exports.process = async (config, outputEntry, meta) => {
+  let copyPromises = [];
   let outputBase = path.join(config.outputBase, outputEntry.outPath.replace("**", "")).replace(/\\/g, "/");
   let inputsObject = outputEntry.input;
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {
@@ -104,9 +108,9 @@ module.exports.process = async (config, outputEntry, meta) => {
   }), inputsObject);
   await Promise.all(files.map(async file => {
     var cwdFilePath = file.file;
-    file = await processInputUse(inputsObject, file);         
-    file.content = await processInputMeta(file, inputsObject, cwdFilePath, outputEntry.parse, meta);    
-    let subPath;    
+    file = await processInputUse(inputsObject, file);
+    file.content = await processInputMeta(file, inputsObject, cwdFilePath, outputEntry.parse, meta);
+    let subPath;
     if (path.basename(file.pattern) == file.pattern) {
       subPath = file.path.substring(0);
     } else {
@@ -116,7 +120,7 @@ module.exports.process = async (config, outputEntry, meta) => {
     outputPath = processInputNameReplace(inputsObject, file, outputPath);
     copyPromises.push(await new Promise(async (resolve, reject) => {
       let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
-      var usedData = await processOutputUse(outputEntry, outputPath, file.content);            
+      var usedData = await processOutputUse(outputEntry, outputPath, file.content);
       usedData.path = processOutputNameReplace(outputEntry, usedData.path);
       let result = {
         parse: outputEntry.parse,

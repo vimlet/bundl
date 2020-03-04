@@ -27,18 +27,22 @@ async function processInputUse(inputsObject, files) {
 // @function processInputJoin (private) [Join given files content for output] @param files @param inputsObject @param meta @param outputParse
 async function processInputJoin(files, inputsObject, meta, outputParse) {
   return await files.reduce(async (total, current, index, array) => {    
-    current.content = await processInputMeta(current, inputsObject, meta, parse);
+    current.content = await processInputMeta(current, inputsObject, meta, outputParse);
     return await total + current.content + (index < (array.length - 1) ? "\n" : "");
   }, "");
 }
 
 // @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param meta @param outputParse
 async function processInputMeta(file, inputsObject, meta, outputParse) {  
-  if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) || outputParse) {    
+  if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) || outputParse) {
+    var data = {__meta: meta};
+    if(outputParse && typeof outputParse  === "object"){
+      for(var key in outputParse){
+        data[key] = outputParse[key];
+      }
+    }
     content = await parse(file.content.toString(), {
-      data: {
-        meta: meta
-      },
+      data: data,
       basePath: path.dirname(file.path).replace(/\\/g, "/")
     });
     return content;

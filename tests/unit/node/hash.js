@@ -20,11 +20,20 @@ suite("bundl-hash", () => {
         await bundl.build(require(path.join(resources, "hash/bundl.config.js")));
     });
 
-    test("hash", async () => {
+    test("pack", async () => {
         var name = "1";
         var files = await readdir(path.join(resources, `hash/output/${name}`));        
         var result = (await readFile(path.join(resources,`hash/output/${name}`, files[0]))).toString();
         assert.strictEqual(result, "a\nb\nc\nd", `Hash output mismatch - ${name}`);
+    });
+    test("hash name", async () => {
+        var name = "2";
+        var files = await readdir(path.join(resources, `hash/output/${name}`));        
+        var result = (await readFile(path.join(resources,`hash/output/${name}`, files[0]))).toString();
+        
+        var filesExpected = await readdir(path.join(resources, `hash/output/1`));        
+        var expected = filesExpected[0].split(".")[1];
+        assert.strictEqual(result, expected, `Hash output mismatch - ${name}`);
     });
     
 });

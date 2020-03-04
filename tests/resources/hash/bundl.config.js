@@ -4,12 +4,13 @@ module.exports = {
     output: {
         "output/1/build.{{hash}}.txt?": {
           id: "build",
-          input: "input/**.txt",
+          input: "input/files/**.txt",
           order:1
         },
         "output/2/hash.txt": {
-            input: "input/**.txt",
-            order:2
+            input: "input/hash/**.txt",
+            order:2,
+            parse:true
         },
     }
 }

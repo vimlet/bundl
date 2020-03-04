@@ -70,6 +70,18 @@ suite("bundl-parse", () => {
         var exists = result.indexOf(files[0]) > -1;
         assert.isOk(exists, "Parse filename is not importing src correctly");
     });
+    
+    test("data transform", async () => {
+        var name = "8/meta.txt";
+        var result = (await readFile(path.join(resources, `parse/output/${name}`))).toString();
+        assert.strictEqual(result, "Hi I'm another template with data", `meta output mismatch - ${name}`);
+    });
+
+    test("data copy", async () => {
+        var name = "9/meta.txt";
+        var result = (await readFile(path.join(resources, `parse/output/${name}`))).toString();
+        assert.strictEqual(result, "Hi I'm another template with data", `meta output mismatch - ${name}`);
+    });
 
 
 });
