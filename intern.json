@@ -1,6 +1,6 @@
 {
   "node": {
-    "suites": ["tests/unit/node/**.js"]
+    "suites": ["tests/unit/node/parse.js"]
   },
   
   "configs": {

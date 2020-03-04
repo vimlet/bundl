@@ -88,6 +88,11 @@ async function processInputMeta(file, inputsObject, cwdFilePath, outputParse, me
         data[key] = outputParse[key];
       }
     }
+    if(inputsObject[file.pattern].parse && typeof inputsObject[file.pattern].parse  === "object"){
+      for(var key in inputsObject[file.pattern].parse){
+        data[key] = inputsObject[file.pattern].parse[key];
+      }
+    }
     content = await parse(file.content.toString(), {
       basePath: path.dirname(cwdFilePath).replace(/\\/g, "/"),
       data: data

@@ -40,6 +40,11 @@ async function processInputMeta(file, inputsObject, meta, outputParse) {
       for(var key in outputParse){
         data[key] = outputParse[key];
       }
+    }    
+    if(inputsObject[file.pattern].parse && typeof inputsObject[file.pattern].parse  === "object"){
+      for(var key in inputsObject[file.pattern].parse){
+        data[key] = inputsObject[file.pattern].parse[key];
+      }
     }
     content = await parse(file.content.toString(), {
       data: data,

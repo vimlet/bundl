@@ -67,6 +67,30 @@ module.exports = {
                 return entry;
             },
             parse: {name:"data"}
+        },
+        "output/10/meta.txt": {
+            input: {
+                "input/meta.vmt": {
+                    parse: true}
+            }
+        },
+        "output/11/meta.txt": {
+            input: {
+                "input/metadata/**.vmt": {
+                    parse: {name:"data"}
+                }
+            }
+        },
+        "output/12/**": {
+            input: {
+                "input/metadata/**.vmt": {
+                    parse: {name:"data"}
+                }
+            },
+            use:async function(entry){
+                entry.path = entry.path.replace(".vmt",".txt");
+                return entry;
+            }
         }
     }
 }

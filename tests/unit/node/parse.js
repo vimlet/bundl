@@ -81,7 +81,24 @@ suite("bundl-parse", () => {
         var name = "9/meta.txt";
         var result = (await readFile(path.join(resources, `parse/output/${name}`))).toString();
         assert.strictEqual(result, "Hi I'm another template with data", `meta output mismatch - ${name}`);
+    });    
+
+    test("parse input", async () => {
+        var name = "10/meta.txt";
+        var result = (await readFile(path.join(resources, `parse/output/${name}`))).toString();
+        assert.strictEqual(result, "Hi I'm another template.", `meta output mismatch - ${name}`);
+    });
+    
+    test("parse data output transform", async () => {
+        var name = "11/meta.txt";
+        var result = (await readFile(path.join(resources, `parse/output/${name}`))).toString();
+        assert.strictEqual(result, "Hi I'm another template with data", `meta output mismatch - ${name}`);
     });
 
+    test("parse data output copy", async () => {
+        var name = "12/meta.txt";
+        var result = (await readFile(path.join(resources, `parse/output/${name}`))).toString();
+        assert.strictEqual(result, "Hi I'm another template with data", `meta output mismatch - ${name}`);
+    });
 
 });
