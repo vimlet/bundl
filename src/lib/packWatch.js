@@ -198,54 +198,6 @@ function addToItsPlace(config, tempBefAft, key) {
 }
 
 
-// // @function addOrderedToMatch (public) [Add items with order to match] @param config @param newOutput @param newTask
-// module.exports.addOrderedToMatch = function (config, newOutput, newTask) {
-//   var tempOutput = [];
-//   for (var key in newOutput) {
-//     if (Array.isArray(newOutput[key])) {
-//       newOutput[key].forEach(nO=>{
-//         if ("order" in nO) {
-//           addOrderedToMatch(config, tempOutput, newTask);
-//         }
-//       });
-//     } else {
-//       if ("order" in newOutput[key]) {
-//         addOrderedToMatch(config, tempOutput, newTask);
-//       }
-//     }
-
-//   }
-//   tempOutput.forEach(tOut => {
-//     newOutput[tOut] = config.output[tOut];
-//   });
-// }
-
-// // @function addOrderedToMatch (private) [Add ordered to match if key has order] @param config @param tempOutput @param newTask
-// function addOrderedToMatch(config, tempOutput, newTask) {
-//   for (var outKey in config.output) {    
-//     if (Array.isArray(config.output[outKey])) {
-//       config.output[outKey].forEach(cO=>{
-//         if ("order" in cO) {
-//           if(tempOutput.indexOf(outKey) < 0){
-//             tempOutput.push(outKey);
-//           }
-//         }
-//       });
-//     }else{
-//       if ("order" in config.output[outKey]) {
-//         tempOutput.push(outKey);
-//       }
-//     }
-//   }
-//   if (config.tasks) {
-//     for (var taskKey in config.tasks) {
-//       if ("order" in config.tasks[taskKey]) {
-//         newTask[taskKey] = config.tasks[taskKey];
-//       }
-//     }
-//   }
-// }
-
 // @function addOrderedToMatch (public) [Add items with order to match] @param config @param newOutput @param newTask
 module.exports.addOrderedToMatch = function (config, newOutput, newTask) {
   for (var key in newOutput) {
@@ -291,14 +243,15 @@ function addOrderedToMatch(config, newOutput, newTask) {
 
 // @function matchSingleConfig (public) [Check whether an input match with modified file] @param inputs @param matches @param filePath @param outputKey
 module.exports.matchSingleConfig = function (inputs, matches, filePath, outputKey) {
-  for (var inputKey in inputs) {
+  for (var inputKey in inputs) {    
     if (typeof inputs[inputKey] === "object" &&
       !Array.isArray(inputs[inputKey]) && "watch" in inputs[inputKey]) {
       if (glob.match(filePath, inputs[inputKey].watch).length > 0) {
-        matches.push(outputKey);
+        matches[outputKey] = inputKey;
       }
     } else if (glob.match(filePath, inputKey).length > 0) {
-      matches.push(outputKey);
+      matches[outputKey] = matches[outputKey] || [];
+      matches[outputKey].push(inputKey);
     }
   }
 }

@@ -12,7 +12,7 @@ const packWatch = require("./packWatch");
 // @function build (public) [Launch build process]
 module.exports.build = async config => {
   if (!("log" in config) || config.log) {
-    console.log("Build started...");
+    console.log("Build started at: " + util.getTime());
   }
   config = configurator.setupOutput(config);  
   await clean(config);
@@ -220,7 +220,7 @@ module.exports.buildSingle = async function (config, filePath, event) {
     config = configurator.setupOutput(config);
     config._isWatch = true;
     filePath = path.relative(config.inputBase, filePath).replace(/\\/g, "/");
-    var matches = [];
+    var matches = {};
     for (var outputKey in config.output) {
       if (!Array.isArray(config.output[outputKey])) {
         var inputs = config.output[outputKey].input;
@@ -240,23 +240,35 @@ module.exports.buildSingle = async function (config, filePath, event) {
     } else {
       // If not unlink, check if it is a hash because modifications should delete old hashes
       var hashes = [];
-      matches.forEach(mat => {
+      for (var mat in matches) {
         if (mat.indexOf("{{hash}}") >= 0) {
           hashes.push(mat);
         }
-      });
+      }
       await clean(config, {
         filePath: filePath,
         matches: hashes
       });
     }
     var newOutput = {};
-    matches.forEach(match => {
+    for (var match in matches) {
       if (config.output[match]) {
-        newOutput[match] = config.output[match];
+        if (!Array.isArray(config.output[match])) {
+          newOutput[match] = config.output[match];
+        } else {
+          newOutput[match] = [];
+          config.output[match].forEach(function (cOut) {
+            for (var inputkey in cOut.input) {
+              matches[match].forEach(matchInput => {
+                if (matchInput == inputkey) {
+                  newOutput[match].push(cOut);
+                }
+              });
+            }
+          });
+        }
       }
-    });
-
+    }
     var newTask = {};
     packWatch.addOrderedToMatch(config, newOutput, newTask);
     // Add before after items
