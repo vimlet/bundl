@@ -34,7 +34,7 @@
     "@vimlet/commons-watcher": "0.0.2",
     "@vimlet/commons-run": "0.0.12",
     "@vimlet/cli": "1.2.8",
-    "@vimlet/meta": "2.4.5",
+    "@vimlet/meta": "2.4.6",
     "md5": "2.2.1",
     "rimraf": "2.6.3",
     "lodash": "4.17.15",
