@@ -1,0 +1,50 @@
+<script>
+  eon.importBuild("sections/user-build<% data.release ? echo('.' + hash('user-build')) : '' %>.js");
+
+  eon.import([
+    "custom/user/user-view"
+  ]);  
+</script>
+
+<!-- MASK -->
+<div class="user-mask view-mask section">
+  <div class="mask-title-row">
+    <div class="mask-title eon-mask-background1"></div>
+  </div>
+
+  <div class="mask-text mask-text-large eon-mask-background1"></div>
+
+  <div class="mask-form">
+    <div class="mask-row settings-mask-row">
+      <div class="mask-field">
+        <div class="mask-text eon-mask-background1"></div>
+        <div class="mask-field-text eon-mask-background1"></div>
+      </div>
+      <div class="mask-field">
+        <div class="mask-text eon-mask-background1"></div>
+        <div class="mask-field-text eon-mask-background1"></div>
+      </div>
+    </div>
+
+    <div class="mask-field mask-margin-top">
+      <div class="mask-text eon-mask-background1"></div>
+      <div class="mask-field-text eon-mask-background1"></div>
+    </div>
+  </div>
+
+  <div class="mask-text mask-text-large mask-margin-top eon-mask-background1"></div>
+
+  <div class="mask-row settings-mask-row mask-margin-top">
+    <div class="mask-button-rect mask-margin-top eon-mask-background1"></div>
+    <div class="mask-field-text mask-margin-top eon-mask-background1"></div>
+  </div>
+
+  <div class="mask-text mask-margin-top eon-mask-background1"></div>
+
+  <div class="mask-row settings-mask-row workspace-mask-actions-row mask-margin-top">
+    <div class="mask-button-rect eon-mask-background1"></div>
+    <div class="mask-button-rect eon-mask-background1"></div>
+  </div>
+</div>
+
+<user-view class="section" autohide-mask="false"></user-view>

@@ -1,0 +1,333 @@
+<template>
+
+  <div class="registry-filter-content">
+    <div class="box" eon-ref="search">
+      <eon-date eon-ref="date" class="registry-filter-range-date" picker-width="300" inline="false" mask="DDMMYYYY">
+      </eon-date>
+
+      <div class="spacer"></div>
+
+      <eon-combo class="registry-filter-members lineless-combo hide-description hide-description"
+        bind:placeholder="global locale.registry.members" eon-ref="members" dropdown-min-width="220" content-class="registry-filter-members-dropd"></eon-combo>
+
+      <div class="spacer member-spacer" eon-ref="memberSpacer"></div>
+
+      <span class="search vicon vicon-search">
+        <span class="search-clickable" eon-ref="searchClick"></span>
+      </span>
+    </div>
+
+    <div class="registry-filter-spacer"></div>
+
+    <div class="registry-filter-pagination" eon-ref="pagination">
+      <span class="registry-filter-pagination-left vicon vicon-chevron-left" eon-ref="backward">
+        <span class="registry-filter-pagination-left-clickable" eon-ref="backwardClick"></span>
+      </span>
+
+      <span class="registry-filter-pagination-from" eon-ref="from"></span>
+      <span>-</span>
+      <span class="registry-filter-pagination-to" eon-ref="to"></span>
+      <span>/</span>
+      <span class="registry-filter-pagination-total" eon-ref="total"></span>
+
+      <span class="registry-filter-pagination-right vicon vicon-chevron-right" eon-ref="forward">
+        <span class="registry-filter-pagination-right-clickable" eon-ref="forwardClick"></span>
+      </span>
+    </div>
+  </div>
+
+</template>
+
+<script>
+  eon.element("registry-filter", {
+
+    style: "registry-filter.css",
+    themed: true,
+
+    dependencies: [
+      "@ui/eon-combo",
+      "@ui/eon-date"
+    ],
+
+    properties: {
+      search: {
+        value: true
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function refresh
+      refresh: function () {
+        this._refresh();
+      },
+      // @function setValues
+      setValues: function (data) {
+        this.setPaging(data);
+      },
+      // @function setMembers
+      setMembers: function (data) {
+        var el = this;
+
+        this._misc.members = {};
+        // Use convention as fallback
+        var item;
+        // TODO - Allow combo to append multiple items at once
+        var fragment = document.createDocumentFragment();
+        // Clear items
+        el._refs.members.clearItems();
+        // Add and 'all' item to filter for all workspace members
+        item = document.createElement("eon-item");
+        item.value = "all";
+        item.displayValue = eon.locale.all;
+
+        this._refs.members.addItem(item);
+        this._misc.members["all"] = item;
+
+        // Create range combo items
+        for (var key in data) {
+          if (data[key]) {
+            item = document.createElement("eon-item");
+            item.classList.add("member-item");
+            item.value = key;
+            
+            item.displayValue = !data[key].alias ? data[key] : data[key].alias;
+            item.setAttribute("title", item.displayValue);
+
+            if (data[key].owner) {
+              // Owner
+              item.innerHTML += "<span class='owner-span'> (owner)</span>";
+            }
+
+            this._refs.members.addItem(item);
+            this._misc.members[key] = item;
+          }
+        }
+
+        // ** TEMP
+        el._refs.members.select(el._misc.members["all"]);
+        eon.triggerCallback("onMembersReady", el, el);
+      },
+      // @function setPaging
+      setPaging: function (data) {
+        this._refs.from.innerHTML = data.from + 1;
+        this._refs.to.innerHTML = data.to;
+        this._refs.total.innerHTML = data.total;
+
+        
+        // Disabled navigation button
+        if (data.to == data.total) {
+          this._refs.forward.classList.add("nav-disabled");
+        } else {
+          this._refs.forward.classList.remove("nav-disabled");
+        }
+        
+        if (data.from <= 1) {
+          this._refs.backward.classList.add("nav-disabled");
+        } else {
+          this._refs.backward.classList.remove("nav-disabled");
+        }
+        
+        if (!data.total) {
+          this._refs.from.innerHTML = 0;
+          this._refs.to.innerHTML = 0;
+          this._refs.forward.classList.add("nav-disabled");
+          this._refs.backward.classList.add("nav-disabled");
+        }
+      },
+      // @function setDate
+      setDate: function (date) {
+        if (date) {
+          this._refs.date.value = eon.time.getDateWithFormat(moment(date).toDate(), this._refs.date.valueFormat, navigator.language);
+          this._misc.appliedDate = this._refs.date.value.replace(/-/g, "");
+        }
+      },
+      // @function setMember
+      setMember: function (member) {
+        var el = this;
+        if (member) {
+          el.onMembersReady(function () {
+            el._refs.members.select(member);
+          });
+        }
+      }
+    },
+    privateFunctions: {
+      // @function _setupRefs (private)
+      setupRefs: function () {
+        this._refs.registry = this.getEnclosingComponent();
+        this._refs.registryGrid = this._refs.registry._refs.grid;
+      },
+      // @function _refresh (private)
+      refresh: function () {
+        this._setupAdminUI();
+      },
+      // @function _setupAdminUI (private)
+      setupAdminUI: function () {
+        var el = this;
+        if (session.isAdmin()) {
+          // Display edit column
+          el._refs.members.classList.add("visible-flex");
+          el._refs.memberSpacer.classList.add("visible-flex");
+        } else {
+          el._refs.members.classList.remove("visible-flex");
+          el._refs.memberSpacer.classList.remove("visible-flex");
+        }
+      },
+      // @function _setupFilter (private)
+      setupFilter: function () {
+        var el = this;
+        if (eon.util.isTrue(this.search)) {
+          this._filterListener();
+        } else {
+          this._refs.search.classList.add("hide");
+        }
+      },
+      // @function _filterListener (private)
+      filterListener: function () {
+        var el = this;
+        var date = el._refs.date.value;
+        var member = el._refs.members.value;
+
+        // Bar filters
+        this._refs.searchClick.addEventListener("click", el._filter.bind(el, date, member), false);
+        this._refs.date.onValueChanged(el._filter.bind(el, date, member));
+        this._refs.members.onSelected(el._filter.bind(el, date, member));
+      },
+      // @function _filter (private)
+      filter: function (date, member) {
+        var el = this;
+        el._refs.registry.onDataLoaded(function () {
+
+          eon.triggerCallback("onFilter", el, el);
+
+          date = el._refs.date.value.replace(/-/g, "");
+          el._misc.appliedDate = date;
+
+          if (member != el._refs.members.value || date != el._refs.date.value) {
+            el._refs.registry._misc.data.from = 0;
+          }
+
+          member = el._refs.members.value;
+          // Refresh grid
+          el._refs.registryGrid.refresh({
+            date: date,
+            user: el._refs.members.value == "all" ? "" : el._refs.members.value,
+            from: el._refs.registry._misc.data.from,
+            count: 10
+          }, function () {
+            eon.triggerCallback("onFiltered", el, el);
+          });
+
+          // Update url state
+          updatePathParams(window.location.href, {
+            date: date,
+            member: el._refs.members.value == "all" ? "" : el._refs.members.value,
+            start: "",
+            end: ""
+          });
+        });
+      },
+      // @function _setupPagingFilter (private)
+      setupPagingFilter: function () {
+        this._pagingListener();
+      },
+      // @function _pagingListener (private)
+      pagingListener: function () {
+        var el = this;
+        el._misc.appliedDate = el._refs.date.value.replace(/-/g, "");
+        var options, date;
+
+        this._refs.backwardClick.addEventListener("click", function (e) {
+          // Refresh grid if no limit pages have been reached
+          if (!el._hasReachedLimits(el._refs.registry._misc.data)) {
+            eon.triggerCallback("onFilter", el, el);
+
+            var from = el._refs.registry._misc.data.from - el._refs.registry._misc.data.count;
+            from = from < 0 ? 0 : from;
+            date = el._refs.date.value.replace(/-/g, "");
+
+            options = {
+              user: el._refs.members.value == "all" ? "" : el._refs.members.value,
+              from: from,
+              count: 10
+            };
+
+            if (el._misc.appliedDate != date) {
+              el._refs.registry._misc.data.from = 0;
+            }
+
+            options["date"] = el._refs.date.value;
+
+            el._refs.registryGrid.refresh(options, function () {
+              eon.triggerCallback("onFiltered", el, el);
+            });
+          }
+        }, false);
+        this._refs.forwardClick.addEventListener("click", function (e) {
+          // Refresh grid if no limit pages have been reached
+          if (!el._hasReachedLimits(el._refs.registry._misc.data, true)) {
+            eon.triggerCallback("onFilter", el, el);
+            date = el._refs.date.value.replace(/-/g, "");
+
+            options = {
+              user: el._refs.members.value == "all" ? "" : el._refs.members.value,
+              from: el._refs.registry._misc.data.to,
+              count: 10
+            };
+
+            if (el._misc.appliedDate != date) {
+              el._refs.registry._misc.data.from = 0;
+            }
+
+            options["date"] = el._misc.appliedDate;
+
+            el._refs.registryGrid.refresh(options, function () {
+              eon.triggerCallback("onFiltered", el, el);
+            });
+          }
+        }, false);
+      },
+      // @function _hasReachedLimits (private)
+      hasReachedLimits: function (data, forward) {
+        var reached;
+        // Check paging direction
+        if (forward) {
+          reached = data.to >= data.total ? true : false;
+          // reached = false;
+        } else {
+          // Check the lower entry limit
+          reached = data.from - data.count < 0 ? true : false;
+        }
+        return reached;
+      },
+      // @function _updatePathParams (private)
+      updatePathParams: function (url, params) {
+        for (var key in params) {
+          url = setParameterByName(key, params[key], url);
+        }
+        window.history.replaceState({}, null, url);
+      }
+    },
+    onCreated: function () {
+      eon.createCallback("onFilter", this);
+      eon.createCallback("onFiltered", this);
+      eon.createCallback("onMembersReady", this, "ready");
+    },
+    onTransformed: function () {
+      var el = this;
+
+      this._setupRefs();
+      this._setupFilter();
+      this._setupPagingFilter();
+
+    }
+  });
+</script>

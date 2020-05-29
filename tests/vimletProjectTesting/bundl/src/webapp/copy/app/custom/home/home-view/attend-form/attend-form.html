@@ -1,0 +1,254 @@
+<template>
+
+  <eon-form eon-ref="form" class="attend-form" default-style="false">
+
+    <div class="attend-event-datesWrapper">
+
+      <div class="attend-event-entryWrapper" eon-ref="eventFormEntry">
+        <div class="attend-event-entryTop">
+          <eon-variable bind="locale.registry.entry" global="true"></eon-variable>
+          <eon-toggle label-position="left" bind:label="global locale.events.now" eon-ref="now" name="now">
+          </eon-toggle>
+        </div>
+        <div class="attend-event-inputsWrapper">
+          <div class="form-cols">
+            <eon-date eon-ref="startDay" class="form-date" time="true" time-icon="true" mask="DDMMYYYY"
+              value-format="YYYY-MM-DD hh:mm" name="startDay" inline="false">
+            </eon-date>
+
+            <!-- <eon-date disabled="true" mask="DDMMYYYY" eon-ref="startDay" class="form-date" name="startDay"
+              inline="false">
+            </eon-date> -->
+          </div>
+          <!-- <div class="form-cols">
+            <div class="attend-event-startEdit dateTimeWrapper">
+              <eon-combo disabled="true" filter="true" eon-ref="startHour" class="form-time-combo timeCombo hour-combo"
+                name="startHour" placeholder="00" inline="false"></eon-combo>
+              <eon-combo disabled="true" filter="true" eon-ref="startMins" class="form-time-combo timeCombo min-combo"
+                name="startMins" placeholder="00" inline="false"></eon-combo>
+            </div>
+          </div> -->
+        </div>
+      </div>
+
+      <div class="attend-event-exitWrapper" eon-ref="eventFormExit">
+        <div class="attend-event-entryTop">
+          <eon-variable bind="locale.registry.exit" global="true"></eon-variable>
+          <eon-toggle label-position="left" bind:label="global locale.events.manual" eon-ref="manual" name="manual">
+          </eon-toggle>
+        </div>
+        <div class="attend-event-inputsWrapper" eon-ref="exitInputs">
+          <div class="form-cols">
+            <eon-date eon-ref="endDay" class="form-date" time="true" time-icon="true" mask="DDMMYYYY"
+              value-format="YYYY-MM-DD hh:mm" name="endDay" inline="false">
+            </eon-date>
+
+            <!-- <eon-date mask="DDMMYYYY" eon-ref="endDay" class="form-date" name="endDay" inline="false">
+            </eon-date> -->
+          </div>
+          <!-- <div class="form-cols">
+            <div class="attend-event-startEdit dateTimeWrapper">
+              <eon-combo filter="true" eon-ref="endHour" class="form-time-combo timeCombo hour-combo" name="endHour"
+                placeholder="00" inline="false"></eon-combo>
+              <eon-combo filter="true" eon-ref="endMins" class="form-time-combo timeCombo min-combo" name="endMins"
+                placeholder="00" inline="false"></eon-combo>
+            </div>
+          </div> -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Notes -->
+    <eon-text name="notes" eon-ref="notesArea" class="attend-event-notesArea" type="area" area-height="150"
+      bind:placeholder="global locale.events.addNotes"></eon-text>
+
+    <div class="attend-event-buttons">
+      <eon-button class="delete-button" design="delete" bind:label="global locale.home.removeButton" eon-ref="remove">
+      </eon-button>
+      <eon-button bind:label="global locale.home.applyButton" eon-ref="apply"></eon-button>
+    </div>
+  </eon-form>
+
+</template>
+<script>
+  eon.element("attend-form", {
+    parse: true,
+    style: "attend-form.css",
+    dependencies: [
+      "@ui/eon-form",
+      "@ui/eon-combo",
+      "@ui/eon-date",
+      "@ui/eon-toggle",
+    ],
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      },
+      eventKey: {
+        value: ""
+      },
+      submitCallback: {
+        value: function () {
+
+        }
+      }
+    },
+    functions: {
+      validate: function () {
+        var el = this;
+        // Submit edition
+        var formData = el._refs.form.getData();
+        var schema = el._refs.now.checked ? el._misc.nowSchema : el._misc.entrySchema;
+
+        // Validate
+        el._refs.form.validate(schema, null, function (error) {
+          // Trigger submit
+          if(!error) {
+            el._submitCallback(null, el._buildSrcData(formData));
+          } else {
+            // console.log('error', error);
+          }
+        });
+      },
+      onSubmit: function (cb) {
+        this._submitCallback = cb;
+      },
+      clear: function () {
+        var el = this;
+        var now = moment();
+        var fiveFromNow = moment(now.valueOf() + 300000);
+        var date = now.toDate();
+        el._refs.form.clear();
+
+        el._refs.startDay.value = now.format("YYYY-MM-DD HH:mm");
+        el._refs.endDay.value = now.format("YYYY-MM-DD HH:mm");
+        
+        el._refs.notesArea.value = "";
+        el._refs.now.checked = true;
+        el._refs.manual.checked = true;
+        el._misc.eventKey = null;
+      },
+      editEvent: function (event) {
+        var el = this;
+        var startMoment = moment(Number(event.entryUTC));
+        var endMoment = event.exitUTC ? moment(Number(event.exitUTC)) : startMoment;
+        
+        if (event.exitUTC) {
+          endMoment = moment(Number(event.exitUTC));
+          el._refs.manual.checked = false;
+        } else {
+          endMoment = startMoment;
+          el._refs.manual.checked = true;
+        }
+
+        el._refs.now.checked = false;
+
+        el._misc.eventKey = event.entryUTC;
+        el._refs.notesArea.value = event.notes;
+
+        el._refs.startDay.value = startMoment.format("YYYY-MM-DD HH:mm");
+        el._refs.endDay.value = endMoment.format("YYYY-MM-DD HH:mm");
+      }
+    },
+    privateFunctions: {
+      // @function _buildSrcData (private)
+      buildSrcData: function (data) {
+        var el = this;
+        var entry, exit;
+        var eventObj = {};
+
+        if ((data.startDay && data.startDay != "") || el._refs.now.checked) {
+
+          if (el._refs.now.checked) {
+            entry = moment.utc(moment().valueOf()).valueOf();
+          } else {
+            entry = moment.utc(moment(data.startDay, "YYYY-MM-DD HH:mm").valueOf()).valueOf();
+          }
+
+          eventObj.data = {};
+          eventObj.data.entryUTC = entry;
+
+          eventObj.data.exitUTC = "";
+          eventObj.data.notes = data.notes || "";
+
+          if (data.endDay && data.endDay != "") {
+            eventObj.data.exitUTC = moment.utc(moment(data.endDay, "YYYY-MM-DD HH:mm").valueOf()).valueOf();
+          }
+
+          eventObj.data.key = el._misc.eventKey || eventObj.data.entryUTC;
+
+          return eventObj;
+        }
+
+      }
+    },
+    onTransformed: function () {
+
+      var el = this;
+
+      // this._setupDateSelectors();
+
+      this._misc.nowSchema = {
+        properties: {}
+      }
+
+      this._misc.entrySchema = {
+        properties: {
+          "startDay": {
+            required: true
+          }
+        }
+      }
+
+      el._refs.apply.addEventListener("click", function (e) {
+        // Submit edition
+        el.validate();
+      });
+
+      el._refs.now.onCheck(function () {
+        el._refs.startDay.disabled = true;
+        // el._refs.startHour.disabled = true;
+        // el._refs.startMins.disabled = true;
+        el._refs.eventFormEntry.classList.add("attend-hiddenFormInputs");
+      });
+
+      el._refs.now.onUncheck(function () {
+        el._refs.startDay.disabled = false;
+        // el._refs.startHour.disabled = false;
+        // el._refs.startMins.disabled = false;
+        el._refs.eventFormEntry.classList.remove("attend-hiddenFormInputs");
+      });
+
+      el._refs.manual.onCheck(function () {
+        el._refs.endDay.disabled = true;
+        // el._refs.endHour.disabled = true;
+        // el._refs.endMins.disabled = true;
+        el._refs.eventFormExit.classList.add("attend-hiddenFormInputs");
+      });
+
+      el._refs.manual.onUncheck(function () {
+        el._refs.endDay.disabled = false;
+        // el._refs.endHour.disabled = false;
+        // el._refs.endMins.disabled = false;
+        el._refs.eventFormExit.classList.remove("attend-hiddenFormInputs");
+      });
+
+      el._refs.remove.addEventListener("click", function () {
+        el._refs.attendView._refs.removeDialog.open();
+        // Push dialog state
+        pushDialogState(el._refs.attendView._refs.removeDialog);
+      });
+
+    }
+  });
+</script>

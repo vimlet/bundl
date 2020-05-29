@@ -1,0 +1,399 @@
+<template>
+  <eon-swiper eon-ref="swiper" class="form-swiper" transition="500" external-slide="true">
+
+    <!-- FIRST SLIDE: DATE RANGE -->
+    <eon-swiper-slide class="firstSlide">
+      <eon-scroll thickness="10">
+        <eon-form eon-ref="createForm" class="registry-form" default-style="false">
+          <div class="form-group">
+            <eon-variable class="form-grouptitle eon-fg-h2 form-only-title" bind="locale.registry.infoTitle"
+              global="true">
+            </eon-variable>
+
+            <div class="form-rows form-marginbottom">
+              <eon-toggle bind:label="global locale.registry.createBatch" eon-ref="batch" label-anim="false"
+                inline="false"></eon-toggle>
+              <eon-toggle bind:label="global locale.registry.overwrite" eon-ref="overwrite" name="overwrite"
+                label-anim="false" inline="false"></eon-toggle>
+              <eon-toggle bind:label="global locale.registry.remote" eon-ref="notifyEditions"
+                class="registry-view-field" name="type" label-anim="false" inline="false">
+              </eon-toggle>
+
+            </div>
+            <div class="form-rows">
+              <div class="form-cols form-marginright from-date">
+                <eon-variable class="form-label eon-fg0" bind="locale.registry.startDate" eon-ref="startdayLabel"
+                  global="true"></eon-variable>
+                <!-- <eon-variable class="form-label eon-fg0" bind="locale.registry.from" global="true"></eon-variable> -->
+                <eon-date eon-ref="startDay" class="registry-view-field form-date form-marginbottom" time="false" mask="DDMMYYYY"
+                  value-format="YYYY-MM-DD" name="fromDay" inline="false">
+                </eon-date>
+              </div>
+
+              <div class="form-cols ghost" eon-ref="endayCol">
+                <eon-variable class="form-label eon-fg0" bind="locale.registry.to" global="true">
+                </eon-variable>
+                <eon-date eon-ref="endDay" class="registry-view-field form-date form-marginbottom" time="false" mask="DDMMYYYY"
+                  value-format="YYYY-MM-DD" name="toDay" inline="false">
+                </eon-date>
+              </div>
+            </div>
+
+            <eon-number bind:label="global locale.registry.randomize" label-anim="false" eon-ref="randomize"
+              class="registry-view-field form-rows form-marginbottom hide-description" name="randomize" label-anim="false" max="60">
+            </eon-number>
+
+            <eon-variable class="formError" eon-ref="membersError" bind="locale.registry.membersError" global="true">
+            </eon-variable>
+            <app-user-selector class="userSelector" label="locale.registry.selectMembers" eon-ref="userSelector"
+              group-selector="false"></app-user-selector>
+
+          </div>
+          <!-- MASK -->
+          <eon-loading eon-ref="mainMask" duration="5000" class="form-mask" format="descendant" display="false">
+          </eon-loading>
+        </eon-form>
+      </eon-scroll>
+    </eon-swiper-slide>
+
+    <eon-swiper-slide class="validateSlide">
+      <div class="swipeButtons eon-fg0 toPrev">
+        <i class="vicon vicon-arrow-back"></i>
+        <eon-variable bind="locale.registry.editBack" global="true"></eon-variable>
+      </div>
+
+      <div class="form-group workday-ranges">
+        <div class="form-action-title">
+          <eon-variable class="form-grouptitle eon-fg-h2" bind="locale.registry.workday" global="true"></eon-variable>
+        </div>
+        <app-workweek eon-ref="workweek" workweek-combo="true"></app-workweek>
+      </div>
+    </eon-swiper-slide>
+  </eon-swiper>
+</template>
+<script>
+  eon.element("registry-create", {
+    parse: true,
+    style: "registry-create.css",
+    dependencies: [
+      "create-range",
+      "@custom/app-workweek",
+      "@ui/eon-form",
+      "@ui/eon-combo",
+      "@ui/eon-toggle",
+      "@ui/eon-check",
+      "@ui/eon-swiper",
+      "@ui/eon-number",
+      "@custom/app-user-selector"
+    ],
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      clear: function () {
+        this._refs.createForm.clear();
+      },
+      // @function setData
+      setData: function (data) {
+        var el = this;
+        el._misc.data = data;
+
+        el._misc.workspaceId = data.id;
+        el._refs.userSelector.setData(data);
+        el._refs.workweek.setData(data);
+      },
+      onSubmit: function (cb) {
+        this._submitCallback = cb;
+      },
+      // @function reset
+      reset: function () {
+        var el = this;
+        eon.locale.registry.startDate = eon.locale.registry.date;
+
+        el._refs.startDay.value = moment().format("YYYY-MM-DD");
+        el._refs.endDay.value = moment().format("YYYY-MM-DD");
+
+        // Reset members
+        el._refs.batch.checked = false;
+        el._refs.overwrite.checked = false;
+
+        el._misc.batchMode = false;
+      },
+
+      submit: function () {
+        var el = this;
+        var formData = el._refs.createForm.getData();
+
+        el._showMask();
+
+        formData = el._buildSrcData(formData);
+
+        createBatchRegistry(session.data.currentWorkspaceId, formData, function (error, data) {
+          if (!error) {
+            infoText = eon.locale.registry.createBatchMessage;
+
+            el._hideMask();
+
+            // Update registry grid (timeout needed make sure that data is updated after creation)
+            setTimeout(function () {
+              el._refs.registryView.refresh();
+            }, 500);
+
+            // Update registry grid
+            el._refs.dialog.close();
+
+          } else {
+            el._hideMask();
+            errorText = eon.locale.registry.createFail;
+            showInfoDialog(errorText);
+          }
+        });
+
+      }
+    },
+    privateFunctions: {
+
+      // @function _setupAdvRefs (private)
+      setupAdvRefs: function () {
+        var el = this;
+        el._refs.registryView = document.querySelector("registry-view");
+        el._refs.section = this.getEnclosingComponent();
+        el._refs.scroll = el._refs.section.getEnclosingComponent();
+        el._refs.dialog = el._refs.section.getEnclosingComponent();
+        el._refs.delete = el._refs.dialog.$1(".create-delete-button");
+        el._refs.apply = el._refs.dialog.$1(".create-apply-button");
+        el._refs.next = el._refs.dialog.$1(".create-next-button");
+        el._refs.mask = el._refs.dialog.querySelector(".registry-create-mask");
+      },
+      // @function _setBatchListener(private)
+      setBatchListener: function () {
+        var el = this;
+
+        el._refs.batch.onCheck(function () {
+          el._refs.endayCol.classList.remove("ghost");
+          eon.locale.registry.startDate = eon.locale.registry.from;
+          el._misc.batchMode = true;
+        });
+
+        el._refs.batch.onUncheck(function () {
+          el._refs.endayCol.classList.add("ghost");
+          eon.locale.registry.startDate = eon.locale.registry.date;
+          el._misc.batchMode = false;
+        });
+      },
+      // @function _setDateListener(private)
+      setDateListener: function () {
+        var el = this;
+
+        el._refs.startDay.onValueChanged(function () {
+          if (!el._misc.batchMode) {
+            el._refs.endDay.value = el._refs.startDay.value;
+          }
+        });
+
+      },
+      // @function _setSwiperListeners(private)
+      setSwiperListeners: function () {
+        var el = this;
+        var toPrev = el.querySelectorAll(".toPrev");
+
+        el._refs.next.addEventListener("click", function () {
+          var validChecks = true;
+          var validDates = true;
+
+          // Checks if there are any member selected
+          if (el._refs.swiper.currentSlide.el.classList.contains("firstSlide")) {
+            validChecks = el._checkSelectedMembers();
+            validDates = el._validateDate();
+          }
+
+          if (validChecks && validDates) {
+            el._refs.swiper.next();
+
+            if (el._refs.swiper.currentSlide.el.classList.contains("validateSlide")) {
+              el._refs.apply.classList.remove("ghost");
+              el._refs.next.classList.add("ghost");
+            }
+
+            el._refs.datesError.classList.remove("show");
+            el._refs.membersError.classList.remove("show");
+
+            // If there is no member selected, it does not go to the next slide
+          } else {
+            if (!validDates) {
+              el._refs.datesError.classList.add("show");
+            }
+            if (!validChecks) {
+              el._refs.membersError.classList.add("show");
+            }
+          }
+        });
+
+        // Delete registry
+        el._refs.delete.addEventListener("click", function (e) {
+          var validChecks = true;
+          var validDates = true;
+
+          // Checks if there are any member selected
+          if (el._refs.swiper.currentSlide.el.classList.contains("firstSlide")) {
+            validChecks = el._checkSelectedMembers();
+            validDates = el._validateDate();
+          }
+
+          if (validChecks && validDates) {
+            el.delete();
+            el._refs.datesError.classList.remove("show");
+            el._refs.membersError.classList.remove("show");
+
+          } else {
+            if (!validDates) {
+              el._refs.datesError.classList.add("show");
+            }
+            if (!validChecks) {
+              el._refs.membersError.classList.add("show");
+            }
+          }
+        });
+
+        el._refs.apply.addEventListener("click", function (e) {
+          // Submit creation
+          el.submit();
+        });
+
+        for (var i = 0; i < toPrev.length; i++) {
+          toPrev[i].addEventListener("click", function () {
+
+            el._refs.swiper.prev();
+            if (!el._refs.swiper.currentSlide.el.classList.contains("validateSlide")) {
+              el._refs.apply.classList.add("ghost");
+              el._refs.next.classList.remove("ghost");
+            }
+          });
+
+        }
+
+        el._refs.dialog.onClose(function functionName() {
+          el._refs.swiper.slideTo(0);
+          el._refs.apply.classList.add("ghost");
+          el._refs.next.classList.remove("ghost");
+        });
+      },
+
+      // @function _checkSelectedMembers (private)
+      checkSelectedMembers: function () {
+        var el = this;
+        var members = el._refs.userSelector.getData().members.checked;
+        var checkeds = members.length > 0 ? true : false;
+
+        return checkeds;
+      },
+      // @function _validateDate (private)
+      validateDate: function () {
+        var el = this;
+
+        if (!el._misc.batchMode) {
+          el._refs.endDay.value = el._refs.startDay.value;
+          return true;
+        } else {
+          var startMS = moment(el._refs.startDay.value, "YYYY-MM-DD").valueOf();
+          var endMS = moment(el._refs.endDay.value, "YYYY-MM-DD").valueOf();
+
+          if (endMS < startMS) {
+            return false;
+          } else {
+            return true;
+          }
+
+        }
+      },
+
+      // @function _buildSrcData (private)
+      buildSrcData: function (formData) {
+        var el = this;
+
+        formData.members = el._refs.userSelector.getData().members.checked;
+        formData.workweek = el._refs.workweek.getData();
+        return formData;
+      },
+      // @function _showMask (private)
+      showMask: function () {
+        var el = this;
+
+        el._refs.mask.show();
+        //disabled actions
+        el._refs.dialog._refs.close.classList.add("pointer-disabled");
+        el._refs.registryView.disableActions(el._refs.dialog);
+
+      },
+      // @function _hideMask (private)
+      hideMask: function () {
+        var el = this;
+
+        el._refs.mask.hide();
+        el._refs.dialog._refs.close.classList.remove("pointer-disabled");
+        el._refs.registryView.enableActions(el._refs.dialog);
+      },
+      // @function _isDesktop (private)
+      isDesktop: function () {
+        if (window.innerWidth <= 600) {
+          this._misc.desktop = false;
+        } else {
+          this._misc.desktop = true;
+        }
+
+        return this._misc.desktop;
+      }
+    },
+    onTransformed: function () {
+      var el = this;
+      var pagination = el._isDesktop() ? 6 : 3;
+
+      el._refs.userSelector.pagination = pagination;
+
+      el._setupAdvRefs();
+      el._setBatchListener();
+      el._setDateListener();
+      el._setSwiperListeners();
+    },
+
+    onWindowResize: function () {
+      var el = this;
+      var throttled = false;
+      var delay = 10;
+
+      // Decrease resize calls
+      if (!throttled) {
+        throttled = true;
+        // Check resolution
+        var isDesktop = window.innerWidth <= 600 ? false : true;
+
+        if (isDesktop && !el._misc.desktop) {
+          el._misc.desktop = true;
+          el._refs.userSelector.pagination = 6;
+          el._refs.userSelector.setData(el._misc.data);
+
+        } else if (!isDesktop && el._misc.desktop) {
+          el._misc.desktop = false;
+          el._refs.userSelector.pagination = 3;
+          el._refs.userSelector.setData(el._misc.data);
+        }
+
+        // Set a timeout to un-throttle
+        setTimeout(function () {
+          throttled = false;
+        }, delay);
+      }
+    }
+  });
+</script>

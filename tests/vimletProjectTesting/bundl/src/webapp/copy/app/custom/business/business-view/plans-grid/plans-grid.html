@@ -1,0 +1,140 @@
+<template>
+  <div eon-ref="titles" class="grid-titles eon-sect3">
+    <!-- <eon-variable class="cell-empty" bind="locale.empty" global="true"></eon-variable> -->
+    <eon-variable bind="locale.workspace.plans.name" global="true"></eon-variable>
+    <div class="cell-empty"></div>
+  </div>
+  <div eon-ref="entries" class="grid-entries">
+     <!-- MASK -->
+     <div class="plans-grid-mask" eon-ref="mask">
+      <div class="mask-row eon-mask-background1"></div>
+      <div class="mask-row eon-mask-background1"></div>
+      <div class="mask-row eon-mask-background1"></div>
+      <div class="mask-row eon-mask-background1"></div>
+      <div class="mask-row eon-mask-background1"></div>
+    </div>
+  </div>
+</template>
+
+<script>
+  eon.element("plans-grid", {
+
+    style: "plans-grid.css",
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-loading",
+      "plans-entry"
+    ],
+
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function refresh
+      refresh: function (data) {
+        var el = this;
+
+        if (!el._refreshing) {
+          el._refreshing = true;
+          
+          this.data = data;
+
+          el.clean();
+          el._createEntries(data.workweeks);
+        }
+      },
+      // @function clean
+      clean: function () {
+        this._refs.entries.innerHTML = "";
+      }
+    },
+    privateFunctions: {
+      // @function _setupRefs (private)
+      setupRefs: function () {
+        // this._refs.workspaceView = this.getEnclosingComponent().getEnclosingComponent();
+        this._misc.entries = {};
+        this._misc.srcEntries = [];
+      },
+      // @function _createEntries (private)
+      createEntries: function (entries) {
+        var el = this;
+        var fragment = document.createDocumentFragment();
+        this._misc.srcEntries = entries;
+
+        // Check device version
+        // var tagName = this._isDesktop() ? "plans-entry" : "plans-entry-card";
+        var tagName = "plans-entry";
+
+        for (var key in entries) {
+          var entry = entries[key];
+
+          if (entry && key !== "flexible") {
+            // Create a plan entry
+            var entryEl = document.createElement(tagName);
+            entryEl.classList.add("grid-row");
+            entryEl.setValues(entry, key);
+
+            this._misc.entries[key] = entryEl;
+
+            entryEl.onEdit(function (workweekId) {
+              eon.triggerCallback("onEditPlan", el, el, [workweekId]);
+            });
+
+            fragment.appendChild(entryEl);
+          }
+        }
+
+        // var entriesKeys = Object.keys(entries);
+        var entriesKeys = entries ? Object.keys(entries) : [];
+        // Show no entries message if needed
+        if (entriesKeys && entriesKeys.length < 1) {
+          if (!this._refs.placeHolder) {
+            this._refs.placeHolder = createPlaceHolderText(eon.locale.global.noContent);
+          }
+          fragment.appendChild(this._refs.placeHolder);
+
+          this._refs.entries.classList.add("grid-empty");
+        } else {
+          this._refs.entries.classList.remove("grid-empty");
+        }
+
+        mask.hideViewMask("plans-grid");
+
+        this._refs.entries.appendChild(fragment);
+
+        el._refreshing = false;
+      },
+      // @function _isDesktop (private)
+      isDesktop: function (entries) {
+        if (eon.util.isTouchScreen() || window.innerWidth <= 1024) {
+          this._misc.desktop = false;
+        } else {
+          this._misc.desktop = true;
+        }
+
+        return this._misc.desktop;
+      }
+    },
+
+    onCreated: function () {
+      var el = this;
+      eon.createCallback("onEditPlan", el);
+    },
+    onTransformed: function () {
+      var el = this;
+      el._setupRefs();
+    },
+  });
+</script>

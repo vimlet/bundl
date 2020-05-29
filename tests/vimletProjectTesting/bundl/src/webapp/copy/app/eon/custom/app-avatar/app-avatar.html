@@ -1,0 +1,132 @@
+<template>
+  <div class="app-avatar-background" eon-ref="background">
+    <div class="app-avatar-letter" eon-ref="letter"></div>
+    <div class="app-avatar-image" eon-ref="image"></div>
+  </div>
+  <i class="app-avatar-icon" eon-ref="icon"></i>
+</template>
+
+<script>
+  eon.element("app-avatar", {
+    style: "app-avatar.css",
+
+    properties: {
+      // @html-attribute image (private) [Avatar image]
+      image: {
+        value: "",
+        reflect: true
+      },
+      // @html-attribute userName (private) [User name]
+      userName: {
+        value: "",
+        reflect: true
+      },
+      // @html-attribute type (private) [Different behaviors for types: default,extra]
+      type: {
+        value: "",
+        reflect: true
+      },
+      // @html-attribute nameTitle (public) [If set to true, user name will act as element title. Default true]
+      nameTitle: {
+        value: "true",
+        reflect: true
+      },
+      // @html-attribute icon (private) [Show an icon on the avatar]
+      icon: {
+        value: "",
+        reflect: true
+      }
+    },
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function setName (public) [Set up name] @param name
+      setName: function (name) {
+        var el = this;
+        if (name) {
+          var letter = name.substring(0, 1).toUpperCase();
+          var code = letter.charCodeAt(0);
+          if (code > 64 && code < 91) {
+            el._refs.letter.innerHTML = letter;
+            el._refs.background.style.backgroundColor = config.colors.avatars[Number((code - 64)) % 4];
+          } else if (code > 47 && code < 58) {
+            el._refs.letter.innerHTML = letter;
+            el._refs.background.style.backgroundColor = config.colors.avatars[Number((code - 47)) % 4];
+          }
+          if (el.type === "extra") {
+            el._refs.letter.innerHTML = name;
+            el.classList.add("app-avatar-extra");
+          }
+        }
+      },
+      // @function setImage (public) [Set image] @param image
+      setImage: function (image) {
+        var el = this;
+        el._refs.image.style.backgroundImage = "url(" + image + ")";
+      },
+      // @function setIcon (public) [Set icon] @param icon
+      setIcon: function (icon) {
+        var el = this;
+        el._refs.icon.className = "app-avatar-icon";
+        if (icon && icon != "") {
+          el._refs.icon.classList.add(icon);
+          el._refs.icon.style.display = "block";
+          var letter = el.userName.substring(0, 1).toUpperCase();
+          var code = letter.charCodeAt(0);
+          if (code > 64 && code < 91) {
+          el._refs.icon.style.backgroundColor = config.colors.avatars[Number((code - 64)) % 4];
+          } else if (code > 47 && code < 58) {
+          el._refs.icon.style.backgroundColor = config.colors.avatars[Number((code - 47)) % 4];
+          }
+        }
+      },
+      // @function setTitle (public) [If nameTitle then user name will be element title]
+      setTitle: function () {
+        var el = this;
+        if (eon.util.isTrue(el.nameTitle)) {
+          el.title = el.userName;
+        }
+      }
+    },
+
+    privateFunctions: {
+      // @function init (private)
+      init: function () {
+        var el = this;
+        el._setUp();
+      },
+      // @function setUp (private)
+      setUp: function (value) {
+        var el = this;
+        el.setName(el.userName);
+        el.setImage(el.image);
+        el.setIcon(el.icon);
+        el.setTitle();
+      }
+    },
+
+    onRender: function () {
+      var el = this;
+      el._init();
+    },
+
+    onPropertyChanged: function (key, oldVal, newVal) {
+      var el = this;
+      switch (key) {
+        case "image":
+          el.setImage(newVal);
+          break;
+        case "icon":
+          el.setIcon(newVal);
+          break;
+        case "userName":
+          el.setName(newVal);
+          break;
+      }
+    }
+  });
+</script>

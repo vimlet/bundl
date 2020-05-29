@@ -1,0 +1,199 @@
+@element: workweek-device;
+
+@{element} {
+  & {
+    // height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  .@{element}-hoursHeader {
+    display: flex;
+    flex-grow: 0;
+  }
+  .@{element}-hoursRow {
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+    width: 40px;
+    min-width: 40px;
+    font-size: 12px;
+    position: relative;
+  }
+  
+  .@{element}-emptyRow {
+    overflow-x: hidden;
+    display: flex;
+    min-width: 46px;
+    // width: 65px;
+    border-right: 1px solid #dcdcdc;
+    border-bottom: 1px solid #dcdcdc;
+  }
+
+  .@{element}-hour {
+    padding: 8px;
+    flex-grow: 1;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #7b8887;
+    box-sizing: border-box;
+    min-height: 50px;
+  }
+  
+  .@{element}-hourSpacer {
+    flex-grow: 0;
+    min-height: 16px;
+    padding: 4px;
+  }
+  
+  .@{element}-absoluteContainer {
+    // display: flex;
+    flex-grow: 1;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+  .@{element}-weekWrapper {
+    flex-grow: 1;
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+    position: relative;
+    // max-height: 382px;
+  }
+  .@{element}-daysWrapper {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: row;
+  }
+
+
+  .@{element}-day {
+    min-width: 35px;
+    padding: 15px 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #dcdcdc;
+    border-right: 1px solid #dcdcdc;
+    font-weight: bold;
+    color: #808080;
+    flex-grow: 1;
+  }
+  .@{element}-hoursWrapper {
+    flex-grow: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+  }
+  .@{element}-emptyHeader {
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+    border-right: 1px solid #dcdcdc;
+    min-width: 6px;
+  }
+
+  .@{element}-emptyHour {
+    flex-grow: 1;
+    overflow: hidden;
+    min-height: 49px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #dcdcdc;
+  }
+  .@{element}-hoursWrapper .@{element}-weekRail:nth-child(odd) .@{element}-weekHour {
+    background-color: #ffffff;
+  }
+  .@{element}-hoursWrapper .@{element}-weekRail:nth-child(even) .@{element}-weekHour {
+    background-color: #fafafa;
+  }
+  .@{element}-weekRail {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    flex-grow: 1;
+  }
+  .@{element}-weekHour {
+    flex-grow: 1;
+    overflow: hidden;
+    min-width: 55px;
+    min-height: 49px;
+    border-right: 1px solid #dcdcdc;
+    border-bottom: 1px solid #dcdcdc;
+    display: flex;
+    flex-direction: column;
+  }
+  .@{element}-weekHour div {
+    flex-grow: 1;
+    position: relative;
+  }
+
+  // To remove
+  .@{element}-weekHour .oclock {
+    border-bottom: 1px solid #f1f1f1;
+  }
+  .@{element}-weekHour .quarter {
+    border-bottom: 1px solid #f1f1f1;
+  }
+  .@{element}-weekHour .half {
+    border-bottom: 1px solid #f1f1f1;
+  }
+
+  .completeBar {
+    width: 40px;
+    border-radius: 5px;
+  }
+
+  .startBar {
+    width: 40px;
+    border-radius: 5px 5px 0 0;
+  }
+  
+  .endBar {
+    width: 40px;
+    border-radius: 0 0 5px 5px;
+  }
+
+  .centerBar {
+    width: 40px;
+  }
+
+  .breakBar {
+    width: 40px;
+    background: repeating-linear-gradient(
+      -55deg,
+      rgba(255, 255, 255, 0.55),
+      rgba(255, 255, 255, 0.55) 10px,
+      rgba(255, 255, 255, 0.40) 10px,
+      rgba(255, 255, 255, 0.40) 20px
+    );
+  }
+
+  
+  @media (min-width: 500px) and (max-width: 850px) and (orientation: landscape) { 
+  
+    .eon-text-main {
+      padding: 5px;
+    }
+    
+    .app-workweek-header{
+      margin-bottom: 15px;
+    }
+
+    .workweek-device-day{
+      padding: 5px 10px;
+    }
+  }
+}

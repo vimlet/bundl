@@ -1,0 +1,264 @@
+html, body {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+  background-image: url("../img/background.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  height: 100%;
+  width: 100%;
+}
+/* body {
+  height: 100%;
+} */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #8c27cf;
+  min-width: 600px;
+  min-height: 490px;
+  width: 950px;
+  padding: 30px 0;
+  box-shadow: 0px 0px 20px 2px rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+  margin: 20px 0 0 0;
+  background-image: url("../img/logo-white.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 70%;
+  height: 150px;
+  opacity: 0.5;
+}
+
+.title {
+  margin: 40px 0 0 0;
+  font-size: 45px;
+  font-weight: 400;
+}
+
+.column-wrapper {
+  margin: 25px 0 0 0;
+  display: flex;
+  min-height: 300px;
+  width: 100%;
+}
+
+.form, .social {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 50%;
+  padding: 20px !important;
+  box-sizing: border-box;
+}
+
+.form eon-button {
+  margin: 10px 0 0 0 !important;
+}
+
+.social eon-button {
+  margin: 25px 0 0 0 !important;
+}
+
+.form-text {
+  text-align: center;
+  padding: 5px 5px;
+}
+
+.form-text a {
+  color: #ffffff;
+}
+
+.form-text a * {
+  text-decoration: underline;
+}
+
+.separator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.separator-bar {
+  border-left: 2px solid #ffffff;
+  height: 90%;
+}
+
+.google-icon {
+  display: inline-block;
+  background-image: url("/app/img/google.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 20px;
+  height: 20px;
+  margin-right: 15px;
+}
+
+.facebook-icon {
+  display: inline-block;
+  background-image: url("/app/img/facebook.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 20px;
+  height: 20px;
+  margin-right: 15px;
+}
+
+.social-button .eon-button-buttonText {
+  justify-content: left !important;
+  width: 80% !important;
+}
+
+eon-text, eon-button {
+  width: 75% !important;
+}
+
+#privacy {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#privacy .eon-check-span {
+  border: 2px solid #ffffff;
+  border-radius: 2px;
+}
+
+.privacyText {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+eon-button .eon-fg2-disabled {
+  background-color: #dcdcdc !important;
+  color: #c1c0c0 !important;
+  -webkit-text-fill-color: #c1c0c0 !important;
+}
+
+.bottom-text {
+  margin: 30px 0 30px 0;
+}
+
+.eon-dialog-content {
+  color: #000000 !important;
+}
+
+#alert-dialog .eon-dialog-content {
+  padding: 20px !important;
+}
+
+#alert-dialog .eon-scroll-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#alert-dialog eon-button {
+  width: auto !important;
+}
+
+#alert-dialog .eon-button-button {
+  box-shadow: none;
+}
+
+@media (max-width: 1000px) {
+  body {
+    align-items: flex-start;
+  }
+  .container {
+    min-height: 100%;
+    width: 100%;
+    min-width: 0;
+    padding: 50px 0 0 0;
+  }
+  .column-wrapper {
+    flex-direction: column;
+  }
+  .separator {
+    padding: 10px 0;
+    margin: 0 0 20px 0;
+  }
+  .separator-bar {
+    border-left: 0;
+    border-top: 2px solid #ffffff;
+    width: 60%;
+  }
+  .form, .social {
+    width: 100%;
+  }
+  .social-button .eon-button-buttonText {
+    font-size: 14px;
+    justify-content: center !important;
+  }
+  eon-text, eon-button {
+    width: 90% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 10px 0 0 0;
+    height: auto !important;
+  }
+  .logo {
+    height: 75px;
+  }
+  .title {
+    text-align: center;
+    margin: 15px 0 0 0;
+    font-size: 30px;
+  }
+  .form, .social {
+    padding: 0 20px 30px 20px !important;
+  }
+}
+
+@media (max-width: 1370px) and (max-height: 630px) and (orientation: landscape) {
+  .container {
+    height: auto !important;
+  }
+  .logo {
+    height: 65px;
+    box-sizing: border-box;
+  }
+  .title {
+    margin: 20px 0 0 0;
+    font-size: 35px;
+  }
+  .column-wrapper {
+    margin: 0;
+  }
+  .container .eon-text-main {
+    padding: 6px !important;
+  }
+  .container .eon-text-description {
+    font-size: 12px !important;
+    height: 12px !important;
+  }
+}
+
+@media (max-width: 825px) and (max-height: 415px) and (orientation: landscape) {
+  .container {
+    padding: 15px 0 0 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .alertDialog {
+    height: auto !important;
+    bottom: auto !important;
+  }
+}

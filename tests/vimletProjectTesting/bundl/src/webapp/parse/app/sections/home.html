@@ -1,0 +1,61 @@
+<script>  
+  eon.importBuild("sections/home-build<% data.release ? echo('.' + hash('home-build')) : '' %>.js");
+
+  eon.import([
+    "custom/home/home-view"
+  ]);  
+</script>
+<!-- MASK -->
+<div class="home-mask view-mask section">
+  <div class="home-mask-container">
+    <div class="mask-title-row home-mask-title-row">
+      <div class="mask-title">
+        <div class="mask-title eon-mask-background1"></div>
+      </div>
+      <div class="mask-button eon-mask-background1"></div>
+    </div>
+
+    <div class="home-mask-title">
+      <div>
+        <div class="mask-text mask-text-small eon-mask-background1"></div>
+        <div class="mask-text eon-mask-background1"></div>
+      </div>
+      <div>
+        <div class="mask-text mask-text-small eon-mask-background1"></div>
+        <div class="mask-text eon-mask-background1"></div>
+      </div>
+    </div>
+
+    <div class="home-mask-rect eon-mask-background1"></div>
+
+    <div class="mask-row first-mask-row">
+      <div class="home-mask-text eon-mask-background1"></div>
+    </div>
+
+    <div class="home-mask-row first-home-mask-row eon-mask-background1"></div>
+    <div class="home-mask-row eon-mask-background1"></div>
+
+    <div class="mask-row">
+      <div class="home-mask-text eon-mask-background1"></div>
+    </div>
+
+    <div class="home-mask-row eon-mask-background1"></div>
+    <div class="home-mask-row eon-mask-background1"></div>
+    
+    <div class="mask-row">
+      <div class="home-mask-text eon-mask-background1"></div>
+    </div>
+
+    <div class="home-mask-row eon-mask-background1"></div>
+    <div class="home-mask-row eon-mask-background1"></div>
+    
+    <div class="mask-row">
+      <div class="home-mask-text eon-mask-background1"></div>
+    </div>
+
+    <div class="home-mask-row eon-mask-background1"></div>
+    <div class="home-mask-row eon-mask-background1"></div>
+  </div>
+</div>
+
+<home-view class="section" autohide-mask="false"></home-view>

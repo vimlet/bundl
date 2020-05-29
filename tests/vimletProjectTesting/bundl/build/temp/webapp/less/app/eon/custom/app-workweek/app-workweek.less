@@ -1,0 +1,239 @@
+@element: app-workweek;
+
+@{element} {
+  & {
+    flex-grow: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .@{element}-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 0 6px 0 0;
+    box-sizing: border-box;
+    flex-grow: 0;
+    width: 100%;
+  }
+  .@{element}-header.workday {
+    justify-content: flex-end;
+  }
+  .@{element}-header.workday .form-text {
+    display: none;
+  }
+  .form-text {
+    width: 300px !important;
+  }
+  .@{element}-buttonNew {
+    align-self: flex-end;
+  }
+  .@{element}-workweekWrapper {
+    // height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  .bar {
+    position: absolute;
+    cursor: pointer;
+  }
+
+  .startBar {
+    position: absolute;
+    cursor: pointer;
+  }
+
+  .endBar {
+    position: absolute;
+    cursor: pointer;
+  }
+
+  .centerBar {
+    position: absolute;
+    cursor: pointer;
+  }
+
+  .breakBar {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  @media (max-width: 700px) {
+    .form-text {
+      margin: 0 20px 0 0;
+      width: auto;
+    }
+    // .form-text .eon-text-main {
+    //   padding: 5px !important;
+    // }
+    .@{element}-buttonNew .eon-button-button {
+      padding: 10px !important;
+    }
+    .@{element}-buttonNew .eon-button-buttonText {
+      display: none;
+    }
+    .@{element}-buttonNew .eon-button-buttonIcon {
+      margin-right: 0 !important;
+    }
+  }
+}
+
+.@{element}-cols {
+  display: flex;
+  flex-direction: column;
+}
+
+.@{element}-rows {
+  display: flex;
+  align-items: center;
+}
+
+.@{element}-grow {
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.@{element}-label {
+  font-size: 16px;
+  margin-bottom: 5px;
+  color: #8c27cf;
+  width: 100%;
+}
+
+.@{element}-marginright {
+  margin-right: 15px;
+}
+
+.@{element}-date {
+  display: flex;
+}
+
+.@{element}-dayCombo {
+  min-width: 120px;
+  width: 120px;
+}
+
+.@{element}-dayCombo input {
+  padding: 5px 10px !important;
+}
+
+.@{element}-time {
+  min-width: 110px;
+  width: 110px;
+  flex-grow: 0 !important;
+  min-width: 90px;
+  width: 90px;
+}
+
+// Dialog style
+.@{element}-dialogNew {
+  width: 630px;
+  height: 365px;
+  max-width: 630px !important;
+  max-height: 365px !important;
+}
+
+.@{element}-dialogNew .eon-dialog-heading {
+  background-color: #ffffff !important;
+  color: #7b8887 !important;
+  padding: 10px !important;
+  padding-bottom: 0 !important;
+}
+
+.@{element}-dialogNew .eon-dialog-content {
+  padding: 15px 15px 0 15px !important;
+}
+
+.@{element}-dialogNew .eon-dialog-footer {
+  padding: 10px !important;
+}
+
+.@{element}-dialogNew .addWorkday,
+.@{element}-dialogNew .editWorkday,
+.@{element}-dialogNew .delete-button {
+  display: none;
+}
+.@{element}-dialogNew .addWorkday.show,
+.@{element}-dialogNew .editWorkday.show,
+.@{element}-dialogNew .delete-button.show {
+  display: block;
+}
+
+.@{element}-dialogNew .dialogNew-title {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2px solid #e4e4e4;
+  padding-bottom: 2px;
+  align-items: flex-end;
+}
+
+.@{element}-dialogNew .dialogNew-titleIcon {
+  color: #8c27cf;
+  margin-right: 10px;
+  font-size: 17px;
+}
+
+.@{element}-dialogNew .dialogNew-titleText {
+  font-weight: bold;
+  color: #7b8887;
+  width: 100%;
+}
+.@{element}-dialogNew .workweekRange {
+  margin-top: 15px;
+}
+.@{element}-dialogNew .eon-date-subInputs {
+  padding: 5px 10px;
+}
+.@{element}-dialogNew .eon-date-button {
+  font-size: 16px;
+}
+
+.@{element}-addBreak {
+  flex-shrink: 0;
+}
+.@{element}-addBreak .eon-button-button {
+  font-size: 15px;
+  padding: 8px;
+  height: 30px;
+  padding-left: 6px !important;
+}
+
+.@{element}-addBreak .eon-button-buttonIcon {
+  font-size: 16px;
+}
+
+@media (max-width: 700px) {
+  .@{element}-dialogNew {
+    width: auto;
+    height: auto;
+    max-width: none !important;
+    max-height: none !important;
+  }
+  .@{element}-grow {
+    flex-basis: auto;
+    width: 100%;
+  }
+  .@{element}-rows {
+    flex-direction: column;
+  }
+  .@{element}-marginright {
+    margin-right: 0;
+  }
+  .@{element}-addBreak .eon-button-button {
+    padding: 10px !important;
+    width: auto !important;
+  }
+
+  .@{element}-addBreak .eon-button-buttonText {
+    display: none;
+  }
+
+  .@{element}-addBreak .eon-button-buttonIcon {
+    margin-right: 0 !important;
+  }
+
+}

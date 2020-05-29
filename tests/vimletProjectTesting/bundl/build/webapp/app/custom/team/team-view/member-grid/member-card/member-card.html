@@ -1,0 +1,133 @@
+<template>
+
+  <div class="member-card-item member-card-item-main user-details">
+    <div eon-ref="alias"></div>
+    <div eon-ref="role"></div>
+    <!-- <div eon-ref="remote"></div> -->
+  </div>
+  <!-- <div class="member-card-item member-card-item-main">
+    <div class="member-card-item">
+      <eon-variable bind="locale.member.workweek" global="true"></eon-variable>
+      <div eon-ref="workweek"></div>
+    </div>
+  </div> -->
+  <div class="member-card-icon vicon ticon-resend" eon-ref="invite">
+    <span class="member-card-edit-clickable"></span>
+  </div>
+  <div class="member-card-icon vicon ticon-edit" eon-ref="edit">
+    <span class="member-card-edit-clickable"></span>
+  </div>
+</template>
+
+<script>
+  eon.element("member-card", {
+
+    style: "member-card.css",
+    dependencies: [
+      "@custom/app-avatar"
+    ],
+    parse: true,
+
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function setValues
+      setValues: function (data, userMail, workweek) {
+        this._misc.data = data;
+        var role, remote;
+
+        // TODO
+        if (window.locale == "es") {
+          role = data.role == "user" ? "Usuario" : "Admin";
+          remote = eon.util.isTrue(data.remote) ? "Remoto" : "Local";
+        } else {
+          role = data.role == "user" ? "User" : "Admin";
+          remote = eon.util.isTrue(data.remote) ? "Remote" : "Local";
+        }
+
+        this._setAlias(data);
+        this._refs.role.innerHTML = role;
+        // this._refs.remote.innerHTML = remote;
+        // this._refs.workweek.innerHTML = workweek.name;
+      }
+    },
+    privateFunctions: {
+      // @function _setupAdvRefs (private)
+      setupAdvRefs: function () {
+        this._refs.grid = this.getEnclosingComponent();
+        this._refs.editMemberDialog = document.querySelector("#member-edit-dialog");
+      },
+      // @function _setupEdition (private)
+      setupEdition: function () {
+        var el = this;
+        el._editListener();
+      },
+      // @function _editListener (private)
+      editListener: function () {
+        var el = this;
+        this._refs.edit.addEventListener("click", function (e) {
+          eon.triggerCallback("onEdit", el, el, [el._misc.data.memberId]);
+        }, false);
+      },
+      // @function _setAlias(private)
+      setAlias: function (data) {
+        var fragment = document.createDocumentFragment();
+        var text = document.createElement("span");
+        var mail = data.mail || data.userId;
+
+        var avatar = document.createElement("app-avatar");
+        avatar.userName = data.alias;
+        avatar.image = "/rest/user/avatar/" + mail;
+
+        text.innerHTML = data.alias;
+        if (data.owner) {
+          // Owner
+          text.innerHTML += "<span class='owner-span'> (owner)</span>";
+        }
+
+        fragment.appendChild(avatar);
+        fragment.appendChild(text);
+
+        this._refs.alias.appendChild(fragment);
+      },
+      // @function _setupListener (private)
+      setupListener: function () {
+        var el = this;
+        // Tooltip
+        eon.onLocaleLoaded(function () {
+          el._refs.invite.setAttribute("title", eon.locale.global.tooltip.reinvite);
+        });
+
+        if (el._misc.data.status != "pending") {
+          el._refs.invite.classList.add("no-visible");
+        } else {
+          el._refs.invite.addEventListener("click", function () {
+            eon.triggerCallback("onReinvite", el, el);
+          });
+        }
+      }
+    },
+    onCreated: function () {
+      var el = this;
+      eon.createCallback("onEdit", el);
+      eon.createCallback("onReinvite", el);
+    },
+    onTransformed: function () {
+      this._setupAdvRefs();
+      this._setupEdition();
+      this._setupListener();
+    }
+  });
+</script>

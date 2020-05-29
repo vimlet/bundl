@@ -1,0 +1,74 @@
+@element: registry-day;
+
+@{element} {
+  & {
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+    margin-bottom: 7px;
+    padding-left: 10px;
+  }
+  .day-title {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding-left: 4px;
+    box-sizing: border-box;
+    font-weight: 500;
+    font-size: 20px;
+    color: #7b8887;
+  }
+
+  /* Left time line */
+  .day-separator {
+    margin-left: -14px;
+    margin-right: 14px;
+    z-index: 1;
+  }
+  .day-separator > svg {
+    background-color: #f4fafa;
+    fill: #7b8887;
+  }
+  .day-span {
+    font-size: 17px;
+    color: #b9c4c3;
+  }
+
+  /* Rows */
+  .grid-row {
+    margin: 0 10px;
+    margin-bottom: 10px;
+  }
+  
+  & .cell-action.clickable:after {
+    height: calc(100% + 10px);
+    width: calc(100% + 10px);
+  }
+
+  @media (max-width: 1024px) {
+    .card-header .cell-alias > span {
+      margin-left: 10px;
+    } 
+    .cell-type {
+      flex-direction: column;
+      justify-content: center !important;
+    }
+  }
+
+  @media (max-width: 600px) {
+    & {
+      margin-bottom: 6px;
+    }
+    .grid-row {
+      margin-left: 4px;
+      margin-right: 4px;
+    }
+    .card-header .cell-alias > span {
+      display: flex;
+    } 
+    .cell-type:before {
+      margin: 0;
+      font-size: 20px;
+    }
+  }
+}

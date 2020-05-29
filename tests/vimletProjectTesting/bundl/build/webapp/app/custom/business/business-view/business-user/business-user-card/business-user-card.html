@@ -1,0 +1,189 @@
+<style>
+  business-user-card {
+    position: relative;
+    display: flex;
+    padding: 10px 0 10px 0px;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  business-user-card .business-user-card-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 4px 0;
+    min-height: 60px;
+    max-height: 122px;
+    flex-basis: 0;
+  }
+
+  business-user-card .business-user-card-item>eon-variable {
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  business-user-card .business-user-card-item>div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  business-user-card .business-user-card-item-main>div:not(:last-child) {
+    margin-bottom: 0;
+  }
+
+  business-user-card .business-user-card-item-main>div {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+
+  business-user-card .business-user-card-spacer {
+    height: 72px;
+    margin: auto 0 auto 0;
+    display: flex;
+    width: 3px;
+    background-color: #f7f5f5;
+  }
+
+  business-user-card .business-user-card-icon {
+    width: 50px;
+    font-size: 18px !important;
+    color: #4285f4;
+    position: relative;
+  }
+
+  business-user-card .business-user-card-icon.ticon-resend {
+    color: #fbbc05;
+  }
+
+  business-user-card .business-user-card-edit-clickable {
+    position: absolute;
+    height: calc(100% + 20px);
+    width: calc(100% + 20px);
+    cursor: pointer;
+  }
+
+  @media (max-width: 800px) {
+    business-user-card .business-user-card-edit {
+      flex-grow: 1;
+      width: auto;
+    }
+  }
+
+  @media (max-width: 500px) {
+    business-user-card {
+      font-size: 14px;
+    }
+
+    business-user-card .business-user-card-edit {
+      font-size: 18px !important;
+    }
+
+    business-user-card .business-user-card-item-main {
+      padding-left: 0;
+    }
+  }
+</style>
+<template>
+  <div class="business-user-card-item business-user-card-item-main user-details">
+    <div eon-ref="alias"></div>
+    <div eon-ref="workweek"></div>
+  </div>
+  <div class="cell-empty"></div>
+  <div class="business-user-card-icon vicon ticon-edit" eon-ref="edit">
+    <span class="user-card-edit-clickable"></span>
+  </div>
+</template>
+
+<script>
+  eon.element("business-user-card", {
+
+    // style: "member-grid.css",
+    parse: true,
+
+    dependencies: [
+      "@custom/app-avatar"
+    ],
+
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function setValues
+      setValues: function (data, userMail, workweek) {
+        this._misc.data = data;
+        this._setAlias(data);
+        // TODO: Edit member rest 
+        if (workweek) {
+          this._refs.workweek.innerHTML = workweek.name;
+        }
+      }
+    },
+    privateFunctions: {
+      // @function _setupAdvRefs (private)
+      setupAdvRefs: function () {
+        this._refs.grid = this.getEnclosingComponent();
+        this._refs.editUserDialog = document.querySelector("#user-edit-dialog");
+      },
+      // @function _setupEdition (private)
+      setupEdition: function () {
+        var el = this;
+        el._editListener();
+      },
+      // @function _editListener (private)
+      editListener: function () {
+        var el = this;
+        this._refs.edit.addEventListener("click", function (e) {
+          eon.triggerCallback("onEdit", el, el, [el._misc.data.memberId]);
+        }, false);
+      },
+      // @function _setAlias(private)
+      setAlias: function (data) {
+        var fragment = document.createDocumentFragment();
+        var text = document.createElement("span");
+        var mail = data.mail || data.userId;
+
+        var avatar = document.createElement("app-avatar");
+        avatar.userName = data.alias;
+        avatar.image = "/rest/user/avatar/" + mail;
+
+        text.innerHTML = data.alias;
+        if (data.owner) {
+          // Owner
+          text.innerHTML += "<span class='owner-span'> (owner)</span>";
+        }
+
+        fragment.appendChild(avatar);
+        fragment.appendChild(text);
+
+        this._refs.alias.appendChild(fragment);
+      },
+
+    },
+    onCreated: function () {
+      var el = this;
+
+      eon.createCallback("onEdit", el);
+    },
+    onTransformed: function () {
+      this._setupAdvRefs();
+      this._setupEdition();
+    },
+
+  });
+</script>

@@ -1,0 +1,125 @@
+<template>
+  <div class="report-card-item report-card-item-main">
+    <div eon-ref="alias" class="report-card-alias"></div>
+  </div>
+
+  <div class="report-card-item">
+    <eon-variable bind="locale.report.total" global="true"></eon-variable>
+    <div eon-ref="total" class="report-card-total"></div>
+  </div>
+  <div class="report-card-spacer"></div>
+  <div class="report-card-item">
+    <eon-variable bind="locale.report.extra" global="true"></eon-variable>
+    <div eon-ref="extra" class="report-card-extra"></div>
+  </div>
+
+  <div eon-ref="export" class="cell-action cell-export ticon ticon-download">
+    <span class="member-card-edit-clickable"></span>
+  </div>
+  <div eon-ref="show" class="cell-action cell-show ticon vicon-visibility2">
+    <span class="member-card-edit-clickable"></span>
+  </div>
+
+  <eon-mask>
+    <div class="mask-card eon-mask-background1"></div>
+  </eon-mask>
+</template>
+
+<script>
+  eon.element("report-card", {
+
+    style: "report-card.css",
+
+    dependencies: [
+      "@custom/app-avatar"
+    ],
+
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function setValues
+      setValues: function (data) {
+        this._misc.data = data;
+
+        this._setAlias(data);
+        this._refs.total.innerHTML = data.total;
+        this._refs.extra.innerHTML = data.extra;
+      }
+    },
+    privateFunctions: {
+      // @function _setupAdvRefs (private)
+      setupAdvRefs: function () {
+        this._refs.grid = this.getEnclosingComponent();
+        if (this._refs.grid) {
+          this._refs.report = this._refs.grid._refs.report;
+        }
+      },
+      // @function _addListener (private)
+      addListener: function () {
+        var el = this;
+        var userId, url, start, end;
+
+        // Tooltip
+        eon.onLocaleLoaded(function () {
+          el._refs.export.setAttribute("title", eon.locale.global.tooltip.export);
+          el._refs.show.setAttribute("title", eon.locale.global.tooltip.goToActivity);
+        });
+
+        this._refs.show.addEventListener("click", function (e) {
+          // Get user information and redirect url
+          url = window.location.origin + "/app/registry" + window.location.search;
+
+          start = !el._refs.report._misc.data.start ? el._misc.data.start : el._refs.report._misc.data.start;
+          end = !el._refs.report._misc.data.end ? el._misc.data.end : el._refs.report._misc.data.end;
+
+          var params = {
+            member: el._misc.data.user,
+            start: start,
+            end: end
+          }
+          // Set month params
+          showView("registry", params);
+        });
+       
+        el._refs.export.addEventListener("click", function () {
+          var reportView = $1("report-view");
+
+          reportView.openExportDialog(el._misc.data, true);
+        });
+      },
+      // @function _setAlias (private)
+      setAlias: function (data) {
+        var fragment = document.createDocumentFragment();
+        var text = document.createElement("span");
+        var mail = data.mail || data.userId;
+
+        var avatar = document.createElement("app-avatar");
+        avatar.userName = data.alias;
+        avatar.image = "/rest/user/avatar/" + mail;
+
+        text.innerHTML = data.alias;
+
+        fragment.appendChild(avatar);
+        fragment.appendChild(text);
+
+        this._refs.alias.appendChild(fragment);
+      }
+    },
+    onTransformed: function () {
+      this._setupAdvRefs();
+      this._addListener();
+    }
+  });
+</script>

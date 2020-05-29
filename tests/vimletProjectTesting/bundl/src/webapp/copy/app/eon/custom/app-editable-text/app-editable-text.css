@@ -1,0 +1,156 @@
+app-editable-text {
+  /* width: 100%; */
+  box-sizing: border-box;
+  /* height:20px; */
+  overflow: hidden;
+  transition: ease height 0.3s;
+}
+app-editable-text[open="true"] {
+  /* height:80px; */
+  /* min-height: 80px;
+  height: auto; */
+}
+app-editable-text[open="true"][box-shadow="true"] {
+  -webkit-box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.5);
+}
+
+
+app-editable-text eon-text {
+  max-width: 100%;
+  transition: ease padding 0.3s;
+}
+
+app-editable-text eon-text .eon-text-underline,
+app-editable-text eon-text .eon-text-description {
+  display: none;
+}
+/* app-editable-text eon-text .eon-text-description {
+  display: none;
+} */
+
+
+app-editable-text eon-text .eon-text-main {
+  color: inherit !important;
+  border: none;
+  background-color: transparent !important;
+  padding: 0; /* TODO */
+  /* padding:0px 0px 10px 0px; */
+}
+
+app-editable-text eon-text .eon-text-main input {
+  font: inherit;
+}
+app-editable-text[open="false"] eon-text .eon-text-main input {
+  cursor:default;
+  /* cursor:pointer; */
+}
+app-editable-text[open="false"] eon-text .eon-text-main input::placeholder {
+  color: #8c27cf;
+}
+app-editable-text[open="false"] eon-text .eon-text-main input:-ms-input-placeholder {
+  color: #8c27cf;
+}
+app-editable-text[open="false"] eon-text .eon-text-main input::-ms-input-placeholder {
+  color: #8c27cf;
+}
+
+/* app-editable-text .app-editable-text-hide {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+} */
+
+app-editable-text .app-editable-text-action {
+  margin-top: 5px;
+}
+app-editable-text[open="false"] .app-editable-text-action {
+  display:none;
+}
+app-editable-text[footer="false"] .app-editable-text-action {
+  display:none;
+}
+
+app-editable-text .app-editable-text-action .app-editable-text-action-buttons {
+  display: flex;
+  flex-direction: row;
+  z-index: 2;
+}
+
+app-editable-text .app-editable-text-action .app-editable-text-action-buttons eon-button:first-child {
+  margin-right: 5px;
+  margin-left: auto;
+}
+
+app-editable-text .app-editable-text-action .app-editable-text-action-buttons eon-button {
+  height: 30px;
+}
+
+app-editable-text .app-editable-text-action .app-editable-text-action-buttons eon-button .eon-button-button {
+  height: 100%;
+}
+
+.app-editable-text-expanded {
+  /* padding: 10px; */
+  box-sizing: border-box;
+  /* border: 1px solid #cccccc; */
+}
+
+.app-editable-text-expanded .eon-text-main {
+  padding:0px 0px 10px 0px;
+}
+
+app-editable-text .content {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 5px;
+  border: 1px solid transparent;
+  transition: 0.2s ease all;
+}
+
+app-editable-text .content:focus {
+  outline: 0px solid transparent;
+  border: 1px solid #8c27cf;
+  -webkit-box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+app-editable-text[editable=true] .content:hover {
+  -webkit-box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+}
+
+app-editable-text[editable=false] eon-text input {
+  cursor: default;
+  /* pointer-events: none; */
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+app-editable-text[editable=false] eon-text .eon-text-main {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+
+app-editable-text .placeholder {
+  color: grey;
+}
+
+app-editable-text .app-editable-text-measure {
+  position: absolute;
+  /* background-color:red; */
+  color: transparent;
+  top: -1000px;
+  left: -1000px;
+  height: auto;
+  width: auto;
+  white-space: nowrap;
+}

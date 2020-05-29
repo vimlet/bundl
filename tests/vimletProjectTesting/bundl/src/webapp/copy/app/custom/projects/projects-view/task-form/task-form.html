@@ -1,0 +1,113 @@
+<template>
+  <!-- <eon-form class="board-form" default-style="false" eon-ref="form"> -->
+  <eon-gutter type="horizontal" collapsible="true">
+    <eon-section class="section">
+      <eon-label editable="true" blur-save="true" eon-ref="taskName"></eon-label>
+    </eon-section>
+    <eon-section>
+      <div class="gutter-box orange"></div>
+      <div class="gutter-box orange"></div>
+      <div class="gutter-box orange"></div>
+      <div class="gutter-box orange"></div>
+    </eon-section>
+  </eon-gutter>
+  <!-- </eon-form> -->
+</template>
+
+<script>
+  eon.element("task-form", {
+    style: "task-form.css",
+    dependencies: [
+      // "@ui/eon-form",
+      "@ui/eon-text",
+      "@ui/eon-gutter",
+      "@ui/eon-label",
+      "@ui/eon-button"
+    ],
+
+    properties: {
+      // @html-attribute task (public) [Task data]
+      task: {
+        value: "",
+        observe: true
+      }
+    },
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function setData (public) [Fill form with existing data]
+      setData: function (data) {
+        var el = this;
+        // console.log("DATA", data);
+        el.task = data;
+        el._refs.taskName.value = data.name;
+      }
+    },
+
+    privateFunctions: {
+      // @function init (private)
+      init: function () {
+        var el = this;
+        el._setUp();
+      },
+      // @function setUp (private)
+      setUp: function (value) {
+        var el = this;
+        el._addListeners();
+      },
+      // @function _addListeners (private)
+      addListeners: function () {
+        var el = this;
+        el._refs.taskName.onBlur(function () {
+          el._updateName(el._refs.taskName.value);
+        });
+      },
+      // @function _updateName (private) [Update board name] @param name
+      updateName: function (name) {
+        var el = this;
+        // console.log(el.task);
+
+        if (name != "" && name != el.task
+          .name) {
+          var url = "/rest/task/" + el.task.id;
+          eon.ajax(url, {
+            contentType: "application/json",
+            method: "PUT",
+            payload: JSON.stringify({
+              name: name
+            })
+          }, function (error, data) {
+            if (!error) {
+              el.task = JSON.parse(data.responseText);
+            } else if (data.status == 401) {
+              session.logout();
+            }
+          });
+        }
+      }
+
+    },
+
+
+    onRender: function () {
+      var el = this;
+      el._init();
+    },
+
+    // onPropertyChanged: function (key, oldVal, newVal) {
+    //     var el = this;
+    //     switch (key) {
+    //         case "task":
+    //             el.setData(newVal);
+    //             break;
+    //     }
+    // }
+
+
+
+  });
+</script>

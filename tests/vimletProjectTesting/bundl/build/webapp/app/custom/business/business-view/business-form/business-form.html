@@ -1,0 +1,155 @@
+<style>
+  business-form {
+    display: flex;
+    width: 100%;
+  }
+
+  business-form .workspace-location {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  business-form .workspace-location .app-places-description {
+    display: none;
+  }
+  business-form .workspace-location.visible-flex {
+    display: block !important;
+  }
+
+  business-form .permissions-column {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  business-form .permission-checks {
+    min-width: 280px;
+    margin-bottom: 4px;
+  }
+
+  @media (max-width: 700px) {
+    business-form .workspace-location {
+      max-width: none;
+    }
+  }
+</style>
+<template>
+  <eon-form class="business-form" eon-ref="form" default-style="false">
+    <!-- Workspace information -->
+    <eon-variable class="form-grouptitle eon-fg-h2" bind="locale.workspace.infoTitle" global="true"></eon-variable>
+    <div class="form-rows info-row">
+      <app-places class="workspace-location form-marginbottom form-text admin-info" eon-ref="workspaceLocation"
+        bind:label="global locale.workspace.fields.address"
+        blind:placeholder="global locale.workspace.fields.addressPlaceHolder" name="position" label-anim="false"
+        inline="false">
+      </app-places>
+    </div>
+    <!-- Options -->
+    <div class="form-rows info-row">
+      <eon-variable class="permissions-grouptitle admin-info form-marginbottom eon-fg-h3"
+        bind="locale.business.registryOptions" global="true">
+      </eon-variable>
+      <div class="permissions-column admin-info form-marginbottom">
+        <eon-toggle bind:label="global locale.business.notifyEditions" eon-ref="notifyEditions"
+          class="permission-checks form-marginright" name="notifyEditions" label-anim="false" inline="false">
+        </eon-toggle>
+        <eon-toggle bind:label="global locale.business.userReports" eon-ref="userReports" class="permission-checks"
+          name="userReports" label-anim="false" inline="false"></eon-toggle>
+      </div>
+    </div>
+  </eon-form>
+</template>
+
+<script>
+  eon.element("business-form", {
+    parse: true,
+    dependencies: [
+      "@ui/eon-toggle",
+      "@ui/eon-form"
+    ],
+    properties: {
+      standalone: {
+        value: true
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      clear: function () {
+        this._refs.form.clear();
+
+        this._refs.notifyEditions.checked = false;
+        this._refs.userReports.checked = false;
+      },
+      getData: function (data) {
+        var formData = this._refs.form.getData();
+
+        if (formData.position && (!formData.position.latitude || !formData.position.longitude)) {
+          delete formData.position;
+        }
+
+        return formData;
+      },
+      setData: function (data) {
+        data.notifyEditions = !data.notifyEditions ? false : true;
+        data.userReports = !data.userReports ? false : true;
+
+        this._refs.form.setData(data);
+      },
+      onSubmit: function (cb) {
+        this._submitCallback = cb;
+      },
+      validate: function () {
+        var el = this;
+        // Submit edition
+        var formData = this.getData();
+
+        // Validate
+        el._refs.form.validate(el._refs.schema, null, function (error) {
+          // Trigger submit
+          el._submitCallback(error, formData);
+        });
+      },
+      // @function validateGen (public) [Validate form] @param callback [Callback called (error,data)]
+      validateGen: function (callback) {
+        var el = this;
+        var formData = this.getData();
+
+        el._refs.form.validate(el._refs.schema, null, function (error) {
+          if (callback) {
+            callback(error, formData);
+          }
+        });
+      }
+    },
+    privateFunctions: {
+      // @function _setup (private)
+      setup: function () {
+        var el = this;
+        el._refs.schema = {
+          properties: {
+            "notifyEditions": {
+              required: false
+            },
+            "userReports": {
+              required: false
+            },
+            "position": {
+              required: false
+            }
+          }
+        };
+      }
+    },
+    onTransformed: function () {
+      this._setup();
+    }
+  });
+</script>

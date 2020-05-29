@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Tobeio - Login</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="mask-icon" href="img/favicon/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#4b4b4b">
+  <meta name="theme-color" content="#ffffff">
+
+  <script>
+    var eon = {
+      theme: "login-claro",
+      importCacheBusting: true,
+      themeCacheBusting: true,
+      pollyfillCacheBusting: true,
+      build: false
+    }
+  </script>
+
+  <!-- Import eon -->
+  <script src="eon/eon-bundle.js"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="css/login.css">
+
+  <script>
+    var urlParams = new URLSearchParams(window.location.search);
+    var inviteToken = urlParams.get("inviteToken");
+    var inviteEmail = urlParams.get("inviteEmail");
+    var email = urlParams.get("email");
+    var validate = urlParams.get("validate");
+    var alias = urlParams.get("alias");
+    var token = urlParams.get("token");
+
+    // Load locale
+    window.locale = navigator.language.split("-")[0] == "es" ? "es" : "en";
+    eon.createCallback("onLocaleLoaded", eon, "ready");
+    eon.ajax("util/locale/" + window.locale + ".json", null, function (error, data) {
+      if (!error) {
+        eon.locale = JSON.parse(data.responseText);
+        eon.triggerCallback("onLocaleLoaded", eon, eon, []);
+      }
+    });
+
+    // Eon elements
+    eon.importBuild("login-build.js");
+
+    eon.import([
+      "eon/ui/eon-form",
+      "eon/ui/eon-text",
+      "eon/ui/eon-button",
+      "eon/ui/eon-dialog"
+    ]);
+
+    function showInfoDialog(cb) {
+      var dialog = document.querySelector("#alert-dialog");
+      dialog.onClose(function () {
+        if (cb) {
+          cb()
+        }
+      });
+      dialog.open();
+    }
+
+    function getPathParams() {
+      var params = "";
+      // TODO - handle with util API
+      if (inviteEmail) {
+        params += "?inviteEmail=" + inviteEmail;
+        params += inviteToken ? "&inviteToken=" + inviteToken : "";
+        params += email ? "&email=" + email : "";
+      } else if (inviteToken) {
+        params += inviteToken ? "?inviteToken=" + inviteToken : "";
+        params += email ? "&email=" + email : "";
+      } else if (email) {
+        params += email ? "?email=" + email : "";
+      }
+
+      return params;
+    }
+
+    function validateEmail(email) {
+      var re = /^(([^<>()\[\]\\.,;:\s@"À-ž]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(String(email).toLowerCase());
+    }
+
+
+    function login() {
+      var form = $1(".form");
+      var formData = form.getData();
+
+      var schema = {
+        properties: {
+          "username": {
+            required: true
+          },
+          "password": {
+            required: true
+          }
+        }
+      };
+
+      form.validate(schema, null, function (error) {
+        var alertText;
+        var mail = document.querySelector('[name="username"]');
+        var password = form.querySelector('[name="password"]');
+       
+        // Validate email syntax
+        if(mail.value && !validateEmail(formData.username)) {
+          error = true;
+          mail.invalid = true;
+          mail.updateDescription(eon.locale.login.invalidMail);
+        } else if(validateEmail(formData.username)){
+          mail.invalid = false;
+          mail.updateDescription("");  
+        }
+        // Validate password format
+        if (formData.password.length < 8) {
+          error = true;
+          password.invalid = true;
+          password.updateDescription(eon.locale.login.wrongPass);
+        } else {
+          password.invalid = false;
+          password.updateDescription("");
+        }
+        
+        if (!error) {
+          formData.username = formData.username.toLowerCase();
+          eon.ajax("/login", {
+            method: "POST",
+            contentType: "application/json",
+            payload: JSON.stringify(formData)
+          }, function (error, data) {
+            if (!error) {
+              window.location.href = JSON.parse(data.responseText).location + getPathParams();
+            }
+          });
+        }
+      });
+    }
+
+    // Sumbit on enter
+    document.addEventListener("keyup", function (e) {
+      if (e.keyCode == 13) {
+        login();
+      }
+    });
+
+    // Fill email form invite
+    eon.onReady(function () {
+      var form = $1(".form");
+
+      form.onReady(function(){
+        if (email || validate || inviteEmail) {
+          var emailField = document.querySelector('[name="username"]');
+          emailField.value = validate || email || inviteEmail;
+          // if(inviteToken) {
+          //   emailField.readonly = true;
+          // }
+        }
+  
+        // Setup register link href to be aware of path params
+        var link = $1("#register-link");
+        link.href += getPathParams();
+  
+        // Make container fit body height fixing MDPI screens issue
+        var mainContainer = document.querySelector(".container");
+        if (mainContainer.offsetHeight > window.innerHeight) {
+          // Fill body height
+          mainContainer.style.height = "100%";
+          document.body.alignItems = "flex-start";
+        }
+      });
+    });
+  </script>
+</head>
+
+<body class="notranslate">
+  <div class="container">
+    <div class="logo"></div>
+    <div class="title">
+      <eon-variable bind="locale.login.title" global="true"></eon-variable>
+    </div>
+    <div class="column-wrapper">
+      <eon-form class="form">
+        <eon-text name="username" bind:placeholder="global locale.login.mailPlaceHolder"
+          bind:label="global locale.login.mail" label-anim="false"></eon-text>
+        <eon-text name="password" bind:placeholder="global locale.login.passwordPlaceHolder"
+          bind:label="global locale.login.password" label-anim="false" type="password">
+        </eon-text>
+        <eon-button bind:label="global locale.login.login" onclick="login();"></eon-button>
+      </eon-form>
+      <div class="separator">
+        <div class="separator-bar"></div>
+      </div>
+      <div class="social">
+        <div class="form-text">
+          <eon-variable bind="locale.login.social" global="true"></eon-variable>
+        </div>
+        <eon-button class="social-button"
+          label="<span class='google-icon'></span></div><eon-variable bind='locale.login.social-google' global='true'></eon-variable>"
+          href="/auth/google"></eon-button>
+        <eon-button class="social-button"
+          label="<span class='facebook-icon'></span><eon-variable bind='locale.login.social-facebook' global='true'></eon-variable>"
+          href="/auth/facebook"></eon-button>
+      </div>
+    </div>
+    <div class="bottom-text">
+      <div class="form-text">
+        <eon-variable bind="locale.login.new" global="true"></eon-variable>
+        <a id="register-link" href="/app/register.html">
+          <eon-variable bind="locale.login.account" global="true"></eon-variable>
+        </a>
+      </div>
+      <div class="form-text">
+        <eon-variable bind="locale.login.forgotten" global="true"></eon-variable> <a href="/app/recovery.html">
+          <eon-variable bind="locale.login.recovery" global="true"></eon-variable>
+        </a>
+      </div>
+    </div>
+  </div>
+  <eon-dialog id="alert-dialog" modal="true" class="alertDialog" blur="true" closable="false" default-style="false">
+    <eon-section type="content">
+    </eon-section>
+    <eon-section type="footer" location="right">
+      <eon-button label="OK" design="flat" onclick="document.querySelector('#alert-dialog').close()"></eon-button>
+    </eon-section>
+  </eon-dialog>
+</body>
+
+</html>

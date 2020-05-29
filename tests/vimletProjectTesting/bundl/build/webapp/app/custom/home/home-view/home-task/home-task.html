@@ -1,0 +1,374 @@
+<style>
+  home-task {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 55px;
+    margin: 10px 0 0 0;
+    padding: 0 10px;
+    box-sizing: border-box;
+    border: 0;
+    border-left-width: 4px !important;
+    border-style: solid;
+    border-radius: 6px;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    background-color: #ffffff;
+    -webkit-box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s, ease 0.3s opacity;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  home-task .home-task-spacer {
+    flex-grow: 1;
+  }
+
+  home-task .home-task-label {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin: 0 5px 0 0;
+  }
+
+  /* TIME TRACKING */
+  home-task .home-task-time {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  home-task .home-task-time>div:not(:first-child) {
+    margin: 0 10px 0 0;
+  }
+
+  home-task .home-task-time-value {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 10px 0 0;
+    transition: color .2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+
+  home-task .home-task-time.home-task-running .home-task-time-value {
+    /* THEME */
+    color: #8c27cf;
+  }
+
+  home-task .home-task-toggle {
+    height: 40px;
+    width: 40px;
+    position: relative;
+  }
+
+  home-task .home-task-resume {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    background: #ffffff;
+    border-radius: 50%;
+    z-index: 1;
+  }
+
+  home-task .home-task-resume.clickable:after {
+    height: calc(100% + 10px);
+    width: calc(100% + 10px);
+    left: calc(50% - 25px);
+    top: calc(50% - 25px);
+  }
+
+  home-task .home-task-rotator {
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border-radius: 50%;
+    -webkit-animation: currentEventKeyframes 1.4s infinite linear;
+    animation: currentEventKeyframes 1.4s infinite linear;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity .2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+
+  home-task .home-task-time.home-task-running .home-task-rotator {
+    opacity: 1;
+  }
+
+  /* PROGRESS */
+
+  /* Time bubble */
+  home-task .home-task-progress {
+    height: 50px;
+    width: 50px;
+    min-height: 50px;
+    min-width: 50px;
+  }
+</style>
+<template>
+
+  <div eon-ref="label" class="home-task-label"></div>
+
+  <div class="home-task-spacer"></div>
+
+  <!-- TIME TRACKING -->
+  <div eon-ref="time" class="home-task-time">
+    <div eon-ref="timeValue" class="home-task-time-value"></div>
+    <div eon-ref="toggle" class="home-task-toggle">
+      <div eon-ref="resume" class="home-task-resume clickable vicon-play eon-fg2 eon-fg2-hoverable"></div>
+      <div eon-ref="rotator" class="home-task-rotator eon-bg1-gradient"></div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <app-circular-progress eon-ref="progress" class="home-task-progress"></app-circular-progress>
+
+</template>
+<script>
+  // * MOMENT JS DEPENDENT *
+  eon.element("home-task", {
+    // style: "home-task.css",
+
+    dependencies: [
+      "@custom/app-circular-progress"
+    ],
+
+    properties: {
+      /*
+        @property {Object} data 
+        @description 
+      */
+      data: {
+        value: {}
+      }
+    },
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      update: function (data) {
+        this.data = data;
+        this._setup();
+      },
+      // @function setLabel (public) [Set label] @param value
+      setLabel: function (value) {
+        var el = this;
+        el._refs.label.innerHTML = value;
+      }
+    },
+    privateFunctions: {
+      // @function _setup (private)
+      setup: function () {
+        // Task color
+        this.style.borderColor = this.color;
+        // Task label
+        this._refs.label.innerHTML = this.data.name;
+        // Task time tracking
+        this._setupTime();
+        // Task progress
+        this._setupProgress();
+      },
+      // @function _setupTime (private)
+      setupTime: function () {
+        // Set task worked time
+        // * start: last start action time,
+        // * elapsed: elapsed time registered in the last interruption,
+        // * current: now
+
+        // Setup task time data
+        this._buildTimeData();
+
+        this._setWorkedTime();
+      },
+      // @function _buildTimeData (private)
+      buildTimeData: function () {
+        var schedule = this.data.schedule || {
+          elapsed: 0,
+          startUTC: null,
+          running: false,
+          estimated: { days: 0, hours: 0, minutes: 0 }
+        };
+
+        schedule.estimated = schedule.estimated || { days: 0, hours: 0, minutes: 0 };
+
+        this._elapsed = !schedule.elapsed ? 0 : Number(schedule.elapsed);
+        this._startUTC = Number(schedule.startUTC);
+        this._running = schedule.running;
+
+        var daysInMill = schedule.estimated.days * 24 * 60 * 60 * 1000;
+        var hoursInMill = schedule.estimated.hours * 60 * 60 * 1000;
+        var minutesInMill = schedule.estimated.minutes * 60 * 1000;
+        this._goal = daysInMill + hoursInMill + minutesInMill;
+      },
+      // @function _setWorkedTime (private)
+      setWorkedTime: function () {
+        var value;
+        if (this._running) {
+          // elapsed + (duration between start and now)
+          value = this._elapsed + moment(moment().valueOf()).diff(this._startUTC);
+
+          this._elapsed = value;
+          value = this._formatElapsed(value);
+        } else {
+          // elapsed
+          value = this._formatElapsed(this._elapsed);
+        }
+
+        this._refs.timeValue.innerHTML = value;
+      },
+      // @function _resumeListener (private)
+      resumeListener: function () {
+        var el = this;
+
+        // Setup tooltip
+        this._refs.resume.setAttribute("title", eon.locale.global.tooltip.play);
+
+        // Start task running indicator if the task has not been stopped 
+        if (this._running) {
+          this._resume(false);
+          this._refs.resume.setAttribute("title", eon.locale.global.tooltip.pause);
+        }
+
+        // Remove confirm button last listener
+        if (this._misc.resumeFn) {
+          this._refs.resume.removeEventListener("click", this._misc.resumeFn.bind(this._refs.resume));
+          this._refs.resume.setAttribute("onclick", "");
+        }
+
+        this._misc.resumeFn = function (event) {
+          event.stopPropagation();
+
+          if (!el._misc.updating) {
+            el._misc.updating = true;
+
+            if (!el._running) {
+              // UPDATE start AND running REQUEST
+              var updateData = {
+                schedule: {
+                  running: true,
+                  startUTC: moment.utc().valueOf().toString()
+                }
+              }
+              eon.triggerCallback("onUpdate", el, el, [el.id, updateData, el._resume.bind(el)]);
+
+            } else {
+              // UPDATE elapsed AND running REQUEST
+              var updateData = {
+                schedule: {
+                  running: false,
+                  elapsed: el._elapsed.toString()
+                }
+              }
+              eon.triggerCallback("onUpdate", el, el, [el.id, updateData, el._pause.bind(el)]);
+            }
+          }
+        };
+
+        this._refs.resume.addEventListener("click", this._misc.resumeFn.bind(this._refs.resume));
+      },
+      // @function _resume (private)
+      resume: function (error, data) {
+        var el = this;
+
+        if (!error) {
+          // Start/resume task
+          this._running = true;
+
+          this._misc.timeInterval = setInterval(function () {
+            el._elapsed += 1000;
+            el._refs.timeValue.innerHTML = el._formatElapsed(el._elapsed);
+            el._progress(el._elapsed);
+          }, 1000);
+
+          this._refs.resume.classList.remove("vicon-play");
+          this._refs.resume.classList.add("vicon-pause");
+          this._refs.resume.title = eon.locale.global.tooltip.pause;
+          this._refs.time.classList.add("home-task-running");
+
+          el._misc.updating = false;
+        }
+      },
+      // @function _pause (private)
+      pause: function (error, data) {
+        if (!error) {
+          // Pause task
+          clearInterval(this._misc.timeInterval);
+          this._misc.timeInterval = null;
+          this._running = false;
+
+          this._refs.resume.classList.add("vicon-play");
+          this._refs.resume.classList.remove("vicon-pause");
+          this._refs.resume.title = eon.locale.global.tooltip.play;
+          this._refs.time.classList.remove("home-task-running");
+
+          this._misc.updating = false;
+        }
+      },
+      // @function _setupProgress (private)
+      setupProgress: function () {
+        this._refs.progress.colorSlide = this.statusColor;
+        this._refs.progress.setAttribute("title", eon.locale.global.tooltip.progress);
+
+        this._progress(this._elapsed);
+      },
+      // @function _progress (private)
+      progress: function (value) {
+        var percent = !this._goal ? 0 : value * 100 / this._goal;
+
+        percent = percent > 100 ? 100 : percent;
+        percent = percent < 0 ? 0 : percent;
+
+        if (this._hasProgressed(percent, this._misc.percent)) {
+          var options = {
+            cancelAnim: true,
+            unset: !this._goal ? true : false
+          };
+          this._refs.progress.onRender(function () {
+            this.progress(parseInt(percent), options);
+          });
+        }
+
+        this._misc.percent = percent;
+      },
+      /*
+        @function (private) _hasProgressed
+        @description 
+      */
+      hasProgressed: function (value, current) {
+        current = parseInt(current);
+        value = parseInt(value);
+
+        if (!current || current != value) {
+          return true;
+        }
+
+        return false;
+      },
+      /*
+        @function (private) _formatElapsed
+        @description 
+      */
+      formatElapsed: function (value) {
+        return moment.duration(value, "milliseconds").format("hh:mm:ss", { trim: false });
+      }
+    },
+
+    onCreated: function () {
+      eon.createCallback("onUpdate", this);
+    },
+    onTransformed: function () {
+      this._setup();
+      // Toggle play listener
+      this._resumeListener();
+    }
+  });
+</script>

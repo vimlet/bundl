@@ -1,0 +1,59 @@
+@element: registry-summary;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+  }
+}
+// Summary header
+.@{element}-header {
+  display: flex;
+  height: 26px;
+  padding-left: 10px;
+  padding-right: 10px;
+  overflow: hidden;
+}
+.@{element}-header > div{
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+.@{element}-header > .@{element}-header-icon {
+  flex: none;
+  cursor: pointer;
+}
+.@{element}-header > .@{element}-header-title {
+  font-size: 18px;
+}
+// Summary content
+.@{element}-content {
+  flex-grow: 1;
+  display: flex;
+  overflow: hidden;
+  height: 0;
+}
+.@{element}-content > div {
+  flex-grow: 1;
+  display: flex;
+  min-width: 150px;
+  flex-direction: column;
+}
+.@{element}-content-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  min-height: 50px;
+  font-weight: bold;
+  font-size: 18px;
+}
+.@{element}-content-value {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
+}
+

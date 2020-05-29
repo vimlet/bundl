@@ -1,0 +1,296 @@
+<template>
+  <eon-form class="user-form" eon-ref="form" default-style="false">
+    <div class="form-action-title">
+      <eon-variable class="form-grouptitle eon-fg-h2" bind="locale.member.workdayTitle" global="true"></eon-variable>
+      <eon-button class="bar-button h1-button" eon-ref="createWorkweek"
+        bind:label="global locale.workspace.buttons.plans" icon="<i class='vicon vicon-add'></i>" design="filled">
+      </eon-button>
+    </div>
+    <div class="form-rows">
+      <div class="form-rows form-marginright form-grow">
+        <eon-combo eon-ref="workweeksCombo" class="form-combo form-marginright form-marginbottom form-grow hide-description" inline="false"
+          bind:label="global locale.workspace.plans.plansTitle" filter="true" name="workweek" label-anim="false">
+        </eon-combo>
+        <!-- <eon-variable eon-ref="createWorkweek" class="user-create-workweek eon-unselectable form-grow"
+            bind="locale.workspace.plans.create" global="true"></eon-variable> -->
+      </div>
+      <div class="form-cols form-grow form-marginbottom">
+        <eon-toggle bind:label="global locale.member.remote" class="user-checks" name="remote" label-anim="false"
+          inline="false"></eon-toggle>
+        <eon-toggle bind:label="global locale.member.autoClose" class="user-checks" name="autoClose" label-anim="false"
+          inline="false"></eon-toggle>
+      </div>
+    </div>
+
+    <div class="form-rows">
+      <div class="form-cols form-grow form-marginright form-marginbottom">
+        <eon-variable class="form-grouptitle eon-fg-h2" bind="locale.extras" global="true"></eon-variable>
+
+        <eon-toggle bind:label="global locale.member.sameDayNewWorkday" class="user-checks" name="sameDayNewWorkday"
+          label-anim="false" inline="false"></eon-toggle>
+        <eon-toggle bind:label="global locale.member.reopenWorkday" class="user-checks" name="reopenWorkday"
+          label-anim="false" inline="false"></eon-toggle>
+        <eon-toggle bind:label="global locale.member.reopenWorkdayFromNow" class="user-checks"
+          name="reopenWorkdayFromNow" label-anim="false" inline="false"></eon-toggle>
+      </div>
+      <div class="form-cols form-grow" style="align-self: flex-start;">
+        <eon-variable class="form-grouptitle eon-fg-h2 form-marginright" bind="locale.breaks" global="true">
+        </eon-variable>
+
+        <eon-toggle bind:label="global locale.member.autoBreak" class="user-checks" name="autoBreak" label-anim="false"
+          inline="false"></eon-toggle>
+      </div>
+    </div>
+    </div>
+  </eon-form>
+</template>
+
+<script>
+  eon.element("business-user-form", {
+
+    // style: "member-grid.css",
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-form",
+      "@ui/eon-combo"
+    ],
+
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      clear: function () {
+        this._refs.form.clear();
+      },
+      refreshPlans: function () {
+        var el = this;
+        readWorkspace(session.data.currentWorkspaceId, function (error, data) {
+          if (!error) {
+            el._setupPlansSelectors(data.workweeks);
+          }
+        });
+      },
+      // @function setUpPlans (public) [Read data and setup plans] @params selected [Selected value if any]
+      setUpPlans: function (selected) {
+        var el = this;
+        readWorkspace(session.data.currentWorkspaceId, function (error, data) {
+          if (!error) {
+            el._setupPlansSelectors(data.workweeks);
+            if (selected) {
+              for (var key in data.workweeks) {
+                if (data.workweeks[key].name === selected) {
+                  el._refs.workweeksCombo.value = key;
+                }
+              }
+            }
+          }
+        });
+      },
+
+      setData: function (workspaceData, memberData) {
+        var formData;
+        var data = workspaceData;
+        var workweek = workspaceData.workweeks ? Object.keys(workspaceData.workweeks)[0] : "";
+
+        this._setupPlansSelectors(workspaceData.workweeks);
+
+        if (memberData) {
+          this._misc.srcData = data;
+          formData = memberData;
+        } else {
+          this._misc.srcData = data;
+
+          var start = data.startTime.split(":");
+          var end = data.endTime.split(":");
+
+          formData = {
+            startHour: start[0],
+            endHour: end[0],
+            startMin: start[1],
+            endMin: end[1],
+            workweek: workweek,
+            remote: data.remote,
+            autoBreak: data.autoBreak,
+            autoClose: data.autoClose,
+            sameDayNewWorkday: false,
+            reopenWorkday: false,
+            reopenWorkdayFromNow: false
+          };
+        }
+
+        this._refs.form.setData(formData);
+      },
+      onSubmit: function (cb) {
+        this._submitCallback = cb;
+      },
+
+      validate: function () {
+        var el = this;
+        // Submit edition
+        var formData = el._refs.form.getData();
+        // Validate
+        el._refs.form.validate(el._refs.schema, null, function (error) {
+          if (!error) {
+            // Trigger submit
+            el._submitCallback(error, formData);
+          }
+        });
+      },
+    },
+    privateFunctions: {
+      // @function _setupAdvRefs (private)
+      setupAdvRefs: function () {
+        this._refs.createPlansDialog = document.querySelector("#plans-add-dialog");
+        this._refs.editUserDialog = document.querySelector("#user-edit-dialog");
+      },
+      // @function _refreshMemberDialog(private)
+      refreshUserDialog: function () {
+        if (this._refs.editUserDialog.openRendered) {
+          var form = this._refs.editUserDialog.querySelector("business-user-form");
+          form.refreshPlans();
+        }
+      },
+
+      // @function _setupForm (private)
+      setupForm: function () {
+        var el = this;
+
+        el._refs.section = this.getEnclosingComponent();
+        el._refs.scroll = el._refs.section.getEnclosingComponent();
+        el._refs.dialog = el._refs.scroll.getEnclosingComponent();
+        el._refs.apply = el._refs.dialog.$1("#user-apply");
+
+        el._refs.schema = {
+          properties: {
+            "workweek": {
+              required: true
+            }
+          }
+        };
+
+        el._setupDateSelectors();
+
+        if (el._refs.apply) {
+          // Edit registry
+          el._refs.apply.addEventListener("click", function (e) {
+            // Submit edition
+            el.validate();
+          });
+        }
+
+        // Go to workweeks
+        el._refs.createWorkweek.addEventListener("click", function (e) {
+          var form = el._refs.createPlansDialog.querySelector("plans-form");
+          form.clear();
+          el._refs.createPlansDialog.open();
+          // Push dialog state
+          pushDialogState(el._refs.createPlansDialog);
+
+          form.onSubmit(function (error, data) {
+            if (!error) {
+              createWorkweek(session.data.currentWorkspaceId, data, function (error, data) {
+                if (!error) {
+                  var currentWorkspaceId = session.data.currentWorkspaceId;
+                  session.getSession(currentWorkspaceId);
+                  // TODO Update members plans combo
+                  el._refreshMemberDialog();
+                } else {
+                  showInfoDialog(eon.locale.workspace.alert.workweekCreationFail, function () { });
+                }
+                el._refs.createPlansDialog.close();
+              });
+            }
+          });
+
+        });
+      },
+
+
+      // @function _setupPlansSelectors (private)
+      setupPlansSelectors: function (workweeks) {
+        var el = this;
+        // Clear items
+        el._refs.workweeksCombo.clearItems();
+
+        for (var key in workweeks) {
+          var item = document.createElement("eon-item");
+
+          item.value = key;
+          item.displayValue = workweeks[key].name;
+          item.workweek = workweeks[key];
+
+          if (item.workweek) {
+            el._refs.workweeksCombo.addItem(item);
+          }
+        }
+      },
+
+      // @function _setupDateSelectors (private)
+      setupDateSelectors: function () {
+        var el = this;
+        var combos = el.querySelectorAll(".timeCombo");
+
+        for (var i = 0; i < combos.length; i++) {
+          if (combos[i].classList.contains("hourCombo")) {
+            el._setHours(combos[i]);
+          } else {
+            el._setMins(combos[i]);
+          }
+        }
+      },
+
+      // @function _setHours (private)
+      setHours: function (combo) {
+        var item;
+        var valueNumber;
+        var hours = new Array(24);
+
+        // Create range combo items
+        for (var i = 0; i < hours.length; i++) {
+          item = document.createElement("eon-item");
+          valueNumber = i > 9 ? i : "0" + i;
+
+          item.value = valueNumber;
+          item.displayValue = valueNumber;
+          combo.addItem(item);
+        }
+      },
+
+      // @function _setMins (private)
+      setMins: function (combo) {
+        var item;
+        var valueNumber;
+        var mins = new Array(60);
+
+        // Create range combo items
+        for (var i = 0; i < mins.length; i++) {
+          item = document.createElement("eon-item");
+          valueNumber = i > 9 ? i : "0" + i;
+          item.value = valueNumber;
+          item.displayValue = valueNumber;
+          combo.addItem(item);
+        }
+      }
+    },
+    onCreated: function () {
+      var el = this;
+    },
+    onTransformed: function () {
+      this._setupAdvRefs();
+      this._setupForm();
+    },
+
+  });
+</script>

@@ -1,0 +1,302 @@
+<template>
+
+  <eon-form class="member-form" eon-ref="form" default-style="false">
+    <eon-variable class="form-grouptitle eon-fg-h2" bind="locale.member.infoTitle" global="true"></eon-variable>
+
+    <div class="form-group">
+      <!-- Invitation mail -->
+      <div class="form-rows form-marginbottom-description">
+        <eon-text bind:label="global locale.member.inviteMail" eon-ref="mail"
+          class="member-mail form-text" bind:placeholder="global locale.member.mailPlaceHolder"
+          name="mail" label-anim="false" inline="false">
+        </eon-text>
+        <eon-button eon-ref="send" id="invite-email-send" bind:value="global locale.global.send">
+        </eon-button>
+      </div>
+
+      <!-- Invitation link -->
+      <div id="member-link" class="form-cols info-row invite-field" eon-ref="inviteFields">
+        <eon-variable bind="locale.member.shareLinkTitle" global="true" class="eon-fg-h3 form-marginbottom">
+        </eon-variable>
+        <div id="member-link-button" eon-ref="createLinkButton" class="eon-fg2-hoverable form-marginbottom">
+          <i class="vicon vicon-link"></i>
+          <eon-variable bind="locale.member.createLink" global="true"></eon-variable>
+        </div>
+        <div eon-ref="linkFields" id="member-link-fields" class="hide">
+          <eon-text eon-ref="linkInput" class="form-text form-marginbottom hide-description" readonly="true" label-anim="false" inline="false">
+          </eon-text>
+          <eon-button eon-ref="copyLink" design="filled" bind:value="global locale.global.copy"></eon-button>
+        </div>
+        <eon-variable id="member-link-disable" class="eon-fg2-hoverable hide" eon-ref="disableLinkButton" bind="locale.member.disableLink" global="true"></eon-variable>
+      </div>
+
+      <div class="form-cols">
+        <!-- <eon-text bind:label="global locale.member.alias" class="form-marginright form-text form-grow"
+          bind:placeholder="global locale.member.aliasPlaceHolder" name="alias" label-anim="false" inline="false"
+          eon-ref="alias">
+        </eon-text> -->
+
+        <!-- [Permission] -->
+        <!-- *role(combo)["admin","user"] -->
+        <eon-combo eon-ref="roleField" class="member-role form-combo hide-description edit-field" bind:label="global locale.member.role"
+          bind:placeholder="global locale.member.role" name="role" label-anim="false" inline="false" value="user">
+          <eon-item value="admin" bind:display-value="global locale.member.admin"></eon-item>
+          <eon-item value="user" bind:display-value="global locale.member.user"></eon-item>
+        </eon-combo>
+      </div>
+
+    </div>
+  </eon-form>
+</template>
+
+<script>
+  eon.element("member-form", {
+    style: "member-form.css",
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-form",
+      "@ui/eon-combo"
+    ],
+    properties: {
+      refs: {
+        value: {}
+      },
+      // @html-attribute newPlan (public) [Show/Hide apply to members button. Default show]
+      newPlan: {
+        value: "true",
+        reflect: true
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      clear: function () {
+        // Clear email
+        this._refs.mail.value = "";
+        this._refs.mail.invalid = false;
+        // * Do not clear link input value to avoid duplicated links generation
+
+      },
+      setData: function (workspaceData, memberData) {
+        var formData;
+        var data = workspaceData;
+
+        if (memberData) {
+          this._misc.srcData = data;
+          formData = memberData;
+        } else if (data.startTime){
+          this._misc.srcData = data;
+
+          var start = data.startTime.split(":");
+          var end = data.endTime.split(":");
+
+          formData = {
+            mail: data.mail,
+            alias: data.alias,
+            role: data.role
+          };
+        }
+        
+        if(workspaceData.invitation) {
+          this._misc.invitationId = workspaceData.invitation.token;
+          // Show link
+          this._refs.linkInput.value = workspaceData.invitation.link;
+          this._showLink();
+        } else {
+          this._hideLink();
+        }
+
+        this._refs.form.setData(formData);
+      },
+      onSubmit: function (cb) {
+        this._submitCallback = cb;
+      },
+      // @function setReadOnly
+      setReadOnly: function () {
+        this._refs.mail.readonly = true;
+      },
+
+      validate: function () {
+        var el = this;
+        // Submit edition
+        var formData = el._refs.form.getData();
+        // Validate
+        el._refs.form.validate(el._refs.schema, null, function (error) {
+          if (!error) {
+            // Trigger submit
+            el._submitCallback(error, formData);
+          }
+        });
+      },
+      // @function validateGen (public) [Validate form] @param callback [Callback called (error,data)]
+      validateGen: function (callback) {
+        var el = this;
+        var formData = el._refs.form.getData();
+        el._refs.form.validate(el._refs.schema, null, function (error) {
+          if (callback) {
+            callback(error, formData);
+          }
+        });
+      },
+
+      validateDelete: function () {
+        var el = this;
+
+        openDeleteConfirmation(function () {
+          // Submit delete 
+          var formData = el._refs.form.getData();
+          formData.delete = true;
+          // Validate
+          el._refs.form.validate(el._refs.schema, null, function (error) {
+            // Trigger submit
+            el._submitCallback(error, formData);
+          });
+        });
+      },
+      showInviteFields: function () {
+        var el = this;
+        this._refs.inviteFields.classList.remove("hide");
+        this._refs.roleField.classList.add("hide");
+        this._refs.send.classList.remove("hide");
+      },
+      showEditFields: function () {
+        var el = this;
+        this._refs.inviteFields.classList.add("hide");
+        this._refs.roleField.classList.remove("hide");
+        this._refs.send.classList.add("hide");
+      }
+    },
+    privateFunctions: {
+      // @function _setupAdvRefs (private)
+      setupAdvRefs: function () {
+        this._refs.editMemberDialog = document.querySelector("#member-edit-dialog");
+      },
+      // @function _setupForm (private)
+      setupForm: function () {
+        var el = this;
+
+        el._refs.section = this.getEnclosingComponent();
+        el._refs.scroll = el._refs.section.getEnclosingComponent();
+        el._refs.dialog = el._refs.scroll.getEnclosingComponent();
+        el._refs.delete = el._refs.dialog.$1("#member-delete");
+        el._refs.apply = el._refs.dialog.$1("#member-apply");
+
+        el._refs.schema = {
+          properties: {
+            "mail": {
+              required: true
+            }
+            // "role": {
+            //   required: true
+            // }
+          }
+        };
+
+        if (el._refs.apply) {
+          // Edit registry
+          el._refs.apply.addEventListener("click", function (e) {
+            // Submit edition
+            el.validate();
+          });
+          // Delete member
+          el._refs.delete.addEventListener("click", function (e) {
+            el.validateDelete();
+          });
+        }
+
+        if (el._refs.send) {
+          // Delete member
+          el._refs.send.addEventListener("click", function (e) {
+            // Submit creation
+            el.validate();
+          });
+        }
+      },
+      // @function _setupInvListeners (private)
+      setupInvListeners: function () {
+        var el = this;
+        var workspaceId;
+
+        this._refs.createLinkButton.addEventListener("click", function (e) {
+          // Create link
+          if (!el._misc.linkCreated) {
+            workspaceId = el._misc.workspaceId || session.data.currentWorkspaceId;
+
+            createInvitation(workspaceId, function (error, data) {
+              if (!error) {
+                el._misc.invitationId = data.token;
+                // Show link
+                el._refs.linkInput.value = data.link;
+
+                el._showLink();
+              }
+            });
+          }
+        });
+
+        // Copy link
+        this._refs.copyLink.addEventListener("click", function () {
+          el._refs.linkInput._refs.input.select();
+          document.execCommand("copy");
+        });
+
+        // TODO Disable created link
+        this._refs.disableLinkButton.addEventListener("click", function(e) {
+          workspaceId = el._misc.workspaceId || session.data.currentWorkspaceId;
+
+          deleteInvitation(workspaceId, el._misc.invitationId, function (error, data) {
+            if (!error) {
+                el._hideLink();
+              }
+            });
+        });
+      },
+      // @function _hideLink (private)
+      hideLink: function () {
+        // Hide current link related field
+        this._refs.disableLinkButton.classList.add("hide");
+        this._refs.linkFields.classList.add("hide");
+
+        // Enable link creation
+        this._enableLinkCreation();
+      },
+      // @function _showLink (private)
+      showLink: function () {
+        // Show link related field
+        this._refs.linkFields.classList.remove("hide");
+        this._refs.disableLinkButton.classList.remove("hide");
+                
+        // Disable link creation button
+        this._disableLinkCreation();
+      },
+      // @function _disableLinkCreation (private)
+      disableLinkCreation: function () {
+        this._misc.linkCreated = true;
+
+        this._refs.createLinkButton.classList.remove("eon-fg2-hoverable");
+        this._refs.createLinkButton.classList.add("eon-fg2-disabled");
+      },
+      // @function _enableLinkCreation (private)
+      enableLinkCreation: function () {
+        this._misc.linkCreated = false;
+
+        this._refs.createLinkButton.classList.add("eon-fg2-hoverable");
+        this._refs.createLinkButton.classList.remove("eon-fg2-disabled");
+      }
+
+    },
+    onTransformed: function () {
+      this._setupAdvRefs();
+      this._setupForm();
+      this._setupInvListeners();
+    }
+  });
+</script>

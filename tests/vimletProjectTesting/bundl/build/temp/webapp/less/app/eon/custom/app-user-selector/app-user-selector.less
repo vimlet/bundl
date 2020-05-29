@@ -1,0 +1,174 @@
+@element: app-user-selector;
+
+@{element} {
+  & {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .@{element}-switch {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 2px solid #efefef;
+    box-sizing: border-box;
+    width: auto;
+  }
+
+  .@{element}-switch>eon-variable:first-child {
+    padding-left: 20px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+  }
+
+  .@{element}-switch>eon-variable:last-child {
+    padding-right: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+
+
+  .@{element}-switch-spacer {
+    border-right: 1px solid #dcdcdc;
+    width: 0;
+    height: 18px;
+    flex: none;
+  }
+  .@{element}-switch-child {
+    cursor: pointer;
+    padding: 6px;
+    transition: ease background 0.2s;
+  }
+
+  .@{element}-switch-child:hover {
+    background-color: #efefef;
+  }
+ 
+  .@{element}-switch-left:hover {
+    border-radius: 20px 0 0 20px;
+  }
+  .@{element}-switch-right:hover {
+    border-radius: 0 20px 20px 0;
+  }
+
+  &[group-selector="false"] .@{element}-switch {
+    border: none;
+    align-self: baseline;
+  }
+  &[group-selector="false"] .@{element}-switch>eon-variable:first-child {
+    padding: 0;
+    cursor: auto;
+  }
+  &[group-selector="false"] .@{element}-switch-right {
+    display: none;
+  }
+  &[group-selector="false"] .@{element}-switch-spacer {
+    display: none;
+  }
+
+  &[group-selector="false"] .@{element}-switch-child:hover {
+    background-color: #ffffff;
+  }
+
+  &[group-selector="true"] .@{element}-switch-active {
+    text-decoration: underline;
+  }
+  .@{element}-switch-active {
+    color: #8c27cf;
+  }
+
+  .@{element}-switch-child-disabled {
+    color: #cecece !important;
+    cursor: not-allowed;
+  }
+  
+  .@{element}-view {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    // padding: 0 10px;
+
+  }
+  .@{element}-view-active { 
+    display: flex;
+  }
+  .@{element}-view-action { 
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 15px;
+    // padding: 0 10px;
+    box-sizing: border-box;
+  }
+
+  .form-only-title {
+    justify-content: center;
+  }
+
+  .@{element}-pagination {
+    align-self: flex-end;
+  }
+
+  app-avatar .app-avatar-background {
+    height: 36px;
+    width: 36px;
+  }
+  
+  app-avatar .app-avatar-image {
+    height: 30px;
+    width: 30px;
+  }
+
+  .check-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    box-sizing: border-box;
+    width: 100%;
+    // margin-top: 20px;
+    // padding: 0 10px;
+  }
+
+  .member-selector-form-userBlock {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 250px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .member-selector-form-userBlock app-avatar {
+    display: flex;
+    align-items: center;
+    min-width: 41px;
+    margin-right: 8px;
+  }
+
+  @media (max-width: 700px) {
+    .@{element}-view {
+      padding: 0;
+    }
+    .member-selector-form-userBlock {
+      width: 200px;
+      padding: 5px 10px;
+    }
+  }
+  @media (max-width: 600px) {
+    .@{element}-pagination {
+      margin-top: 5px;
+    }
+    .member-selector-form-userBlock {
+      width: 100%;
+    }
+  }
+}

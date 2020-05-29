@@ -1,0 +1,74 @@
+<template>
+  <eon-mask>
+    <div class="registry-day-mask-title">
+      <div class="registry-day-mask-title-placeholder eon-mask-background1"></div>
+    </div>
+    <div class="registry-day-mask-entry eon-mask-background1"></div>
+    <div class="registry-day-mask-entry eon-mask-background1"></div>
+  </eon-mask>
+</template>
+
+<script>
+  eon.element("registry-day", {
+
+    style: "registry-day.css",
+
+    dependencies: [
+      "../registry-entry",
+      "../registry-card"
+    ],
+
+    properties: {
+      head: {
+        value: ""
+      },
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+    },
+    privateFunctions: {
+      // @function _fillTitle (private)
+      fillTitle: function (text) {
+        var title = document.createElement("div");
+        var span = document.createElement("span");
+        var icon = document.createElement("i");
+
+        var splitText = text.split(" ");
+
+        span.classList.add("day-span");
+        // icon.classList.add("day-separator", "vicon-play");
+        icon.classList.add("day-separator");
+        icon.innerHTML = "<svg id='Capa_1' height='16' width='14' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 14 14' style='enable-background:new 0 0 14 14;' xml:space='preserve'><style type='text/css'>.dot0{fill:url(#SVGID_1_);}.dot1{fill:#FAFBFC;}</style><linearGradient id='SVGID_1_' gradientUnits='userSpaceOnUse' x1='2537.8271' y1='-3043.8271' x2='2551.8271' y2='-3043.8271' gradientTransform='matrix(0 1 -1 0 -3036.8271 -2537.8271)'><stop  offset='0' style='stop-color:#A61AD0'/><stop  offset='0.2692' style='stop-color:#9C1AE5'/><stop  offset='0.5531' style='stop-color:#8F1AFF'/><stop  offset='1' style='stop-color:#3A50CD'/></linearGradient><circle class='dot0' cx='7' cy='7' r='7'/><circle class='dot1' cx='7' cy='7' r='3.2'/></svg>";
+        title.classList.add("day-title");
+
+        title.innerHTML = eon.util.firstToUpperCase(splitText[0]) + " " + splitText[1] + "&nbsp;";
+        span.innerHTML = eon.util.firstToUpperCase(splitText[2]);
+        title.appendChild(span);
+
+        title.insertBefore(icon, title.firstChild);
+        this.insertBefore(title, this.firstChild);
+      }
+    },
+    onInit: function () {
+      var el = this;
+
+      el._fillTitle(el.head);
+
+      session.onReady(function () {
+        // el._setupAdminUI();
+      });
+    }
+
+  });
+</script>

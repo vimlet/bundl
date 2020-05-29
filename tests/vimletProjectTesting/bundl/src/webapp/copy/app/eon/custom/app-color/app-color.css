@@ -1,0 +1,126 @@
+app-color {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+app-color .app-color-layout {
+  display: inline-flex;
+  padding: 0px 5px;
+  align-items: flex-end;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+app-color input {
+  display: none;
+}
+
+app-color eon-button {
+  margin-right: 5px;
+}
+
+app-color .app-color-preview {
+  /* height: 36px;
+  width: 50px; */
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  height: 10px;
+  width: 10px;
+  min-width: 10px;
+  border-radius: 50%;
+  transition: background-color .2s cubic-bezier(0.4, 0, 0.2, 0);
+}
+
+app-color .hide {
+  display: none;
+}
+
+app-color .app-color-label {
+  color: #8c27cf;
+  font-size: 16px;
+  height: 18px;
+  margin: 0 0 10px 0;
+}
+
+app-color .app-color-vertical-separator {
+  border-right: 1px solid;
+  height: 30px;
+}
+app-color eon-scroll{
+  /* border-right: 1px solid #efefef;
+  border-left: 1px solid #efefef; */
+  padding-left: 10px;
+}
+
+app-color .app-color-predefined {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 0 0 5px 5px;
+  height: 100%;
+  box-sizing: border-box;
+  /* flex-wrap: wrap; */
+  flex-grow: 1;
+  /* justify-content: space-between; */
+  /* margin-right: 12px; */
+  margin-bottom: 10px;
+}
+
+app-color .app-color-predefined>div {
+  margin-right: 10px;
+  margin-top: 5px;
+}
+
+app-color .app-color-custom {
+  position: relative;
+  font-size: 24px;
+  height: 27px;
+  width: 27px;
+  min-height: 27px;
+  min-width: 27px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: color .2s cubic-bezier(0.4, 0, 0.2, 0);
+  margin: 0 5px 15px 10px;
+}
+
+app-color .app-color-predefined-color {
+  position: relative;
+  flex-shrink: 0;
+  height: 27px;
+  width: 27px;
+  min-height: 27px;
+  min-width: 27px;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+app-color .app-color-predefined-color:after,
+app-color .app-color-custom:after {
+  content: "";
+  position: absolute;
+  height: calc(100% + 8px);
+  width: calc(100% + 8px);
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  border-radius: 50%;
+  transition: border-color .2s ease;
+}
+
+app-color .app-color-predefined-color.selected:after,
+app-color .app-color-custom.selected:after {
+  border-color: #8c27cf;
+}
+
+@media (max-width: 500px) {
+  app-color .app-color-predefined {
+    justify-content: flex-start;
+  }
+}

@@ -1,0 +1,280 @@
+@import "../../../../eon/theme/att-claro/variables.less";
+@element: project-view;
+
+@{element} {
+  & {
+    width: 100%;
+    height: 100%;
+    // height: calc(100% - 10px);
+    // height: calc(100% - 50px);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  // WIP OVERLAYS
+  .timeline-view .wip-overlay>div {
+    background-image: url("/app/img/wip/timeline-mob.png");
+  }
+
+  .calendar-view .wip-overlay>div {
+    background-image: url("/app/img/wip/calendar-mob.png");
+  }
+
+  & .title-row {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  & .title-row .title-row-title {
+    margin-left: 4px;
+  }
+
+  // & .project-view-adjust-settings {
+  //   display: none;
+  //   margin-right: 120px;
+  // }
+
+  & .project-view-default {
+    display: none;
+    margin-left: 10px;
+    padding: 0px;
+    margin-bottom: 5px;
+  }
+
+  & .project-view-default .eon-toggle-label {
+    flex-direction: column-reverse;
+  }
+
+  & .project-view-default .eon-toggle-label>*:first-child {
+    align-self: baseline;
+  }
+
+  & .project-view-default .eon-toggle-label>*:last-child {
+    color: #8e8e8e;
+    font-size: 13px;
+    margin-bottom: 5px;
+  }
+
+
+  & .title-row .action-buttons {
+    position: relative !important;
+    right: 0px !important;
+  }
+
+
+  & .title-row .breadcrumb-menu {
+    width: auto;
+  }
+
+  & .title-row .breadcrumb-current {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+    display: inline-block;
+    line-height: 64px;
+  }
+
+  & .title-row .action-buttons>eon-button:last-child {
+    margin-right: 0px;
+  }
+
+  & .title-row eon-text,
+  & .title-row eon-label {
+    max-width: 200px;
+  }
+
+  & .title-row eon-text .eon-text-description,
+  & .title-row eon-label .eon-label-description {
+    display: none !important;
+  }
+
+  & .title-row eon-text .eon-text-main,
+  & .title-row eon-label .eon-label-main {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+  }
+
+  & .title-row eon-text .eon-text-main input,
+  & .title-row eon-label .eon-label-main input {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  & .project-view-selector {
+    display: none;
+    width: auto;
+  }
+
+  // & .project-view-selector>eon-variable:first-child {
+  //   padding-left: 20px;
+  //   border-top-left-radius: 20px;
+  //   border-bottom-left-radius: 20px;
+  // }
+
+  // & .project-view-selector>eon-variable:last-child {
+  //   padding-right: 20px;
+  //   border-top-right-radius: 20px;
+  //   border-bottom-right-radius: 20px;
+  // }
+
+  // & .project-view-selector-spacer {
+  //   border-right: 1px solid #dcdcdc;
+  //   width: 0;
+  //   height: 18px;
+  //   flex: none;
+  // }
+
+  // & .project-view-selector-child {
+  //   cursor: pointer;
+  //   padding: 10px;
+  //   transition: ease all 0.2s;
+  // }
+
+  // & .project-view-selector-child:hover {
+  //   // background-color: #efefef;
+  //   // color:#949494;
+  //   text-decoration: underline;
+  // }
+
+  // & .project-view-selector-child-active {
+  //   color: @eonFrontColor;
+  // }
+
+  & .breadcrumb-prev,
+  & .breadcrumb-slash {
+    display: none;
+  }
+
+
+
+}
+
+
+
+.project-view-mobile-button-open {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 500;
+}
+
+& .project-view-selector-mobile {
+  display: flex !important;
+}
+
+.project-view-selector-mobile-content .app-toggle-menu-label>eon-variable:first-child {
+  margin-right: 45px;
+}
+
+.project-view-selector-mobile-content .app-toggle-menu-label>eon-variable:last-child {
+  font-weight: normal;
+}
+
+.project-view-selector-mobile-content-item {
+  position: relative;
+}
+
+.project-view-selector-mobile-content-item eon-variable {
+  flex-grow: 1;
+}
+
+.project-view-selector-mobile-content-item eon-variable.clickable:after {
+  width: 100%;
+  left: -5px;
+  top: -10px;
+}
+
+.project-view-selector-mobile-content-item eon-radio {
+  margin: 0 0 0 10px;
+}
+
+.project-view-selector-mobile-content-item eon-radio .eon-radio-outspan {
+  margin: 0;
+}
+
+
+@media (min-width: 500px) {
+  @{element} {
+
+    & .breadcrumb-prev,
+    & .breadcrumb-slash {
+      display: flex;
+    }
+  }
+}
+
+@media (min-width: 700px) {
+  @{element} {
+    & .title-row .breadcrumb-current {
+      max-width: 200px;
+    }
+  }
+}
+
+// WIP OVERLAYS
+@media (min-width: 768px) {
+  @{element} .timeline-view .wip-overlay>div {
+    background-image: url("/app/img/wip/timeline.png");
+  }
+
+  @{element} .calendar-view .wip-overlay>div {
+    background-image: url("/app/img/wip/calendar.png");
+  }
+}
+
+@media (min-width: 800px) {
+  @{element} {
+    & .title-row .breadcrumb-current {
+      max-width: 300px;
+    }
+  }
+
+  .project-view-mobile-button-open {
+    display: none !important;
+  }
+
+}
+
+@media (min-width: 1000px) {
+  @{element} {
+    & .title-row .breadcrumb-current {
+      max-width: 100px;
+    }
+
+    & .project-view-selector {
+      display: flex;
+    }
+
+    // & .project-view-adjust-settings {
+    //   display: block;
+    // }
+
+    & .project-view-selector-mobile {
+      display: none !important;
+    }
+
+    & .project-view-default {
+      display: block;
+    }
+
+  }
+}
+
+@media (min-width: 1100px) {
+  @{element} {
+    & .title-row .breadcrumb-current {
+      max-width: 200px;
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  @{element} {
+    & .title-row .breadcrumb-current {
+      max-width: 300px;
+    }
+  }
+}

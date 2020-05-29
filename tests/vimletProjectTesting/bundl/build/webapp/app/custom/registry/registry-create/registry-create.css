@@ -1,0 +1,75 @@
+@element: registry-create;
+
+@{element} {
+  & {
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .@{element}-ranges {
+    overflow: hidden;
+  }
+
+  // .eon-scroll-content {
+  //   max-height: 100%;
+  // }
+  .form-swiper eon-swiper-slide {
+    overflow: hidden;
+  }
+  .form-group {
+    height: 100%;
+  }
+  & .bar-button {
+    max-width: 200px;
+  }
+  .check-group {
+    display: flex;
+    flex-wrap: wrap
+  }
+
+  eon-toggle {
+    padding: 5px 3px;
+  }
+  .formError {
+    font-size: 13px;
+    color: #c33232;
+    visibility: hidden;
+  }
+  .formError.show {
+    visibility: visible;
+  }
+
+  .userSelector {
+    max-height: 220px;
+    height: 100%;
+  }
+  .userSelector .form-only-title {
+    justify-content: start;
+  }
+
+  .userSelector .app-user-selector-switch {
+    display: none;
+  }
+
+  .userSelector app-pagination {
+    margin-top: 0;
+  }
+
+  // TEMP
+  .member-title {
+    display: none;
+  }
+
+  @media (max-width: 700px) {
+    .form-rows {
+      align-items: flex-start;
+    }
+  }
+    
+  @media (max-width: 420px) {
+    eon-number {
+      width: 100% !important;
+    }
+  }
+}

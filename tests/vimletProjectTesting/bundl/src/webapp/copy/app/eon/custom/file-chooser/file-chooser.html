@@ -1,0 +1,103 @@
+<template>
+  <input type="file" class="file-chooser-input" name="avatar" eon-ref="input" />
+  <eon-text class="file-chooser-text" bind:placeholder="global locale.global.noImage" readonly="true" name="image"
+      label-anim="false" tooltip="(Max 5MB)" eon-ref="text" inline="false"></eon-text>
+</template>
+
+<script>
+  eon.element("file-chooser", {
+      style: "file-chooser.css",
+      dependencies: [
+          "@ui/eon-text",
+          "@ui/eon-button"
+      ],
+
+      properties: {
+          // @html-attribute label
+          label: {
+              value: "",
+              reflect: true
+          },
+          // @html-attribute value
+          value: {
+              value: "",
+              observe: true
+          },
+          // @html-attribute invalid
+          invalid: {
+              value: "",
+              observe: true
+          }
+      },
+
+      privateProperties: {
+          misc: {
+              value: {}
+          }
+      },
+      functions: {
+          // @function setLabel (public) [Set label] @param label
+          setLabel: function (label) {
+              var el = this;
+              el._refs.text.label = label;
+          }
+      },
+
+      privateFunctions: {
+          // @function init (private)
+          init: function () {
+              var el = this;
+              el._setUp();
+              if (el.value) {
+                  el._refs.text.value = el.value;
+              }
+          },
+          // @function setUp (private)
+          setUp: function (value) {
+              var el = this;
+              el._addListeners();
+          },
+          // @function _addListeners (private)
+          addListeners: function () {
+              var el = this;
+              el._refs.text.addEventListener("click", function () {
+                  el._refs.input.click();
+              });
+              el._refs.input.addEventListener("change", function () {                    
+                  var val = el._refs.input.value.replace(/C:\\fakepath\\/i, '');
+                  el._refs.text.value = val;
+                  el.value = el._refs.input.files[0];
+                  eon.triggerCallback("onChange", el, el, [el._refs.input.files[0]]);
+              });
+          }
+      },
+
+      onCreated: function () {
+          var el = this;
+          eon.createCallback("onChange", el);
+      },
+
+      onRender: function () {
+          var el = this;
+          el._init();
+      },
+
+      onPropertyChanged: function (key, oldVal, newVal) {
+          var el = this;
+          switch (key) {
+              case "label":
+                  el.setLabel(newVal);
+                  break;
+              case "value":
+                  el._refs.text.value = newVal;
+                  break;
+              case "invalid":
+                  el._refs.text.invalid = newVal;
+                  break;
+          }
+      }
+
+
+
+  });
+</script>

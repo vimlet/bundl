@@ -1,0 +1,124 @@
+<style>
+  business-user-entry>div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    min-width: 195px;
+    min-height: 30px;
+    flex-basis: 0;
+  }
+
+  business-user-entry .cell-alias {
+    position: relative;
+    justify-content: flex-start !important;
+    padding: 0 50px 0 150px;
+    box-sizing: border-box;
+  }
+</style>
+
+<template>
+  <div eon-ref="alias" class="cell-alias"></div>
+  <div eon-ref="workweek"></div>
+  <div class="cell-empty"></div>
+  <div eon-ref="edit" class="cell-action cell-edit vicon ticon-edit visible clickable">
+
+  </div>
+</template>
+
+<script>
+  eon.element("business-user-entry", {
+
+    // style: "member-grid.css",
+    parse: true,
+
+    dependencies: [
+      "@custom/app-avatar"
+    ],
+
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function setValues
+      setValues: function (data, userMail, workweek) {
+        this._misc.data = data;
+
+        this._setAlias(data);
+
+        // TODO: Edit member rest 
+        if (workweek) {
+          this._refs.workweek.innerHTML = workweek.name;
+        }
+      }
+    },
+    privateFunctions: {
+      // @function _setupAdvRefs (private)
+      setupAdvRefs: function () {
+        this._refs.grid = this.getEnclosingComponent();
+        this._refs.editUserDialog = document.querySelector("#user-edit-dialog");
+      },
+      // @function _setupEdition (private)
+      setupEdition: function () {
+        var el = this;
+        el._editListener();
+      },
+      // @function _editListener (private)
+      editListener: function () {
+        var el = this;
+        this._refs.edit.addEventListener("click", function (e) {
+          eon.triggerCallback("onEdit", el, el, [el._misc.data.memberId]);
+        }, false);
+      },
+
+      // @function _setAlias(private)
+      setAlias: function (data) {
+        var fragment = document.createDocumentFragment();
+        var aliasWrapper = document.createElement("div");
+        aliasWrapper.classList.add("cell-alias-wrapper");
+        var text = document.createElement("span");
+
+        var mail = data.mail || data.userId;
+
+        var avatar = document.createElement("app-avatar");
+        avatar.userName = data.alias;
+        avatar.image = "/rest/user/avatar/" + mail;
+
+        text.innerHTML = data.alias;
+        if (data.owner) {
+          // Owner
+          var label = document.createElement("span");
+          label.classList.add("owner-span");
+          label.innerHTML = "(owner)";
+          fragment.appendChild(label);
+        }
+
+        aliasWrapper.appendChild(avatar);
+        aliasWrapper.appendChild(text);
+        fragment.appendChild(aliasWrapper);
+
+        this._refs.alias.appendChild(fragment);
+      },
+    },
+    onCreated: function () {
+      var el = this;
+      eon.createCallback("onEdit", el);
+    },
+    onTransformed: function () {
+      this._setupAdvRefs();
+      this._setupEdition();
+    },
+
+  });
+</script>

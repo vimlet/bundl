@@ -1,0 +1,122 @@
+@import "variables.less";
+@element: eon-date;
+
+eon-date[theme="@{theme}"],
+eon-overlay[theme="@{theme}"],
+div[data-theme="@{theme}"] eon-date,
+body[data-theme="@{theme}"] eon-date {
+  &[disabled="true"] .@{element}-current {
+    background: @sect3;
+  }
+
+  &[readonly="true"] .eon-date-button {
+    color: #cecece;
+  }
+
+  .eon-date-clockType > .eon-fg1-hoverable {
+    transition: color .2s cubic-bezier(0.4, 0, 0.2, 0);;
+  }
+  .eon-fg1-hoverable:hover {
+    -webkit-text-fill-color: @fg2-hover;
+  }
+
+  .@{element}-today {
+      background-color: @bg1-hover;
+      -webkit-text-fill-color: @fg2-hover;
+  }
+
+  .eon-bg2-active.eon-fg1-hoverable:hover {
+    color: @fg2-tobeio;
+  }
+
+  .@{element}-underline:before,
+  .@{element}-underline:after {
+    background: @eonFrontColor;
+  }
+
+  .@{element}-label {
+    font-size: @fg2-label-size;
+  }
+  
+  &.@{element}-focus .@{element}-label {
+    color: @eonFrontColor;
+  }
+
+  &.@{element}-error .@{element}-underline:before,
+  &.@{element}-error .@{element}-underline:after {
+    background: @error1;
+  }
+
+  &.@{element}-error .@{element}-main {
+    border-color: @error1;
+  }
+
+  &.@{element}-error .@{element}-label,
+  &.@{element}-error .@{element}-description {
+    color: @error1;
+  }
+
+  /* - Chrome ≤56,
+    - Safari 5-10.0
+    - iOS Safari 4.2-10.2
+    - Opera 15-43
+    - Opera Mobile >12
+    - Android Browser 2.1-4.4.4
+    - Samsung Internet
+    - UC Browser for Android
+    - QQ Browser */
+  &[disabled="true"] ::-webkit-input-placeholder {
+    color: @fg2-placeholder-disabled;
+  }
+
+  /* Firefox 4-18 */
+  &[disabled="true"] :-moz-placeholder {
+    color: @fg2-placeholder-disabled;
+  }
+
+  /* Firefox 19-50 */
+  &[disabled="true"] ::-moz-placeholder {
+    color: @fg2-placeholder-disabled;
+  }
+
+  /* - Internet Explorer 10–11
+    - Internet Explorer Mobile 10-11 */
+  &[disabled="true"] :-ms-input-placeholder {
+    color: @fg2-placeholder-disabled !important;
+  }
+
+  &[label=""] .@{element}-data {
+    display: none;
+  }
+  
+  .@{element}-description {
+    font-size: 13px;
+  }
+
+  &:not([class~="hide-description"]) .@{element}-description {
+    min-height: 20px;
+  }
+
+  &.form-date {
+    width: 100%;
+    max-width: 250px;
+    min-width: 235px;
+  }
+  
+  @media (max-width: 700px) { 
+    &.form-date {
+      max-width: none;
+    }
+  }
+}
+
+eon-date[theme="@{theme}"].eon-date-focus .eon-date-label,
+eon-overlay[theme="@{theme}"].eon-date-focus .eon-date-label,
+div[data-theme="claro"] eon-date.eon-date-focus .eon-date-label,
+body[data-theme="claro"] eon-date.eon-date-focus .eon-date-label,
+eon-date[theme="@{theme}"].eon-date-pickerlabel,
+eon-overlay[theme="@{theme}"].eon-date-pickerlabel,
+div[data-theme="@{theme}"] eon-date.eon-date-pickerlabel,
+body[data-theme="@{theme}"] eon-date.eon-date-pickerlabel {
+  color: #57cde3;
+}

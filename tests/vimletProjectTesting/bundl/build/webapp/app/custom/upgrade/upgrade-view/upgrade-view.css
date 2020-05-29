@@ -1,0 +1,484 @@
+@element: upgrade-view;
+
+@{element} {
+
+.currentWrapper {
+  display: flex;
+  padding: 30px;
+  align-items: baseline;
+}
+
+.currentInfo {
+  flex-grow: 1;
+  flex-basis: 0;
+  display: flex;
+  align-items: baseline;
+}
+
+.currentLabel {
+  color: #a254d6;
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.current {
+  font-size: 20px;
+  font-weight: lighter;
+  color: #808080;
+}
+
+.pricingLabel {
+  font-size: 18px;
+  color: #8d8d8d;
+}
+
+.pricingLabel.checked {
+  color: #4e4e4e;
+}
+
+
+.togglePricing {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  margin-bottom: 20px;
+}
+
+eon-toggle .eon-toggle-circle {
+  background: #8c27cf !important;
+}
+eon-toggle .eon-toggle-span {
+  background: #d7b2f1 !important;
+}
+
+.pricing {
+  margin: 0 10px;
+}
+.cards-wrapper {
+  width: 100%;
+  overflow-y: hidden;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.cards {
+  display: flex;
+  padding: 45px 20px;
+  align-items: center;
+}
+
+.card {
+  display: flex;
+  min-width: 230px;
+  max-width: 230px;
+  height: 500px;
+  // min-width: 250px;
+  // max-width: 250px;
+  // height: 550px;
+  box-shadow: 0 5px 10px #b9b9b9;
+  box-sizing: border-box;
+  margin: 0 35px 0 0;
+  transition: all .2s ease-in-out;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+  background-color: #ffffff;
+}
+
+.card-background {
+  background: #a61ad0;
+  background: -moz-linear-gradient(left, #a61ad0 0%, #6c37ce 100%);
+  background: -webkit-gradient(left top, right top, color-stop(0%, #a61ad0), color-stop(100%, #6c37ce));
+  background: -webkit-linear-gradient(left, #a61ad0 0%, #6c37ce 100%);
+  background: -o-linear-gradient(left, #a61ad0 0%, #6c37ce 100%);
+  background: -ms-linear-gradient(left, #a61ad0 0%, #6c37ce 100%);
+  background: linear-gradient(to right, #a61ad0 0%, #6c37ce 100%);
+  height: 100px;
+  width: 100%;
+}
+
+
+/* basic */
+.basic {
+  max-width: 240px;
+  height: 525px;
+  min-width: 240px;
+}
+
+.card-content {
+  display: flex;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 20px 0 0 0;
+  flex-direction: column;
+  left: 0;
+  top: 0;
+}
+
+.card-title {
+  color: #ffffff;
+  top: 0;
+  font-size: 28px;
+  text-align: center;
+}
+
+.price {
+  font-size: 37px;
+  font-weight: bold;
+  box-sizing: border-box;
+  margin: 65px 0 0 0;
+  color: #9a1ae9;
+  transition: all .4s ease-in-out;
+  text-align: center;
+}
+
+.displayPrice {
+  transition: all 0.4s ease-in-out;
+}
+.also {
+  display: flex;
+  justify-content: center;
+  font-size: 13px;
+  color: #000;
+  margin: 20px 0;
+}
+
+.card-features ul {
+  font-size: 13px;
+  margin: 0;
+}
+
+
+li {
+  line-height: 2;
+}
+
+.features>ul {
+  list-style: none;
+  padding-inline-start: 20px;
+  font-size: 20px;
+}
+
+.features>ul>li:before {
+  content: '\2023';
+  line-height: 16px;
+  position: absolute;
+  margin: 12px 10px 0px -20px;
+}
+
+.features>ul>li.huge:before {
+  font-size: 30px;
+  color: #a61ad0;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.card-features>ul>li:before {
+  content: '\2022';
+  line-height: 13px;
+  position: absolute;
+  margin: 7px 10px 0px -17px;
+  color: #9a1ae9;
+}
+
+.card-features>ul>li.huge:before {
+  font-size: 28px;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+}
+
+.upgradeButton {
+  align-self: flex-end;
+  margin-bottom: 20px;
+}
+
+.upgradeButton .eon-button-button {
+  border-width: 0 !important;
+  border-style: none !important; 
+}
+
+.activeFlag {
+  color: #a254d6;
+  border: 2px solid #8c27cf;
+  align-self: flex-end;
+  margin: 20px 0;
+  padding: 15px 20px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+.card.basic {
+  box-shadow: 0 5px 28px #b9b9b9;
+}
+
+.card.plus {
+  margin: 0 0 0 0;
+}
+
+.card.focus {
+  transform: scale3d(1.05, 1.05, 1.05);
+}
+
+.card.focus .price {
+  transform: scale3d(1.2, 1.2, 1.2);
+  text-shadow: 0 3px 4px #b7b7b7;
+}
+
+.card.focus .goto {
+  color: #9a1ae9;
+}
+
+// .card.basic.focus {
+//   // transform: scale3d(1.1, 1.1, 1.1);
+// }
+
+// SECOND SLIDE
+
+.backButton {
+  box-sizing: border-box;
+  display: flex;
+  padding: 10px;
+}
+
+.backButton .vicon {
+  font-size: 26px;
+  color: #ffffff;
+  box-sizing: border-box;
+  height: 45px;
+  width: 45px;
+  border-radius: 45px;
+  cursor: pointer;
+  -webkit-box-shadow: 0px 0px 12px -2px rgba(148, 148, 148, 1);
+  -moz-box-shadow: 0px 0px 12px -2px rgba(148, 148, 148, 1);
+  box-shadow: 0px 0px 12px -2px rgba(148, 148, 148, 1);
+}
+
+.summaryWrapper {
+  display: flex; 
+  margin: 20px 0 40px 0;
+  padding: 0 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.featuresRow {
+  margin-right: 60px;
+  align-self: baseline;
+}
+.featuresCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
+}
+
+.featuresTitle {
+  color: #a254d6;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.featuresList {
+  font-size: 15px;
+}
+
+.featureItem {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.featureItem .vicon {
+  color: #6aca4f;
+  font-size: 15px;
+}
+
+.summarySeparator {
+  width: 1px;
+  height: 245px;
+  margin: 0 50px 0 30px;
+  background: #e4e4e4;
+}
+
+.summaryRow {
+  display: flex;
+  flex-direction: column;
+}
+
+.billingCol {
+  display: flex;
+  margin-bottom: 30px;
+}
+
+.billingCol .billingCard:first-child {
+  margin-right: 30px;
+}
+
+.billingCard {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #e4e4e4;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all .4s ease-in-out;
+
+}
+
+.billingPlanTitle {
+  margin-bottom: 15px;
+  font-size: 15px;
+}
+
+.billingPrice {
+  color: #a254d6;
+  font-size: 35px;
+  font-weight: lighter;
+}
+
+.billingPlanNote {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #bbbbbb;
+}
+
+.billingCard.checked { 
+  border-color: #8c27cf;
+}
+
+.detailsCol {
+  display: flex;
+}
+
+.usersRow {
+  flex-grow: 1;
+}
+
+.detailsLabel {
+  color: #666666;
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.detailsInfo {
+  margin-top: 15px;
+  font-size: 23px;
+  color: #a254d6;
+  font-weight: lighter;
+  transition: all 0.4s ease-in-out;
+}
+
+.formWrapper {
+   margin: 20px 0 40px 0;
+ }
+ app-payment {
+   max-width: 500px;
+ }
+ eon-button {
+   margin: 20px 0 0 0;
+ }
+
+ @media (max-width: 1240px) { 
+
+  .cards-wrapper {
+    justify-content: start;
+  }
+
+ }
+
+ @media (max-width: 800px) {
+  .currentWrapper {
+    flex-direction: column;
+  }
+
+  .currentInfo {
+    flex-basis: auto;
+  }
+
+  .currentWrapper .currentInfo:first-child {
+    margin-bottom: 20px;
+  }
+
+  .card-features>ul>li:before {
+    margin: 7px 0 0 -18px;
+  }
+  .cards {
+    padding: 45px 40px;
+  }
+  .card {
+    min-width: 280px;
+    max-width: 280px;
+  }
+  .card-content>.title {
+    padding: 10px 0 0 0;
+  }
+  .card-features ul {
+    font-size: 14px;
+    margin: 0 0 0 10px;
+  }
+
+  .summaryWrapper {
+    flex-direction: column;
+  }
+
+  .summarySeparator {
+    width: 80%;
+    height: 1px;
+    margin: 30px 0 50px 0;
+  }
+
+  .featuresRow {
+    margin-right: 0;
+    align-self: center;
+
+  }
+ }
+
+ @media (max-width: 504px) {
+  .features>ul>li:before {
+    margin: 6px 10px 0px -20px;
+  }
+  .features>ul>li.huge:before {
+    font-size: 20px;
+  }
+  .description, .features > ul {
+    font-size: 15px;
+  }
+
+  .summaryRow {
+    flex-direction: column;
+    align-self: center;
+  }
+
+  .billingCol {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .billingCol .billingCard:first-child {
+    margin-right: 0;
+    margin-bottom: 30px;
+  }
+
+  .detailsCol {
+    flex-direction: column;
+  }
+  .usersRow {
+    margin-bottom: 20px;
+  }
+ }
+}

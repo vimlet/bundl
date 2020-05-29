@@ -1,0 +1,252 @@
+<style>
+  event-form.full-day eon-date {
+    min-width: 147px;
+  }
+
+  event-form.full-day eon-date .eon-date-timeWrapper,
+  event-form.full-day eon-date .eon-date-button:last-child {
+    display: none;
+  }
+
+  event-form eon-label {
+    height: 24px;
+  }
+
+</style>
+<template>
+  <eon-form eon-ref="form" default-style="false">
+    <!-- <div class="form-grouptitle eon-fg-h2"> -->
+      <!-- <eon-variable class="form-only-title" bind="locale.global.name" global="true"></eon-variable> -->
+      <!-- <eon-label eon-ref="name" name="name" editable="true" blur-save="true" eon-ref="boardName"
+        bind:placeholder="global locale.calendar.eventName"></eon-label>
+    </div> -->
+    <div class="form-content">
+      <eon-text eon-ref="name" bind:label="global locale.global.name"
+        bind:placeholder="global locale.calendar.eventName" class="form-text form-marginbottom" name="name"
+        label-anim="false" inline="false">
+      </eon-text>
+      <app-color class="form-marginleft" value="#e0a467" bind:label="global locale.global.color" icon="ticon-color"
+        predefined="#ff540d,#f81c07,#ff00df,#7b68ee,#50e3c2,#08adff,#ffcf00,#333333" button="false"
+        eon-ref="colorPicker"></app-color>
+    </div>
+
+    <div class="form-content">
+      <eon-variable class="form-marginbottom form-label eon-fg0" bind="locale.global.type" global="true"></eon-variable>
+      <eon-variable class="calendar-event-type eon-sect3" bind="locale.calendar.event" global="true"></eon-variable>
+    </div>
+
+    <div class="form-content calendar-event-dates">
+      <div class="form-row form-marginright">
+        <eon-variable class="form-marginbottom form-label eon-fg0" bind="locale.from" global="true"></eon-variable>
+        <eon-date eon-ref="startTime" class="form-date" time="true" time-icon="true" mask="DDMMYYYY"
+          value-format="YYYY-MM-DD hh:mm" name="startTime" inline="false" stepped="false">
+        </eon-date>
+      </div>
+
+      <span class="form-marginright"></span>
+
+      <div class="form-row">
+        <eon-variable class="form-marginbottom form-label eon-fg0" bind="locale.to" global="true"></eon-variable>
+        <eon-date eon-ref="endTime" class="form-date" time="true" time-icon="true" mask="DDMMYYYY"
+          value-format="YYYY-MM-DD hh:mm" name="endTime" inline="false" stepped="false">
+        </eon-date>
+      </div>
+    </div>
+
+    <div class="form-content">
+      <eon-check bind:label="global locale.calendar.fullDay" eon-ref="fullDay" class="" name="fullDay"
+        label-anim="false" inline="false"></eon-check>
+    </div>
+
+    <div class="form-content">
+      <eon-variable class="form-marginbottom form-label eon-fg0" bind="locale.global.description" global="true"></eon-variable>
+      <eon-text name="description" bind:placeholder="global locale.calendar.eventDescription" type="area" class="calendar-event-desc" area-height="100"></eon-text>
+    </div>
+    <!-- MASK -->
+    <eon-loading eon-ref="mask" duration="10000" class="form-mask" format="descendant" display="false">
+    </eon-loading>
+  </eon-form>
+</template>
+
+<script>
+  eon.element("event-form", {
+    // style: "event-form.css",
+    dependencies: [
+      "@ui/eon-form",
+      "@ui/eon-text",
+      "@ui/eon-check",
+      "@ui/eon-label",
+      "@ui/eon-date",
+      "@ui/eon-loading"
+    ],
+
+    properties: {
+      /*
+        @property {Object} data 
+        @description Event data
+      */
+      data: {
+        value: {}
+      },
+      /*
+        @property {Object} schema 
+        @description Event schema
+      */
+      schema: {
+        value: {
+          properties: {
+            "name": {
+              required: true
+            },
+            "type": {
+              required: true
+            },
+            "description": {
+              required: false
+            },
+            "startISO": {
+              required: true
+            },
+            "endISO": {
+              required: true
+            }
+          }
+        }
+      }
+    },
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function clear (public) []
+      clear: function () {
+        this._refs.form.clear();
+        this._refs.name._refs.input.value = "";
+      },
+      // @function setData (public) [Fill form with existing data]
+      setData: function (data) {
+        this.data = data;
+        // ** Label field is not being set
+        this._refs.form.setData(data);
+        this._refs.name.value = data.name;
+
+        this._refs.colorPicker.value = data.color;
+        this.toggleAdd();
+      },
+      // @function setData (public) [Get the form data]
+      getData: function () {
+        var el = this;
+        var data = this._refs.form.getData();
+
+        var startMoment = moment(data.startTime, "YYYY-MM-DD HH:mm");
+        var endMoment = moment(data.endTime, "YYYY-MM-DD HH:mm");
+
+        // Order matters
+        data.startISO = startMoment.format(util.isoFormat);
+        data.endISO = endMoment.format(util.isoFormat);
+
+        delete data.startTime;
+        delete data.endTime;
+
+        // TODO - add more types
+        data.type = "event";
+        return data;
+      },
+      // @function toggleAdd (public) 
+      toggleAdd: function () {
+        if (this._refs.name.value) {
+          this._refs.accept.disabled = false;
+        } else {
+          this._refs.accept.disabled = true;
+        }
+      }
+    },
+    privateFunctions: {
+      // @function _setup (private)
+      setup: function () {
+        this._refs.dialog = document.querySelector("#eventDialog");
+        this._refs.accept = this._refs.dialog.querySelector(".accept-button");
+        this._refs.cancel = this._refs.dialog.querySelector(".cancel-button");
+        this._refs.delete = this._refs.dialog.querySelector(".delete-button");
+        this.mask = this._refs.mask;
+
+        this._addListeners();
+      },
+      // @function _addListeners (private)
+      addListeners: function () {
+        var el = this;
+        var data, startMoment, endMoment;
+        // Enable submit
+        el._refs.name.addEventListener("input", function (val) {
+          el.toggleAdd();
+        });
+        // Submit event trigger
+        el._refs.accept.addEventListener("click", function () {
+          data = el.getData();
+          data.id = el.data.id;
+
+          // Get color
+          data.color = el._refs.colorPicker.value;
+
+          el._refs.form.validate(el.schema, data, function (error) {
+            if (!error) {
+              if(data.id) {
+                eon.triggerCallback("onEventEdit", el, el, [el.data.id, data]);
+              } else {
+                eon.triggerCallback("onEventCreate", el, el, [data]);
+              }
+            }
+          });
+        });
+
+        el._refs.delete.addEventListener("click", function () {
+          eon.triggerCallback("onEventDelete", el, el, [el.data.id]);
+        });
+
+        // Dates constraints
+        el._refs.startTime.onValueChanged(function(){
+          // Update end time constraint
+          if(el._refs.fullDay.checked) {
+            el._refs.endTime.min = moment(el._refs.startTime.value, "YYYY-MM-DD HH:mm").add(1, "days").format("YYYY-MM-DD HH:mm");
+          } else {
+            el._refs.endTime.min = el._refs.startTime.value;
+          }
+        });
+        // Auto fill dates
+        el._refs.fullDay.onCheck(function () {
+          startMoment = moment(el._refs.startTime.value, "YYYY-MM-DD HH:mm").startOf("day");
+          endMoment = startMoment.clone().add(1, "days").startOf("day");
+
+          el._refs.startTime.value = startMoment.format("YYYY-MM-DD HH:mm");
+          el._refs.endTime.value = endMoment.format("YYYY-MM-DD HH:mm");
+
+          el._disableTime();
+        });
+        el._refs.fullDay.onUncheck(function () {
+          el._enableTime();
+          el._refs.endTime.min = el._refs.startTime.value;
+        });
+      },
+      // @function _disableTime (private)
+      disableTime: function () {
+        this.classList.add("full-day");
+      },
+      // @function _enableTime (private)
+      enableTime: function () {
+        this.classList.remove("full-day");
+      }
+    },
+    onCreated: function () {
+      eon.createCallback("onEventCreate", this);
+      eon.createCallback("onEventEdit", this);
+      eon.createCallback("onEventDelete", this);
+    },
+    onReady: function () {
+      var el = this;
+      el._setup();
+    }
+  });
+</script>

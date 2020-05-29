@@ -1,0 +1,49 @@
+@import "variables.less";
+@element: registry-filter;
+
+@{element}[theme="@{theme}"],
+div[data-theme="@{theme}"] @{element},
+body[data-theme="@{theme}"] @{element} {
+
+  // Eon date fields
+  eon-date {
+    min-width: 160px;
+  }
+  eon-date .eon-fg2 {
+    color: @fg1;
+  }
+  .eon-date-main {
+    background-color: transparent;
+    border: none;
+  }
+  .eon-date-description {
+    display: none;
+  }
+  .eon-date-underline {
+    display: none;
+  }
+  
+  // Eon combo fields
+  eon-combo {
+    display: flex;
+    flex-direction: column;
+  }
+  eon-combo input {
+    text-align: end;
+  }
+  .eon-combo-underline {
+    display: none;
+  }
+
+  .search,
+  .@{element}-pagination-left,
+  .@{element}-pagination-right {
+    transition: color .2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+  .search:hover,
+  .@{element}-pagination-left:hover,
+  .@{element}-pagination-right:hover {
+    color: @fg1-hover;
+  }
+
+}

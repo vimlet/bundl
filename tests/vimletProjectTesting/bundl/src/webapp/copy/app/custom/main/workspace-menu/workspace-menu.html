@@ -1,0 +1,431 @@
+<template>
+  <app-toggle-menu eon-ref="menu" anchor="left" layout="body" content-class="workspace-menu-content"></app-toggle-menu>
+</template>
+<script>
+  eon.element("workspace-menu", {
+    parse: true,
+    style: "workspace-menu.css",
+
+    dependencies: [
+      "@ui/eon-button",
+      "@ui/eon-item",
+      "@custom/app-toggle-menu"
+    ],
+
+    properties: {
+      // @html-attribute anchor [app-toggle-menu property bypass]
+      anchor: {
+        value: ""
+      },
+      // @html-attribute layout[app-toggle-menu property bypass]
+      layout: {
+        value: {}
+      },
+      // @html-attribute label
+      label: {
+        value: "",
+        reflect: true
+      },
+      // @html-attribute bubble
+      bubble: {
+        value: "",
+        reflect: true
+      },
+      // @html-attribute workspaceId
+      workspaceId: {
+        value: "",
+        reflect: true
+      }
+    },
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+
+    functions: {
+      // @function setData (public) []
+      setData: function (data) {
+        var el = this;
+        this.setLabel(data.label);
+        this.setBubbleColor(data.bubble);
+        this.toggleJoin(data.role);
+        this.workspaceId = data.workspaceId;
+        // Check default
+        session.onReady(function(){
+          if(el.workspaceId == session.data.defaultWorkspace) {
+            el._refs.star.classList.add("active");
+          } else {
+            el._refs.star.classList.remove("active");
+          }
+        });
+      },
+      // @function addItem (public) []
+      addItem: function (workspaceId, data, cb) {
+        var item = document.createElement("eon-item");
+        item.classList.add("workspace-menu-item", "eon-fg2-hoverable", "eon-bg2-hoverable");
+        item._misc = {};
+
+        var bubble = document.createElement("div");
+        bubble.classList.add("workspace-menu-bubble");
+        bubble.style.backgroundColor = data.color;
+        item._refs.bubble = bubble;
+
+        var label = document.createElement("span");
+        label.innerHTML = data.name;
+        item._refs.label = label;
+
+        item.setData = function(wId, wData) {
+          item.value = wId;
+          item.displayValue = wData.name;
+          item.workspaceId = wId;
+          item.data = wData;
+
+          item._refs.label.innerHTML = wData.name;
+          item._refs.bubble.style.backgroundColor = wData.color;
+        }
+
+        item.setData(workspaceId, data);
+
+        item.appendChild(bubble);
+        item.appendChild(label);
+
+        // Create actions
+        this._createActions(item);
+        this._misc.items[workspaceId] = item;
+
+        // Click item listener
+        if(cb) {
+          cb(item);
+        }
+
+        this._refs.items.appendChild(item);
+      },
+      // @function updateSelected (public) []
+      updateSelected: function (data) {
+
+        // Update input data
+        this.setData({
+          label: data.name,
+          bubble: data.color,
+          role: data.role,
+          workspaceId: data.id
+        });
+
+        // Update menu selected item
+        var item = this._misc.items[data.id];
+        if(item) {
+          item.setData(data.id, data);
+        }
+      },
+      // @function clear (public) []
+      clear: function () {
+        this._refs.items.innerHTML = "";
+        this._misc.items = {};
+      },
+      // @function close (public) []
+      close: function () {
+        this._refs.menu.close();
+      },
+      // @function setBubbleColor (public) []
+      setBubbleColor: function (value) {
+        this._refs.bubble.style.backgroundColor = value;
+      },
+      // @function setLabel (public) []
+      setLabel: function (value) {
+        this._refs.menu.label = value;
+      },
+      // @function toggleJoin (public) []
+      toggleJoin: function (value, node) {
+        node = node || this;
+        node._refs.invite.removeEventListener("click", node._misc.inviteFn);
+        node._refs.invite.setAttribute("onclick", "");
+        
+        if (value == "admin") {
+          node._refs.invite.classList.remove("hide");
+          
+          if (!node._misc.inviteFn) {
+            this._declareJoinAction(node);
+          }
+          // Enable
+          node._refs.invite.classList.remove("hide");
+          node._refs.invite.addEventListener("click", node._misc.inviteFn);
+        } else {
+          // Disable invite action
+          node._refs.invite.classList.add("hide");
+        }
+      }
+    },
+
+    privateFunctions: {
+      // @function _menuPropBypass (private)
+      menuPropBypass: function () {
+        // TODO - Not working
+        var menu = this.template.querySelector("app-toggle-menu");
+
+        menu.anchor = this.anchor;
+        menu.layout = this.layout;
+      },
+      // @function _setup (private)
+      setup: function () {
+        this._setupRefs();
+        this._setupMenuTrigger();
+        this._setupContent();
+      },
+      // @function _setupContent (private)
+      setupContent: function () {
+        var el = this;
+        // Title
+        this._refs.title = document.createElement("div");
+        this._refs.title.classList.add("workspace-menu-title", "eon-fg-h4");
+        this._refs.title.innerHTML = eon.locale.global.workspaces
+        this._refs.menu.addItem(this._refs.title);
+
+        // Items
+        this._refs.items = document.createElement("div");
+        this._refs.items.classList.add("workspace-menu-items");
+        this._refs.menu.addItem(this._refs.items);
+
+        // Footer
+        this._refs.footer = document.createElement("div");
+        this._refs.footer.classList.add("workspace-menu-footer");
+
+        // Create workspace button
+        var btn = document.createElement("eon-button");
+        btn.classList.add("bar-button", "h1-button");
+        btn.design = "filled";
+        btn.iconPosition = "left";
+        
+        btn.onReady(function(){
+          btn.label = eon.locale.global.new;
+          btn.icon = "<i class='vicon vicon-add'></i>";
+        });
+
+        btn.addEventListener("click", function (e) {
+          openCreateDialog();
+          el._refs.menu.close();
+        }, false);
+
+        this._refs.footer.appendChild(btn);
+
+        this._refs.menu.addItem(this._refs.footer);
+      },
+      // @function _setupRefs (private)
+      setupRefs: function () {
+        this._refs.inviteDlg = $1("#member-add-dialog");
+        this._refs.inviteForm = this._refs.inviteDlg.$1("member-form");
+        this._refs.inviteMask = this._refs.inviteDlg.$1("eon-loading");
+      },
+      // @function _setupMenuTrigger (private)
+      setupMenuTrigger: function () {
+        // Create workspace bubble
+        this._refs.bubble = document.createElement("div");
+        this._refs.bubble.classList.add("workspace-menu-bubble");
+
+        // * label set programmatically
+
+        // Create actions
+        this._createActions();
+
+        this._refs.menu._refs.button.insertBefore(this._refs.bubble, this._refs.menu._refs.label);
+      },
+      // @function _createActions (private)
+      createActions: function (node) {
+        var el = this;
+        var fragment = document.createDocumentFragment();
+
+        var isInput = !node;
+        parentNode = isInput ? this._refs.menu._refs.button : node;
+        node = node || this;
+
+        node._refs.actions = document.createElement("div");
+        node._refs.actions.classList.add("workspace-menu-actions");
+
+        node._refs.invite = document.createElement("i");
+        node._refs.invite.classList.add("ticon", "ticon-join", "clickable", "eon-fg2-hoverable", "hide");
+
+        node._refs.star = document.createElement("i");
+        node._refs.star.classList.add("ticon", "ticon-grade", "eon-fg2-hoverable", "eon-fg2-disabled", "clickable");
+        // Mark default workspace
+        session.onReady(function(){
+          if(session.data.defaultWorkspace && session.data.defaultWorkspace == node.workspaceId) {
+            node._refs.star.classList.add("active");
+            // Active clone star (of an item or an input)
+            el._activeClone(node);
+          }
+        });
+
+        node._refs.settings = document.createElement("i");
+        node._refs.settings.classList.add("ticon", "ticon-settings", "eon-fg2-hoverable", "clickable");
+        
+        eon.onLocaleLoaded(function () {
+          node._refs.invite.setAttribute("title", eon.locale.workspace.buttons.invite);
+          node._refs.settings.setAttribute("title", eon.locale.global.settings);
+        });
+
+        // Go to workspace settings
+        node._refs.settings.addEventListener("click", function (e) {
+          if(isInput) {
+            e.stopPropagation();
+          }
+          session.data.currentWorkspaceId = node.workspaceId;
+          showView("workspace");
+        });
+
+        // Make default
+        node._refs.star.addEventListener("click", function (e) {
+          e.stopPropagation();
+          // Already set as default
+          if(session.data.defaultWorkspace != node.workspaceId) {
+            // Update default workspace on user document
+            updateUser({defaultWorkspace: node.workspaceId}, function(error, data){
+              if(!error) {
+                // Update session data
+                session.data.defaultWorkspace = node.workspaceId;
+  
+                popup.displayToast(eon.locale.user.defaultWorkspaceSuccess);
+  
+                // Deactive other stars
+                el._deactiveStars();
+                
+                // Active item star
+                node._refs.star.classList.add("active");
+  
+                // Active clone star (of its relatec item/input)
+                el._activeClone(node);
+                
+              } else {
+                showInfoDialog(eon.locale.user.alert.defaultWorkspaceFail);
+              }
+            });
+          }
+        });
+
+        fragment.appendChild(node._refs.invite);
+        fragment.appendChild(node._refs.star);
+        fragment.appendChild(node._refs.settings);
+        
+        node._refs.actions.appendChild(fragment);
+
+        if(node.data.role) {
+          this.toggleJoin(node.data.role, node);
+        }
+
+        // If input actions, insert before dropdown icon
+        if(isInput) {
+          parentNode.insertBefore(node._refs.actions, this._refs.menu._refs.icon);
+        } else {
+          parentNode.appendChild(node._refs.actions);
+        }
+      },
+      // @function _declareJoinAction (private)
+      declareJoinAction: function (node) {
+        var el = this;
+        node = node || this;
+
+        node._misc.inviteFn = function (event) {
+          event.stopPropagation();
+
+          util.resetCallback("onOpened", el._refs.inviteDlg);
+
+          // Handle invitation link displaying
+          el._refs.inviteDlg.onOpened(function () {
+            el._refs.inviteForm.clear();
+
+            readWorkspace(node.workspaceId, function (error, data) {
+              if (!error) {
+                if(data.invitation) {
+                  el._refs.inviteForm.invitationId = data.invitation.token;
+                  // Show link
+                  el._refs.inviteForm._refs.linkInput.value = data.invitation.link;
+                  el._refs.inviteForm._showLink();
+                } else {
+                  el._refs.inviteForm._hideLink();
+                }
+                el._refs.inviteMask.hide();
+              } else {
+                el._refs.inviteForm._refs.linkInput.value = "";
+                el._refs.inviteForm._hideLink();
+              }
+            });
+          });
+
+          el._refs.inviteForm._misc.workspaceId = node.workspaceId;
+
+          // TODO change to declarative value
+          el._refs.inviteForm.onSubmit(function (error, data) {
+            if (!validateEmail(data.mail)) {
+              error = true;
+              el._refs.inviteForm.querySelector(".member-mail").invalid = true;
+            } else {
+              el._refs.inviteForm.querySelector(".member-mail").invalid = false;
+            }
+
+            if (!error) {
+              inviteMember(this._misc.workspaceId, data.mail, data, function (error, invData) {
+                if (error) {
+                  showInfoDialog(eon.locale.member.inviteSelfError);
+                }
+              });
+
+              // el._refs.inviteDlg.close();
+            }
+          });
+
+          el._refs.inviteForm.showInviteFields();
+          el._refs.inviteDlg.open();
+          // Push dialog state
+          pushDialogState(el._refs.inviteDlg);
+
+          // Push dialog state
+          pushDialogState(el._refs.inviteDlg);
+
+          el._refs.menu.close();
+        }
+      },
+      // @function _activeClone (private)
+      activeClone: function (node) {
+        // Active related item star
+        if(node == this) {
+          // Active item
+          this._misc.items[node.workspaceId]._refs.star.classList.add("active");
+        } else if (node.workspaceId == this.workspaceId) {
+          // Active input
+          this._refs.star.classList.add("active");
+        }
+      },
+      // @function _deactiveStars (private)
+      deactiveStars: function () {
+        // Deactive menu items stars
+        for (var key in this._misc.items){
+          var item = this._misc.items[key]._refs.star.classList.remove("active");
+        };
+        // Deactive input star
+        this._refs.star.classList.remove("active");
+      }
+    },
+    onCreated: function () {
+      this._menuPropBypass();
+    },
+    onTransformed: function () {
+      this._setup();
+    },
+    onPropertyChanged: function (key, oldVal, newVal) {
+      var el = this;
+      switch (key) {
+        case "label":
+          el.setLabel(newVal);
+          break;
+        case "bubble":
+          el.setBubbleColor(newVal);
+          break;
+        case "role":
+          el.toggleJoin(newVal);
+          break;
+      }
+    }
+  });
+</script>

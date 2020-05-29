@@ -1,0 +1,207 @@
+@import "variables.less";
+@element: eon-button;
+
+eon-button[theme="@{theme}"],
+div[data-theme="@{theme}"] eon-button,
+body[data-theme="@{theme}"] eon-button {
+
+  // -- h1 button style --
+  &.h1-button .@{element}-button {
+    border-radius: 20px;
+    height: 39px;
+    padding: 9px 12px 9px 9px;
+    color: #666666 !important;
+    box-shadow: 2px 2px 4px 1px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 2px 2px 4px 1px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 2px 2px 4px 1px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    border: 1px solid @eonFrontColor;
+  }
+
+  &.h1-button .@{element}-button:hover {
+    background: #ffffff;
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  &.h1-button .eon-button-buttonIcon {
+    border-radius: 15px;
+    transition: box-shadow @animation;
+    color: @eonFrontColor;
+    font-size: 20px;
+    margin-right: 6px;
+    height: 25px;
+    width: 25px;
+    box-sizing: border-box;
+  }
+
+  &.tab-menu-button .eon-button-button {
+    border: 2px solid @h1-tab-border;
+    box-shadow: none;
+    padding: 10px 5px 10px 17px;
+  }
+  &.tab-menu-button .eon-button-button:hover {
+    box-shadow: none;
+  }
+  &.tab-menu-button .eon-button-buttonText,
+  &.tab-menu-button .eon-button-buttonIcon {
+    transition: color @animation;
+    color: @fg-h1;
+  }
+  &.tab-menu-button .eon-button-button:hover .eon-button-buttonText,
+  &.tab-menu-button .eon-button-button:hover .eon-button-buttonIcon {
+    color: @eonFrontColor;
+  }
+
+  &.tab-menu-button .eon-button-buttonText {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 100px;
+  }
+
+
+  & .@{element}-button {
+    color: @fg1-tobeio;
+    background: @bg1-main;
+    background: -moz-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, @bg1-main), color-stop(100%, @bg1-secn));
+    background: -webkit-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    background: -o-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    background: -ms-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    background: linear-gradient(to right, @bg1-main 0%, @bg1-secn 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='@bg1-main', endColorstr='@bg1-secn', GradientType=1);
+    background-position: center;
+    transition: background @animation, box-shadow @animation;
+    padding: 10px;
+  }
+
+  &[design="filled"] .@{element}-button:hover {
+    // background: @bg1-main;
+    // background: -moz-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: -webkit-gradient(left top, right top, color-stop(0%, @bg1-main), color-stop(100%, @bg1-secn));
+    // background: -webkit-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: -o-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: -ms-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: linear-gradient(to right, @bg1-main 0%, @bg1-secn 100%);
+    // filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@bg1-main', endColorstr='@bg1-secn', GradientType=1 );
+  }
+
+  &[design="filled"] .@{element}-button:active {
+    // background: @bg1-main;
+    // background: -moz-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: -webkit-gradient(left top, right top, color-stop(0%, @bg1-main), color-stop(100%, @bg1-secn));
+    // background: -webkit-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: -o-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: -ms-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: linear-gradient(to right, @bg1-main 0%, @bg1-secn 100%);
+    // filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@bg1-main', endColorstr='@bg1-secn', GradientType=1 );
+    // background-size: 100%;
+    // transition: background 0s;
+  }
+
+  & .@{element}-button:hover {
+    background: @bg1-main;
+    background: -moz-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, @bg1-main), color-stop(100%, @bg1-secn));
+    background: -webkit-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    background: -o-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    background: -ms-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    background: linear-gradient(to right, @bg1-main 0%, @bg1-secn 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='@bg1-main', endColorstr='@bg1-secn', GradientType=1);
+    box-shadow: @boxshadow-filled-hover;
+  }
+
+  & .@{element}-button:active {
+    // background: @bg1-main;
+    // background: -moz-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: -webkit-gradient(left top, right top, color-stop(0%, @bg1-main), color-stop(100%, @bg1-secn));
+    // background: -webkit-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: -o-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: -ms-linear-gradient(left, @bg1-main 0%, @bg1-secn 100%);
+    // background: linear-gradient(to right, @bg1-main 0%, @bg1-secn 100%);
+    // filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@bg1-main', endColorstr='@bg1-secn', GradientType=1 );
+    // background-size: 100%;
+    // transition: background 0s;
+  }
+
+  &[disabled="true"] .@{element}-button {
+    background: @bg2-filled-disabled;
+  }
+
+  &.delete-button .@{element}-button:active {
+    background-color: #faf4f4;
+  }
+
+
+  &[design="delete"] .@{element}-button {
+    background: #d01a1a;
+    background: -moz-linear-gradient(left, #d01a1a 0%, #ce3737 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, #d01a1a), color-stop(100%, #ce3737));
+    background: -webkit-linear-gradient(left, #d01a1a 0%, #ce3737 100%);
+    background: -o-linear-gradient(left, #d01a1a 0%, #ce3737 100%);
+    background: -ms-linear-gradient(left, #d01a1a 0%, #ce3737 100%);
+    background: linear-gradient(to right, #d01a1a 0%, #ce3737 100%);
+    border-color: #d01a1a;
+  }
+
+  &[design="flat"] .@{element}-button {
+    color: @fg1;
+    background: none;
+    height: auto;
+    padding: 2px 4px;
+    transition: color @animation;
+  }
+
+  &[design="flat"] .@{element}-button .@{element}-buttonText {
+    font-weight: normal;
+    height: 20px;
+    display: block;
+  }
+
+  &[design="flat"] .@{element}-button .@{element}-buttonIcon {
+    font-size: inherit;
+  }
+
+  &[design="flat"] .@{element}-button:hover {
+    color: @bg1-main;
+    box-shadow: none;
+  }
+
+
+  &[design="outlined"] .@{element}-button {
+    color: @eonFrontColor;
+    background: none;
+    height: auto;
+    // padding: 2px 5px;
+    padding: 4px 11px 4px 8px;
+    border-radius: 5px;
+    border-width: 1px;
+    background-color: transparent;
+    transition: background @animation, box-shadow @animation, color @animation;
+  }
+
+  &[design="outlined"] .@{element}-button .@{element}-buttonText {
+    font-weight: normal;
+    height: 20px;
+    display: block;
+  }
+
+  &[design="outlined"] .@{element}-button .@{element}-buttonIcon {
+    font-size: inherit;
+  }
+
+  &[design="outlined"] .@{element}-button:hover {
+    color: @bg0;
+    background-color: @eonFrontColor;
+  }
+
+  @media (max-width: 700px) {
+    &.h1-button:not(.tab-menu-button) .@{element}-button {
+      width: 39px;
+    }
+  }
+
+}

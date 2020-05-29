@@ -1,0 +1,112 @@
+@element: registry-filter;
+
+@{element} {
+  & .member-spacer {
+    display: none !important;
+  }
+
+  & .member-spacer.visible {
+    display: flex !important;
+  }
+}
+
+.@{element}-title {
+  display: flex;
+  padding: 10px 4px 10px;
+  font-size: 18px;
+}
+
+.@{element}-content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.@{element}-content > * {
+  flex-grow: 1;
+}
+.@{element}-content > *:not(:first-child) {
+  margin-left: 10px;
+}
+
+.@{element}-members {
+  display: none !important;
+  flex-grow: 1;
+  max-width: 100px;
+  min-width: 100px;
+  margin-left: 0 !important;
+  margin-right: 10px;
+}
+.@{element}-members.visible-flex {
+  display: flex !important;
+}
+.@{element}-members-dropd eon-item {
+  position: relative;
+}
+.@{element}-members-dropd eon-item:hover .owner-span {
+  color: #8c27cf;
+}
+.@{element}-members-dropd eon-item > span:not("owner-span") {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 120px;
+  margin: 0 20px 0 0;
+}
+
+.@{element}-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.@{element}-pagination > span {
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;    
+  position: relative;
+}
+
+.@{element}-pagination-left-clickable,
+.@{element}-pagination-right-clickable {
+  position: absolute;
+  height: calc(100% + 20px);
+  width: calc(100% + 20px);
+  cursor: pointer;
+}
+
+// REMOVE
+// .eon-date-overlay .eon-date-calendar {
+//   width: 300px !important;
+// }
+
+@media (max-width: 640px) {
+  .@{element}-pagination {
+    margin-top: 10px;
+  }
+  @{element}[search="false"] .registry-filter-pagination {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  .@{element}-content .box {
+    width: 100%;
+    max-width: 100%;
+    justify-content: space-around;
+  }
+}
+
+@media (max-width: 500px) {
+  @{element} .box {
+    flex: inherit;
+    max-height: 100%;
+    width: 100%;
+    justify-content: center;
+  }
+  @{element} .box > span {
+    width: 30px;
+    cursor: pointer;
+    width: 100%;
+    height: 40px;
+  }
+}
+
+

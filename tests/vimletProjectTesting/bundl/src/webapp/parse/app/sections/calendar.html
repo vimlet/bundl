@@ -1,0 +1,8 @@
+<script>
+  eon.importBuild("sections/calendar-build<% data.release ? echo('.' + hash('calendar-build')) : '' %>.js");
+
+  eon.import([
+    "custom/calendar/calendar-view"
+  ]);  
+</script>
+<calendar-view class="section expanded"></calendar-view>

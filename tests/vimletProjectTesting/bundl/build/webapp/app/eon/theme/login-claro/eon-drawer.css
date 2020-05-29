@@ -1,0 +1,36 @@
+@import "variables.less";
+@element: eon-drawer;
+
+eon-drawer[theme="@{theme}"],
+div[data-theme="@{theme}"] eon-drawer,
+body[data-theme="@{theme}"] eon-drawer {
+
+  & {
+    background-color: @bg1-tobeio;
+  }
+
+  &.left-menu > .section-btn {
+    color: @fg3-tobe;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+  &.left-menu > .section-btn:hover {
+    color: @fg3-tobe-hover;
+  }
+  &.left-menu > .section-btn > span {
+    font-size: 18px;
+    color: @fg1;
+  }
+  &.left-menu > .section-btn.section-highlight, &.left-menu > .section-btn.section-highlight > span {
+    color: @fg3-tobe-hover;
+  }
+
+  // ** Replace with generic detection
+  @media (max-width: 1470px) {
+    &.left-menu > .section-btn > span {
+      font-size: 18px;
+      margin-left: 10px;
+    }
+  }
+
+}

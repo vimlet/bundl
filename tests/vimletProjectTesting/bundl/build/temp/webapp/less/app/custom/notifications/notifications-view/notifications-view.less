@@ -1,0 +1,158 @@
+@element: notifications-view;
+
+@{element} {
+  & {
+    width: 100%;
+    height: 100%;
+  }
+
+  // * To normalize all the app titles
+  // & .title-row .section-title {
+  //   flex-grow: 0;
+  // }
+
+  & .title-row .action-buttons .notification-view-clear {
+    height: 26px;
+  }
+
+  & .notification-view-button-hide-text-mobile .eon-button-button .eon-button-buttonText {
+    display: none !important;
+  }
+
+  & .notification-view-tabs {
+    display: flex;
+    height: 25px;
+    flex-direction: row;
+    margin-bottom: 20px;
+    font-size: 19px;
+  }
+
+  & .notification-view-tabs .notification-view-tab {
+    display: flex;
+    flex-direction: row;
+    // color: #999999;
+    color: #b5b5b5;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -o-user-select: none;
+    margin-right: 20px;
+    cursor: pointer;
+  }
+
+  & .notification-view-tabs .notification-view-tab:hover {
+    color: #8c27cf;
+  }
+
+  & .notification-view-tabs .notification-view-tab:last-child {
+    margin-right: 0px;
+  }
+
+  & .notification-view-tabs .notification-view-tab eon-variable {
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  & .notification-view-tabs .notification-view-tab i {
+    margin-right: 5px;
+  }
+
+  & .notification-view-tabs .notification-view-tab eon-variable,
+  & .notification-view-tabs .notification-view-tab i {
+    transition: ease color 0.2s;
+  }
+
+  & .notification-view-tabs .notification-view-selected-view {
+    // border-bottom: 1px solid;
+    color: #666666;
+    // font-weight: bold;
+  } 
+
+  // Content mask
+  .content-mask .mask-row:first-child{
+    margin: 0 !important;
+  }
+  .content-mask .mask-grid-titles {
+    display: flex !important;
+  }
+  .content-mask .mask-grid-content {
+    padding: 0 10px 10px 10px;
+  }
+
+  & .notifications-view-content {
+    transition: ease opacity 0.3s;
+  }
+
+  & .notification-view-tabs>eon-button {
+    margin-left: 10px;
+  }
+
+  & .notification-view-tabs>eon-button:first-child {
+    margin-left: 0px;
+  }
+
+  & .notifications-view-section {
+    width: 100%;
+    margin-top: 40px;
+    transition: ease opacity 0.3s;
+  }
+
+  & .notifications-view-section:first-child {
+    margin-top: 0px;
+  }
+
+  & .notifications-view-section-header {
+    height: 52px;
+    min-height: 52px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px 25px;
+    flex-wrap: wrap;
+  }
+
+  & .notifications-view-section-header-titles {
+    display: flex;
+    flex-direction: column;
+  }
+
+  & .notifications-view-section-header-subTitle {
+    font-size: 13px;
+    color: #b5b5b5;
+  }
+
+  & .notifications-view-section-header-title {
+    font-size: 19px;
+  }
+
+
+  & .notifications-view-section-header-clear {
+    margin: 10px 0px;
+  }
+
+  & .notifications-view-section-header-clear:hover {}
+
+  & .notifications-view-loading-mask {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    height: calc(100vh - 150px);
+    width: 100%;
+    top: 140px;
+    left: 0px;
+  }
+
+  & .notifications-view-clear-hide {
+    opacity: 0;
+  }
+
+}
+@media (min-width: 500px) {
+  @{element} {
+    & .notification-view-button-hide-text-mobile .eon-button-button .eon-button-buttonText {
+      display: block !important;
+    }
+  }
+}

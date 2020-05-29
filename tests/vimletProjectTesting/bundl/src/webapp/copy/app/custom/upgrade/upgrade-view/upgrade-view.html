@@ -1,0 +1,698 @@
+<template>
+  <eon-swiper eon-ref="swiper" transition="500" external-slide="true">
+    <!-- FIRST SLIDE: Plan summar and Upgrade options -->
+    <eon-swiper-slide>
+      <div class="title-row">
+        <eon-variable class="section-title eon-fg-h1" bind="locale.upgrade.currentTitle" global="true"></eon-variable>
+      </div>
+
+      <div class="currentWrapper">
+        <div class="currentInfo">
+          <eon-variable class="currentLabel" bind="locale.upgrade.currentPlan" global="true"></eon-variable>
+          <div class="current" eon-ref="currentPlan"></div>
+        </div>
+        <div class="currentInfo">
+          <eon-variable class="currentLabel" bind="locale.upgrade.currentUsers" global="true"></eon-variable>
+          <div class="current" eon-ref="currentUsers"></div>
+        </div>
+      </div>
+
+      <div class="title-row">
+        <eon-variable class="section-title eon-fg-h1" bind="locale.upgrade.upgradeTitle" global="true"></eon-variable>
+      </div>
+
+      <div class="togglePricing" eon-ref="togglePricing">
+        <eon-variable class="pricingLabel checked" eon-ref="pricingAnnual" bind="locale.upgrade.annual" global="true">
+        </eon-variable>
+        <eon-toggle eon-ref="pricing" name="pricing" label-anim="false" class="pricing" inline="false"></eon-toggle>
+        <eon-variable class="pricingLabel" eon-ref="pricingMonthly" bind="locale.upgrade.monthly" global="true">
+        </eon-variable>
+      </div>
+      <div class="cards-wrapper" eon-ref="cardsWrapper">
+        <div class="cards">
+
+          <div id="starter" class="card starter" eon-ref="starterCard">
+            <div class="card-background"></div>
+            <div class="card-content">
+
+              <div class="title card-title">
+                <eon-variable class="cardTitle" bind="locale.upgrade.starter-plan" global="true"></eon-variable>
+              </div>
+
+              <div class="price">
+                <eon-variable bind="locale.upgrade.starter-free" global="true"></eon-variable>
+              </div>
+
+              <div class="also">
+                <eon-variable bind="locale.upgrade.starter-also" global="true"></eon-variable>
+              </div>
+
+              <div class="card-features">
+                <ul>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.starter-feature1" global="true">
+                    </eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.starter-feature2" global="true">
+                    </eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.starter-feature3" global="true">
+                    </eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.starter-feature4" global="true">
+                    </eon-variable>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card-bottom">
+                <eon-button class="upgradeButton" bind:value="global locale.upgrade.upgrade" inline="true"></eon-button>
+              </div>
+
+            </div>
+          </div>
+
+          <div id="basic" class="card basic" eon-ref="basicCard">
+            <div class="card-background"></div>
+            <div class="card-content">
+              <div class="title card-title">
+                <eon-variable class="cardTitle" bind="locale.upgrade.basic-plan" global="true"></eon-variable>
+              </div>
+
+              <div class="price">
+                <span eon-ref="basicPrice" class="displayPrice"></span>
+                <span style="font-size: 28px; margin: 10px 0 0 0">/</span>
+                <span style="font-size: 20px; margin: 20px 0 0 0">
+                  <eon-variable bind="locale.upgrade.user" global="true"></eon-variable>
+                </span></div>
+
+              <div class="also">
+                <eon-variable bind="locale.upgrade.basic-also" global="true"></eon-variable>
+              </div>
+
+              <div class="card-features">
+                <ul>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.basic-feature1" global="true"></eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.basic-feature2" global="true"></eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.basic-feature3" global="true"></eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.basic-feature4" global="true"></eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.basic-feature5" global="true"></eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.basic-feature6" global="true"></eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.basic-feature7" global="true"></eon-variable>
+                  </li>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.basic-feature8" global="true"></eon-variable>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card-bottom">
+                <eon-button class="upgradeButton" bind:value="global locale.upgrade.upgrade" inline="true"></eon-button>
+              </div>
+
+            </div>
+          </div>
+
+          <div id="business" class="card business" eon-ref="businessCard">
+            <div class="card-background"></div>
+            <div class="card-content">
+              <div class="title card-title">
+                <eon-variable class="cardTitle" bind="locale.upgrade.business-plan" global="true"></eon-variable>
+              </div>
+
+              <div class="price">
+                <span eon-ref="businessPrice" class="displayPrice"></span>
+                <span style="font-size: 28px; margin: 10px 0 0 0">/</span>
+                <span style="font-size: 20px; margin: 20px 0 0 0">
+                  <eon-variable bind="locale.upgrade.user" global="true"></eon-variable>
+                </span></div>
+
+              <div class="also">
+                <eon-variable bind="locale.upgrade.business-also" global="true"></eon-variable>
+              </div>
+
+              <div class="card-features">
+                <ul>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.business-feature1" global="true">
+                    </eon-variable>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card-bottom">
+                <eon-button class="upgradeButton" bind:value="global locale.upgrade.upgrade" inline="true"></eon-button>
+              </div>
+
+            </div>
+          </div>
+
+          <div id="plus" class="card plus" eon-ref="plusCard">
+            <div class="card-background"></div>
+            <div class="card-content">
+              <div class="title card-title">
+                <eon-variable class="cardTitle" bind="locale.upgrade.plus-plan" global="true"></eon-variable>
+              </div>
+
+              <div class="price"><span style="font-size: 20px; margin: 20px 0 0 0">
+                  <eon-variable bind="locale.upgrade.consult" global="true"></eon-variable>
+                </span></div>
+
+              <div class="also">
+                <eon-variable bind="locale.upgrade.plus-also" global="true"></eon-variable>
+              </div>
+
+              <div class="card-features">
+                <ul>
+                  <li class="huge">
+                    <eon-variable class="cardFeature" bind="locale.upgrade.plus-feature1" global="true"></eon-variable>
+                  </li>
+                </ul>
+              </div>
+
+
+              <div class="card-bottom">
+                <eon-button class="upgradeButton" bind:value="global locale.upgrade.upgrade" inline="true"></eon-button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </eon-swiper-slide>
+
+    <!-- SECOND SLIDE: Oder summary -->
+    <eon-swiper-slide>
+      <div class="backButton eon-fg0" eon-ref="toBack">
+        <div class="vicon vicon-chevron-left eon-bg1"></div>
+      </div>
+      <div class="title-row">
+        <eon-variable class="section-title eon-fg-h1" bind="locale.upgrade.summaryTitle" global="true"></eon-variable>
+      </div>
+
+      <div class="summaryWrapper">
+        <div class="featuresRow">
+          <div class="featuresCard">
+            <div eon-ref="featuresTitle" class="featuresTitle"></div>
+            <div eon-ref="featuresList" class="featuresList"></div>
+          </div>
+        </div>
+
+        <div class="summarySeparator"></div>
+
+        <div class="summaryRow">
+
+          <div class="billingCol" eon-ref="billingCol">
+            <div class="billingCard checked" eon-ref="annualCard">
+              <eon-variable class="billingPlanTitle" bind="locale.upgrade.annuallyPlanTitle" global="true">
+              </eon-variable>
+              <div class="billingPrice" eon-ref="annualPlanPrice"></div>
+              <eon-variable class="billingPlanNote" bind="locale.upgrade.billingPlanNote" global="true"></eon-variable>
+            </div>
+            <div class="billingCard" eon-ref="monthlyCard">
+              <eon-variable class="billingPlanTitle" bind="locale.upgrade.monthlyPlanTitle" global="true">
+              </eon-variable>
+              <div class="billingPrice" eon-ref="monthlyPlanPrice"></div>
+              <eon-variable class="billingPlanNote" bind="locale.upgrade.billingPlanNote" global="true"></eon-variable>
+            </div>
+          </div>
+
+
+          <div class="detailsCol">
+            <div class="usersRow">
+              <eon-variable class="detailsLabel" bind="locale.upgrade.currentUsers" global="true"></eon-variable>
+              <div class="detailsInfo" eon-ref="detailsCurrentUsers"></div>
+            </div>
+
+            <div class="totalRow">
+              <eon-variable class="detailsLabel" bind="locale.upgrade.totalTitle" global="true"></eon-variable>
+              <div>
+                <div eon-ref="totalPrice" class="detailsInfo"></div>
+                <div eon-ref="totalBillingPlan" class="totalBillingPlan"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="title-row">
+        <eon-variable class="section-title eon-fg-h1" bind="locale.upgrade.billingTitle" global="true"></eon-variable>
+      </div>
+      <div class="formWrapper">
+        <eon-form eon-ref="form" default-style="false">
+          <eon-text class="form-text form-grow" label-anim="false" bind:label="global locale.upgrade.name"
+            bind:placeholder="global locale.upgrade.name" name="name" inline="false" eon-ref="name">
+          </eon-text>
+          <eon-text class="form-text form-grow" label-anim="false" bind:label="global locale.upgrade.mail"
+            bind:placeholder="global locale.upgrade.mail" name="email" inline="false" eon-ref="mail">
+          </eon-text>
+          <app-payment eon-ref="payment"></app-payment>
+
+          <div class="form-actions">
+            <eon-button eon-ref="send" bind:value="global locale.upgrade.accept" inline="true"></eon-button>
+          </div>
+        </eon-form>
+      </div>
+
+    </eon-swiper-slide>
+  </eon-swiper>
+
+  <!-- TODO: -->
+  <!-- Corporative contact dialog -->
+  <eon-dialog eon-ref="contactDialog" class="interactDialog" default-style="false" bind:heading="global locale.upgrade.contactTitle"
+    modal="true" blur="true" allow-scroll="false">
+    <eon-section type="content">
+      <eon-form eon-ref="form" default-style="false">
+        <eon-text class="form-text form-grow" label-anim="false" bind:label="global locale.upgrade.name"
+          bind:placeholder="global locale.upgrade.name" name="name" inline="false" eon-ref="name">
+        </eon-text>
+        <eon-text class="form-text form-grow" label-anim="false" bind:label="global locale.upgrade.mail"
+          bind:placeholder="global locale.upgrade.mail" name="email" inline="false" eon-ref="mail">
+        </eon-text>
+      </eon-form>
+    </eon-section>
+    <eon-section type="footer">
+      <eon-button bind:value="global locale.upgrade.contactSend"></eon-button>
+    </eon-section>
+  </eon-dialog>
+</template>
+
+<script>
+  eon.element({
+    name: "upgrade-view",
+    parse: true,
+    style: "upgrade-view.css",
+    dependencies: [
+      "@custom/app-payment",
+      "@ui/eon-form",
+      "@ui/eon-button",
+      "@ui/eon-text",
+      "@ui/eon-toggle",
+      "@ui/eon-swiper",
+      "@ui/eon-dialog"
+    ],
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      refresh: function () {
+        if (!app.isFirstVisit) {
+          mask.hide(null, 500);
+        }
+      },
+
+      validate: function () {
+        var el = this;
+
+        var formData = el._refs.form.getData();
+        var selectedPlan = el._refs.cardsWrapper.$1(".selected").id;
+
+        formData["plan"] = selectedPlan;
+
+        el._refs.form.validate(el._refs.schema, null, function (error) {
+          if (!error) {
+            el._refs.payment.createPaymentMethod(formData);
+          }
+        });
+
+      }
+    },
+    privateFunctions: {
+      // @function _setupSchema (private)
+      setupSchema: function () {
+        var el = this;
+
+        this._refs.schema = {
+          properties: {
+            "name": {
+              required: true
+            },
+            "email": {
+              required: true
+            }
+          }
+        }
+      },
+      // @function (private) _setCurrentInfo 
+      setCurrentInfo: function () {
+        var el = this;
+        var users;
+
+        // TODO - Review Upgrade code to make thing on refresh or include this on session ready
+        session.onReady(function () {
+          el._misc.currentPlan = session.data.plan ? session.data.plan : "starter";
+          el._refs.currentPlan.innerHTML = el._misc.currentPlan.toUpperCase();
+        });
+
+        getOwnUsers(function (error, data) {
+          if (!error) {
+            users = JSON.parse(data.responseText);
+
+            el._refs.currentUsers.innerHTML = Object.keys(users).length;
+            el._misc.currentUsers = Object.keys(users).length;
+
+          } else {
+            // TODO:
+            console.log("error");
+          }
+        });
+      },
+
+      // @function (private) _setActivePlan 
+      setActivePlan: function () {
+        var el = this;
+
+        var currentPlanCard = $1("#" + el._misc.currentPlan);
+        var activeBottom = currentPlanCard.$1(".card-bottom");
+        var button = activeBottom.$1(".upgradeButton");
+        var active = document.createElement("div");
+
+        active.classList.add("activeFlag");
+        active.innerHTML = eon.locale.upgrade.currentPlan;
+        activeBottom.removeChild(button);
+
+        activeBottom.appendChild(active);
+      },
+      // @function (private) _setupCardListeners 
+      setupCardListeners: function () {
+        var el = this;
+
+        if (window.innerWidth < 504) {
+
+          var baRect, sRect, buRect, pRect, focusedCard;
+
+          el._refs.starterCard.classList.add("focus");
+
+          el._refs.cardsWrapper.addEventListener('scroll', function (e) {
+
+            baRect = el._refs.starterCard.getBoundingClientRect();
+            sRect = el._refs.basicCard.getBoundingClientRect();
+            buRect = el._refs.businessCard.getBoundingClientRect();
+            pRect = el._refs.plusCard.getBoundingClientRect();
+
+            if (baRect.left >= (-1 * baRect.width * 0.25) && (baRect.left + baRect.width) < (window.innerWidth + baRect.width * 0.25)) {
+              if (!el._refs.starterCard.classList.contains("focus")) {
+                el._refs.starterCard.classList.add("focus");
+              }
+            } else {
+              el._refs.starterCard.classList.remove("focus");
+            }
+
+            if (sRect.left >= (-1 * sRect.width * 0.25) && (sRect.left + sRect.width) < (window.innerWidth + sRect.width * 0.25)) {
+              if (!el._refs.basicCard.classList.contains("focus")) {
+                el._refs.basicCard.classList.add("focus");
+              }
+            } else {
+              el._refs.basicCard.classList.remove("focus");
+            }
+
+            if (buRect.left >= (-1 * buRect.width * 0.25) && (buRect.left + buRect.width) < (window.innerWidth + buRect.width * 0.25)) {
+              if (!el._refs.businessCard.classList.contains("focus")) {
+                el._refs.businessCard.classList.add("focus");
+              }
+            } else {
+              el._refs.businessCard.classList.remove("focus");
+            }
+
+            if (pRect.left >= (-1 * pRect.width * 0.25) && (pRect.left + pRect.width) < (window.innerWidth + pRect.width * 0.25)) {
+              if (!el._refs.plusCard.classList.contains("focus")) {
+                el._refs.plusCard.classList.add("focus");
+              }
+            } else {
+              el._refs.plusCard.classList.remove("focus");
+            }
+
+          }, false);
+
+        } else {
+
+          // starterCard
+          el._refs.starterCard.addEventListener("mouseenter", function () {
+            el._refs.starterCard.classList.add("focus");
+          });
+          el._refs.starterCard.addEventListener("mouseleave", function () {
+            el._refs.starterCard.classList.remove("focus");
+          });
+
+          // basicCard
+          el._refs.basicCard.addEventListener("mouseenter", function () {
+            el._refs.basicCard.classList.add("focus");
+          });
+          el._refs.basicCard.addEventListener("mouseleave", function () {
+            el._refs.basicCard.classList.remove("focus");
+          });
+
+          // businessCard
+          el._refs.businessCard.addEventListener("mouseenter", function () {
+            el._refs.businessCard.classList.add("focus");
+          });
+          el._refs.businessCard.addEventListener("mouseleave", function () {
+            el._refs.businessCard.classList.remove("focus");
+          });
+
+          // plusCard
+          el._refs.plusCard.addEventListener("mouseenter", function () {
+            el._refs.plusCard.classList.add("focus");
+          });
+          el._refs.plusCard.addEventListener("mouseleave", function () {
+            el._refs.plusCard.classList.remove("focus");
+          });
+        }
+      },
+
+      // @function (private) _handleCardClick 
+      handleCardClick: function (card) {
+        var el = this;
+        var currentSelected = el.$1(".selected");
+
+        if (currentSelected) {
+          currentSelected.classList.remove("selected");
+        }
+
+        card.classList.add("selected");
+      },
+
+      // @function (private) _setButtonsListeners 
+      setButtonsListeners: function () {
+        var el = this;
+
+        var upgradeButtons = el.$(".upgradeButton");
+        var parentCard;
+        var title;
+        var features;
+
+        var feature;
+        var i, j;
+
+        for (i = 0; i < upgradeButtons.length; i++) {
+          upgradeButtons[i].addEventListener("click", function () {
+            parentCard = this.parentNode.parentNode.parentNode;
+
+            if (!parentCard.classList.contains("plus")) {
+              el._setSummaryInfo(parentCard);
+
+            } else {
+              el._refs.contactDialog.open();
+              // Push dialog state
+              pushDialogState(el._refs.contactDialog);
+            }
+          });
+
+        }
+      },
+
+      // @function (private) _setSummaryInfo 
+      setSummaryInfo: function (parentCard) {
+        var el = this;
+        var title = parentCard.$1(".cardTitle").innerHTML;
+        var featureNodes = parentCard.querySelectorAll(".cardFeature");
+        var displayPrice = parentCard.$1(".displayPrice").innerHTML;
+        var feature;
+        var icon;
+
+        el._handleCardClick(parentCard);
+        el._refs.swiper.next();
+        el._refs.featuresTitle.innerHTML = title;
+        el._refs.featuresList.innerHTML = "";
+        el._refs.detailsCurrentUsers.innerHTML = el._misc.currentUsers;
+
+        if (title.toLowerCase() == "basic") {
+          el._refs.annualPlanPrice.innerHTML = el._misc.basicAnnualPrice;
+          el._refs.monthlyPlanPrice.innerHTML = el._misc.basicMonthlyPrice;
+        } else {
+          el._refs.annualPlanPrice.innerHTML = el._misc.businessAnnualPrice;
+          el._refs.monthlyPlanPrice.innerHTML = el._misc.businessMonthlyPrice;
+        }
+
+        el._calculateTotal();
+
+        for (i = 0; i < featureNodes.length; i++) {
+          feature = document.createElement("div");
+          icon = document.createElement("i");
+
+          icon.classList.add("vicon", "vicon-ok");
+
+          feature.classList.add("featureItem");
+          feature.innerHTML = featureNodes[i].innerHTML;
+          feature.appendChild(icon);
+          el._refs.featuresList.appendChild(feature);
+        }
+      },
+
+      // @function (private) _setToggleListener 
+      setToggleListener: function () {
+        var el = this;
+
+        el._refs.pricing.onUncheck(function () {
+          el._refs.pricingAnnual.classList.add("checked");
+          el._refs.pricingMonthly.classList.remove("checked");
+
+          el._refs.annualCard.classList.add("checked");
+          el._refs.monthlyCard.classList.remove("checked");
+
+          el._refs.basicPrice.style.opacity = 0;
+          el._refs.businessPrice.style.opacity = 0;
+
+          setTimeout(function () {
+            el._refs.basicPrice.innerHTML = el._misc.basicAnnualPrice;
+            el._refs.businessPrice.innerHTML = el._misc.businessAnnualPrice;
+            el._refs.basicPrice.style.opacity = 1;
+            el._refs.businessPrice.style.opacity = 1;
+          }, 200);
+
+          el._misc.billingPlanSelected = "annual";
+        });
+
+        el._refs.pricing.onCheck(function () {
+          el._refs.pricingAnnual.classList.remove("checked");
+          el._refs.pricingMonthly.classList.add("checked");
+
+          el._refs.annualCard.classList.remove("checked");
+          el._refs.monthlyCard.classList.add("checked");
+
+          el._refs.basicPrice.style.opacity = 0;
+          el._refs.businessPrice.style.opacity = 0;
+
+          setTimeout(function () {
+            el._refs.basicPrice.innerHTML = el._misc.basicMonthlyPrice;
+            el._refs.businessPrice.innerHTML = el._misc.businessMonthlyPrice;
+            el._refs.basicPrice.style.opacity = 1;
+            el._refs.businessPrice.style.opacity = 1;
+          }, 200);
+
+          el._misc.billingPlanSelected = "monthly";
+        });
+      },
+      // @function (private) _setBackListener 
+      setBackListener: function () {
+        var el = this;
+
+        el._refs.toBack.addEventListener("click", function () {
+          el._refs.swiper.prev();
+        });
+      },
+      // @function (private) _setupPrices 
+      setupPrices: function () {
+        var el = this;
+
+        el._misc.basicAnnualPrice = "4€";
+        el._misc.basicMonthlyPrice = "8€";
+
+        el._misc.businessAnnualPrice = "6€";
+        el._misc.businessMonthlyPrice = "10€";
+
+        el._refs.basicPrice.innerHTML = el._misc.basicAnnualPrice;
+        el._refs.businessPrice.innerHTML = el._misc.businessAnnualPrice;
+        // el._misc.planBilling = "annual";
+      },
+      // @function (private) _setBillingPlanListener 
+      setBillingPlanListener: function () {
+        var el = this;
+
+        el._refs.annualCard.addEventListener("click", function () {
+          el._misc.billingPlanSelected = "annual";
+
+          el._handleBillingPlan(this);
+          el._calculateTotal();
+        });
+
+        el._refs.monthlyCard.addEventListener("click", function () {
+          el._misc.billingPlanSelected = "monthly";
+
+          el._handleBillingPlan(this);
+          el._calculateTotal();
+        });
+      },
+      // @function (private) _handleBillingPlan 
+      handleBillingPlan: function (card) {
+        var el = this;
+        if (!card.classList.contains("checked")) {
+          el._refs.billingCol.$1(".checked").classList.remove("checked");
+          card.classList.add("checked");
+        }
+      },
+      // @function (private) _calculateTotal 
+      calculateTotal: function () {
+        var el = this;
+        var selectedCard = el._refs.billingCol.$1(".checked");
+        var price = parseInt(selectedCard.$1(".billingPrice").innerHTML.split("€")[0]);
+        var total;
+
+        if (el._misc.billingPlanSelected == "annual") {
+          total = price * el._misc.currentUsers * 12 + "€/" + eon.locale.upgrade.year;
+        } else {
+          total = price * el._misc.currentUsers + "€/" + eon.locale.upgrade.month;
+        }
+
+        el._refs.totalPrice.style.opacity = 0;
+
+        setTimeout(function () {
+          el._refs.totalPrice.innerHTML = total;
+          el._refs.totalPrice.style.opacity = 1;
+        }, 200);
+      }
+    },
+    onTransformed: function () {
+      var el = this;
+
+      el._misc.billingPlanSelected = "annual";
+
+      el._setupSchema();
+      el._setupPrices();
+
+      session.onReady(function () {
+        el._setCurrentInfo();
+        el._setActivePlan();
+        el._setupCardListeners();
+        el._setButtonsListeners();
+        el._setToggleListener();
+        el._setBackListener();
+        el._setBillingPlanListener();
+      });
+    }
+  });
+</script>

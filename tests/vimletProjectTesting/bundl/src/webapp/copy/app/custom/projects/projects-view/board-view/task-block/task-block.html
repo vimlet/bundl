@@ -1,0 +1,696 @@
+<template>
+    <div class="task-block-container">
+        <div class="task-block-header">
+            <div class="task-block-priority-name">
+                <div class="hide" eon-ref="priority">
+                    <i class="task-block-priority ticon-flag"></i>
+                </div>
+                <app-editable-text class="task-block-name" save-on-blur="true" eon-ref="name" editable="false"
+                    fixed-width="true" footer="false">
+                </app-editable-text>
+            </div>
+            <div class="separator"></div>
+            <app-toggle-menu icon="vicon-more" button-full-width="false" class="task-block-options"
+                content-class="task-block-options-content" anchor="right" eon-ref="options">
+                <app-toggle-menu class="task-block-options-content-move" hidden-menu="true" anchor="left"
+                    eon-ref="moveTo"></app-toggle-menu>
+                <div class="app-toggle-menu-item" eon-ref="edit">
+                    <i class='vicon ticon-edit'></i>
+                    <eon-variable class="" bind="locale.global.edit" global="true"></eon-variable>
+                </div>
+                <div class="app-toggle-menu-item" eon-ref="moveToButton">
+                    <i class='vicon vicon-log-out'></i>
+                    <eon-variable class="" bind="locale.projects.board.task.moveTo" global="true"></eon-variable>
+                    <div class="separator"></div>
+                    <div class="task-block-move-to-anchor" eon-ref="moveToButtonAnchor"></div>
+                </div>
+                <div class="app-toggle-menu-item" eon-ref="moveUp">
+                    <i class='vicon vicon-arrow-up'></i>
+                    <eon-variable class="" bind="locale.projects.board.task.moveUp" global="true"></eon-variable>
+                </div>
+                <div class="app-toggle-menu-item" eon-ref="moveDown">
+                    <i class='vicon vicon-arrow-down'></i>
+                    <eon-variable class="" bind="locale.projects.board.task.moveDown" global="true"></eon-variable>
+                </div>
+                <div class="app-toggle-menu-item" eon-ref="clone">
+                    <i class='vicon vicon-copy'></i>
+                    <eon-variable class="" bind="locale.projects.board.task.clone" global="true"></eon-variable>
+                </div>
+                <div class="app-toggle-menu-item" type="delete" eon-ref="delete">
+                    <i class='vicon vicon-bin'></i>
+                    <eon-variable class="" bind="locale.global.delete" global="true"></eon-variable>
+                </div>
+            </app-toggle-menu>
+        </div>
+
+        <div class="task-block-image hide" eon-ref="image"></div>
+        <div class="task-block-labels" eon-ref="labels"></div>
+
+        <div class="task-block-schedule">
+            <div class="column">
+                <div class="row task-block-schedule-row">
+                    <div class="task-block-start hide" eon-ref="start_block">
+                        </eon-variable>
+                        <div class="row task-block-schedule-start">
+                            <i class="task-block-schedule-icon vicon ticon-date"></i>
+                            <div class="task-block-date-text" eon-ref="start"></div>
+                        </div>
+                    </div>
+                    <div class="task-block-schedule-separator hide" eon-ref="due_separator">-</div>
+                    <div class="task-block-due hide" eon-ref="due_block">
+                        <div class="row">
+                            <div class="task-block-date-text" eon-ref="due"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row task-block-duration-row hide" eon-ref="duration_block">
+                    <i class="task-block-schedule-icon vicon vicon-time"></i>
+                    <eon-variable class="" bind="locale.projects.board.task.duration" global="true"></eon-variable>
+                    <div class="task-block-duration-text" eon-ref="duration"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <app-circular-progress class="task-block-progress hide" eon-ref="progress"></app-circular-progress>
+            <div class="task-block-checklist hide" eon-ref="checklist">
+                <div class="row">
+                    <i class="vicon vicon-list"></i>
+                    <div class="task-block-checklist-value" eon-ref="checklist_value"></div>
+                </div>
+            </div>
+            <div class="task-block-attachments hide" eon-ref="attachments">
+                <div class="row">
+                    <i class="vicon ticon-attach-file"></i>
+                    <div class="task-block-attachments-value" eon-ref="attachments_value"></div>
+                </div>
+            </div>
+            <div class="separator"></div>
+            <div class="task-block-viewers" eon-ref="viewers"></div>
+        </div>
+    </div>
+    <div class="task-block-bottom-margin"></div>
+</template>
+
+<script>
+    eon.element("task-block", {
+        style: "task-block.css",
+        dependencies: [
+            "@custom/app-editable-text",
+            "@ui/eon-button",
+            "@custom/app-toggle-menu",
+            "@custom/app-circular-progress"
+        ],
+
+        properties: {
+            // @html-property taskId (public)
+            taskId: {
+                value: "",
+                observe: true
+            },
+            // @html-property board (public)
+            board: {
+                value: "",
+                observe: true
+            },
+            // @html-property name (public)
+            name: {
+                value: "",
+                observe: true
+            },
+            // @html-property order (public)
+            order: {
+                value: "",
+                reflect: true
+            },
+            // @html-property labels (public)
+            labels: {
+                value: "",
+                observe: true
+            },
+            // @html-property image (public)
+            image: {
+                value: "",
+                observe: true
+            },
+            // @html-property viewers (public)
+            viewers: {
+                value: "",
+                observe: true
+            },
+            // @html-property workspaceData (public)
+            workspaceData: {
+                value: ""
+            },
+            // @html-property maxViewersShown (public)
+            maxViewersShown: {
+                value: "3",
+                reflect: true
+            },
+            // @html-property priority (public)
+            priority: {
+                value: "",
+                observe: true
+            },
+            // @html-property due (public)
+            due: {
+                value: "",
+                observe: true
+            },
+            // @html-property task (public)
+            task: {
+                value: "",
+                observe: true
+            },
+            // @html-property progressColors (public)
+            progressColors: {
+                value: {
+                    pending: "#039be5",
+                    inProgress: "#33b679"
+                }
+            }
+        },
+
+        privateProperties: {
+            misc: {
+                value: {}
+            }
+        },
+        functions: {
+            // @function setName (public) [Set task name]
+            setName: function (name) {
+                var el = this;
+                // el._refs.name.innerHTML = name;
+                el._refs.name.value = name;
+            },
+            // @function setOrder (public) [Set task order]
+            setOrder: function (order) {
+                var el = this;
+                el.style.order = order;
+            },
+            // @function setLabels (public) [Set task labels]
+            setLabels: function (labels) {
+                var el = this;
+                var fragment = document.createDocumentFragment();
+                for (var i = 0; i < labels.length; i++) {
+                    if (el.board.labels[labels[i]]) {
+                        var label = document.createElement("div");
+                        label.classList.add("task-block-labels-label");
+                        label.style.backgroundColor = el.board.labels[labels[i]].color;
+                        label.innerText = el.board.labels[labels[i]].title;
+                        fragment.appendChild(label);
+                    }
+                }
+                el._refs.labels.innerHTML = "";
+                el._refs.labels.appendChild(fragment);
+            },
+            // @function setImage (public) [Set task image]
+            setImage: function (image) {
+                var el = this;
+                el._refs.image.classList.add("hide");
+                el._refs.image.style.backgroundImage = "none";
+                if (image && image != "") {
+                    var url = "/rest/task/" + session.data.currentWorkspaceId + "/" + el.board.id + "/" + el
+                        .task.id + "/fileMeta/" + image;
+                    eon.ajax(url, {
+                        contentType: "application/json"
+                    }, function (error, data) {
+                        if (!error) {
+                            if (data.responseText) {
+                                var meta = JSON.parse(data.responseText);
+                                el._refs.image.classList.remove("hide");
+                                var imgUrl;
+                                if (meta.thumbnail) {
+                                    imgUrl = "/rest/task/" + session.data.currentWorkspaceId +
+                                        "/" + el.board.id + "/" +
+                                        el.task.id + "/file/" + meta.id;
+                                } else {
+                                    switch (meta.mimetype) {
+                                        default:
+                                            imgUrl = "img/projects/task/file.png";
+                                            break;
+                                    }
+                                }
+                                el._refs.image.style.backgroundImage = "url(" + imgUrl + ")";
+                            }
+                        } else if (data.status == 401) {
+                            session.logout();
+                        }
+                    });
+                }
+            },
+            // @function setViewers (public) [Show viewers icons] @param viewers
+            setViewers: function (viewers) {
+                var el = this;
+                el._refs.viewers.innerHTML = "";
+                if (viewers) {
+                    var fragment = document.createDocumentFragment();
+                    var groupsMembers = viewers.members.length + viewers.groups.length;
+                    var max = groupsMembers < parseInt(el.maxViewersShown) ? groupsMembers : parseInt(el
+                        .maxViewersShown);
+                    var added = 0;
+                    if (viewers.groups.length > 0) {
+                        for (var i = 0; i < max; i++) {
+                            if (i < viewers.groups.length) {
+                                var avi = document.createElement("app-avatar");
+                                avi.userName = el.workspaceData.groups[viewers.groups[i]]
+                                    .name;
+                                avi.icon = "ticon-users";
+                                avi.style.zIndex = max - i;
+                                added++;
+                                fragment.appendChild(avi);
+                            }
+                        }
+                    }
+                    var maxMembers = max - added;
+                    if (viewers.members.length > 0 && maxMembers > 0) {
+                        for (var i = 0; i < maxMembers; i++) {
+                            if (i < viewers.members.length && el.workspaceData.members[viewers.members[
+                                    i]]) {
+                                var avi = document.createElement("app-avatar");
+                                avi.userName = el.workspaceData.members[viewers.members[i]]
+                                    .alias;
+                                avi.image = "/rest/user/avatar/" + viewers.members[i];
+                                avi.style.zIndex = max - (i + added);
+                                // avi.style.zIndex = i + added;
+                                fragment.appendChild(avi);
+                            }
+                        }
+                    }
+                    var extra = groupsMembers - max;
+                    if (extra > 0) {
+                        var avi = document.createElement("app-avatar");
+                        avi.userName = "+" + extra;
+                        avi.type = "extra";
+                        avi.style.zIndex = max + 1;
+                        // fragment.appendChild(avi);
+                        fragment.insertBefore(avi, fragment.firstChild);
+                    }
+                    el._refs.viewers.appendChild(fragment);
+                }
+            },
+            // @function setPriority (public) [Show priority] @param priority
+            setPriority: function (priority) {
+                var el = this;
+                if (!priority) {
+                    el._refs.priority.classList.add("hide");
+                } else {
+                    el._refs.priority.className = "";
+                }
+                el._refs.priority.classList.add("task-dialog-priority-" + priority);
+            },
+            // @function setAttachments (public) [Show attachments] @param amount
+            setAttachments: function (amount) {
+                var el = this;
+                if (!amount) {
+                    el._refs.attachments.classList.add("hide");
+                } else {
+                    el._refs.attachments_value.innerHTML = amount;
+                    el._refs.attachments.classList.remove("hide");
+                }
+            },
+            // @function setChecklist (public) [Show checklist] @param items
+            setChecklist: function (items) {
+                var el = this;
+                if (items.order.length <= 0) {
+                    el._refs.checklist.classList.add("hide");
+                } else {
+                    var totalItems = 0;
+                    var checkedItems = 0;
+                    for (var checklistKey in items.data) {
+                        if (items.data[checklistKey] && items.data[checklistKey].items && el.task.items &&
+                            el.task.items.data && el.task.items
+                            .data[checklistKey] && el.task.items.data[checklistKey].items && el.task.items
+                            .data[checklistKey].items.data) {
+                            totalItems += Object.keys(items.data[checklistKey].items.data).length;
+                            for (var itemKey in items.data[checklistKey].items.data) {
+                                if (items.data[checklistKey].items.data[itemKey].checked) {
+                                    checkedItems++;
+                                }
+                            }
+                        }
+                    }
+                    var checklistText = document.createElement("div");
+                    checklistText.classList.add("row");
+                    var checked = document.createElement("div");
+                    checked.innerHTML = checkedItems;
+                    var total = document.createElement("div");
+                    total.classList.add("task-block-checklist-total")
+                    total.innerHTML = '/' + totalItems;
+                    checklistText.appendChild(checked);
+                    checklistText.appendChild(total);
+                    el._refs.checklist_value.innerHTML = '';
+                    el._refs.checklist_value.appendChild(checklistText);
+                    el._refs.checklist.classList.remove("hide");
+                }
+            },
+            // @function setDue (public) [Show due date] @param date
+            setDue: function (date) {
+                var el = this;
+                el._refs.due.innerHTML = date;
+                if (date && date != "") {
+                    el._refs.due_block.classList.remove("hide");
+                    el._refs.due_separator.classList.remove("hide");
+                } else {
+                    el._refs.due_block.classList.add("hide");
+                    el._refs.due_separator.classList.add("hide");
+                }
+                if (new Date(date) < new Date()) {
+                    el._refs.due.classList.add("task-block-due-out-of-date");
+                } else {
+                    el._refs.due.classList.remove("task-block-due-out-of-date");
+                }
+            },
+            // @function setStart (public) [Show start date] @param date
+            setStart: function (date) {
+                var el = this;
+                el._refs.start_block.classList.remove("hide");
+                if (date && date != "") {
+                    el._refs.start.innerHTML = date;
+                } else {
+                    el._refs.start.innerHTML = eon.locale.projects.board.task.start;
+                }
+            },
+            // @function setSchedule (public) [Show schedule date] @param schedule
+            setSchedule: function (schedule) {
+                var el = this;
+                if (schedule.due || schedule.start) {
+                    el.setDue(schedule.due);
+                    el.setStart(schedule.start);
+                } else {
+                    el._refs.start_block.classList.add("hide");
+                    el._refs.due_block.classList.add("hide");
+                }
+                if (schedule.estimated && (schedule
+                        .estimated.days && schedule.estimated.days != 0) || (schedule.estimated &&
+                        schedule.estimated.hours && schedule.estimated.hours != 0) || (schedule
+                        .estimated && schedule.estimated.minutes && schedule.estimated.minutes != 0)) {
+                    el._refs.duration_block.classList.remove("hide");
+                    var estimatedString = [];
+                    if (schedule.estimated.days && schedule.estimated.days != 0) {
+                        estimatedString.push(schedule.estimated.days + " " + eon.locale.projects.board.task
+                            .d);
+                    }
+                    if (schedule.estimated.hours && schedule.estimated.hours != 0) {
+                        estimatedString.push(schedule.estimated.hours + " " + eon.locale.projects.board.task
+                            .h);
+                    }
+                    if (schedule.estimated.minutes && schedule.estimated.minutes != 0) {
+                        estimatedString.push(schedule.estimated.minutes + " " + eon.locale.projects.board
+                            .task.m);
+                    }
+                    el._refs.duration.innerHTML = ": " + estimatedString.join(", ");
+                    if ((schedule.elapsed && schedule.elapsed != 0)) {
+                        el.setProgress(schedule.estimated, schedule.elapsed);
+                        el._refs.progress.classList.remove("hide");
+                    } else {
+                        el._refs.progress.classList.add("hide");
+                    }
+                } else {
+                    el._refs.duration_block.classList.add("hide");
+                        el._refs.progress.classList.add("hide");
+                }
+
+
+                // if ((schedule.elapsed && schedule.elapsed != 0) || (schedule.estimated && (schedule
+                //         .estimated.days && schedule.estimated.days != 0) || (schedule.estimated &&
+                //         schedule.estimated.hours && schedule.estimated.hours != 0) || (schedule
+                //         .estimated && schedule.estimated.minutes && schedule.estimated.minutes != 0))) {
+                //     el._refs.progress.classList.remove("hide");
+                //     el.setProgress(schedule.estimated, schedule.elapsed);
+                // } else {
+                //     el._refs.progress.classList.add("hide");
+                // }
+                // if ((!schedule.estimated || (schedule.estimated.days === 0 && schedule.estimated.hours ===
+                //         0 && schedule.estimated.minutes === 0)) && !schedule.elapsed) {
+                //     el._refs.progress.classList.add("hide");
+                // }
+            },
+            // @function setProgress (private) [Show task progress] @param estimated @param worked
+            setProgress: function (estimated, worked) {
+                var el = this;
+                el._refs.progress.setAttribute("title", eon.locale.global.tooltip.progress);
+                var percent = 0;
+                if (!estimated) {
+                    percent = "?";
+                } else {
+                    var daysInMill = estimated.days * 24 * 60 * 60 * 1000;
+                    var hoursInMill = estimated.hours * 60 * 60 * 1000;
+                    var minutesInMill = estimated.minutes * 60 * 1000;
+                    var millis = daysInMill + hoursInMill + minutesInMill;
+                    percent = parseInt(100 * worked / millis);
+                }
+                el._refs.progress.onRender(function () {
+                    el._refs.progress.progress(percent);
+                });
+            },
+            // @function setTask (public) [Show task data] @param task
+            setTask: function (task) {
+                var el = this;
+                if (task.name && task.name != "") {
+                    el.setName(task.name);
+                }
+                if (task.labels && task.labels != "") {
+                    el.setLabels(task.labels);
+                }
+                if (task.order && task.order != "") {
+                    el.setOrder(task.order);
+                }
+                if (task.mainImage && task.mainImage != "") {
+                    el.setImage(task.mainImage);
+                }
+                if (task.viewers && task.viewers != "") {
+                    el.setViewers(task.viewers);
+                }
+                if (task.priority && task.priority != "") {
+                    el.setPriority(task.priority);
+                }
+                if (task.schedule && task.schedule != "") {
+                    el.setSchedule(task.schedule);
+                }
+                if (task.attachments && Object.keys(task.attachments).length > 0) {
+                    el.setAttachments(Object.keys(task.attachments).length);
+                }
+                if (task.items && task.items.order.length > 0) {
+                    el.setChecklist(task.items);
+                }
+            }
+        },
+
+        privateFunctions: {
+            // @function init (private)
+            init: function () {
+                var el = this;
+                if (el.task && el.task != "") {
+                    el.setTask(el.task);
+                }
+                el._setUp();
+            },
+            // @function setUp (private)
+            setUp: function (value) {
+                var el = this;
+                el.setAttribute("draggable", "true");
+                el.addEventListener("dragenter", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+                el.addEventListener("dragstart", function (event) {
+                    eon.triggerCallback("onDragstart", el, el, [event]);
+                });
+                // el.addEventListener("touchstart", function (event) {
+                //     eon.triggerCallback("onTouchstart", el, el, [event]);
+                // });
+                el._addListeners();
+                el._refs.moveTo.layoutHeight = el._refs.moveToButtonAnchor;
+                el._refs.moveTo.layout = document.body;
+                el._refs.moveTo.onEonOverlay(function (overlay) {
+                    overlay.addEventListener("click", function (event) {
+                        var parentRect = el._refs.options._refs.content
+                            .getBoundingClientRect();
+                        if (event.clientX >= parentRect.x && event.clientX <= parentRect.x +
+                            parentRect.width && event.clientY >= parentRect.y && event
+                            .clientY <= parentRect.y + parentRect.height) {} else {
+                            el._refs.options.close();
+                        }
+                    });
+                });
+                el._refs.attachments.title = eon.locale.projects.board.task.attachments;
+                el._refs.checklist.title = eon.locale.projects.board.task.checklist;
+                // el._refs.duration_block.title = eon.locale.projects.board.task.duration;
+                // el._refs.worked_block.title = eon.locale.projects.board.task.worked;
+                el._refs.start_block.title = eon.locale.projects.board.task.startDate;
+                el._refs.due_block.title = eon.locale.projects.board.task.dueDate;
+            },
+            // @function _addListeners (private)
+            addListeners: function () {
+                var el = this;
+                el.addEventListener("click", function () {
+                    eon.triggerCallback("onClick", el, el, [el.task.id]);
+                });
+                el._refs.options._refs.button.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    el._setMoveTo();
+                });
+                el._refs.moveToButton.addEventListener("click", function () {
+                    el._refs.moveTo.open();
+                });
+                el._refs.moveUp.addEventListener("click", function () {
+                    eon.triggerCallback("onMoveUp", el, el, [el.task.id, el.getAttribute(
+                        "listId")]);
+                    el._refs.options.close();
+                });
+                el._refs.moveDown.addEventListener("click", function () {
+                    eon.triggerCallback("onMoveDown", el, el, [el.task.id, el.getAttribute(
+                        "listId")]);
+                    el._refs.options.close();
+                });
+                el._refs.delete.addEventListener("click", function () {
+                    el._refs.options.close();
+                    openDeleteConfirmation(function () {
+                        task.delete(el.task.id);
+                    });
+                });
+                el._refs.clone.addEventListener("click", function () {
+                    el._refs.options.close();
+                    task.clone(el.task.id, {
+                        boardId: el.board.id
+                    });
+                });
+                el._refs.edit.addEventListener("click", function () {
+                    el._refs.options.close();
+                    el._refs.name.editable = true;
+                    el._refs.name.focus();
+                    el._refs.name.setCursorToEnd();
+                });
+                el._refs.name.addEventListener("click", function (e) {
+                    if (eon.util.isTrue(el._refs.name.open)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+                el._refs.name.onEdit(function (value) {
+                    el._refs.name.editable = false;
+                    task.update(el.task.id, {
+                        name: el._refs.name.value
+                    });
+                });
+            },
+            // @function _setMoveTo (private) [Set up move to options]
+            setMoveTo: function () {
+                var el = this;
+                el._refs.moveTo.clear();
+                for (var key in el.board.lists.data) {
+                    el._refs.moveTo.addItem(el._createMoveToItem(el.board.lists.data[key].id, el.board.lists
+                        .data[key].name));
+                }
+            },
+            // @function _createMoveToItem (private) [Create single option for move to] @param listId @param name
+            createMoveToItem: function (listId, name) {
+                var el = this;
+                var item = document.createElement("div");
+                item.classList.add("task-block-move-item", "app-toggle-menu-item");
+                item.innerText = name;
+                item.setAttribute("listId", listId);
+                item.addEventListener("click", function () {
+                    task.list(el.task.id, this.getAttribute("listId"), null, function (error,
+                        data) {});
+                    el._refs.moveTo.close();
+                    el._refs.options.close();
+                });
+                return item;
+            }
+        },
+
+        onCreated: function () {
+            var el = this;
+            eon.createCallback("onClick", el);
+            eon.createCallback("onMoveUp", el);
+            eon.createCallback("onMoveDown", el);
+            eon.createCallback("onDragstart", el);
+            eon.createCallback("onTouchstart", el);
+        },
+
+        onRender: function () {
+            var el = this;
+            el._init();
+        },
+        onPropertyChanged: function (key, oldVal, newVal) {
+            var el = this;
+            switch (key) {
+                case "order":
+                    el.setOrder(newVal);
+                    break;
+                case "board":
+                    setTimeout(function () {
+                        var deletedIndexes = [];
+                        for (var i = 0; i < el.task.labels.length; i++) {
+                            if (!el.board.labels[el.task.labels[i]]) {
+                                deletedIndexes.push(i);
+                            }
+                        }
+                        for (var i = 0; i < deletedIndexes.length; i++) {
+                            el.task.labels.splice(deletedIndexes[i], 1);
+                        }
+                        el.setLabels(el.task.labels);
+                    }, 0);
+                    break;
+                case "task":
+                    delete el.task
+                        .board; // TODO temporal fix until new data from database by rest                    
+                    var diffs = differ.compare(el.task, newVal, {
+                        arrayOrder: true
+                    });
+                    for (var key in diffs) {
+                        switch (key) {
+                            case "name":
+                                el.setName(newVal.name);
+                                break;
+                            case "labels":
+                                el.setLabels(newVal.labels);
+                                break;
+                            case "order":
+                                el.setOrder(newVal.order);
+                                break;
+                            case "mainImage":
+                                el.setImage(newVal.mainImage);
+                                break;
+                            case "viewers":
+                                el.setViewers(newVal.viewers);
+                                break;
+                                // case "board":
+                                //     setTimeout(function () {
+                                //         var deletedIndexes = [];
+                                //         for (var i = 0; i < el.labels.length; i++) {
+                                //             if (!el.board.labels[el.labels[i]]) {
+                                //                 deletedIndexes.push(i);
+                                //             }
+                                //         }
+                                //         for (var i = 0; i < deletedIndexes.length; i++) {
+                                //             el.labels.splice(deletedIndexes[i], 1);
+                                //         }
+                                //         el.setLabels(el.task.labels);
+                                //     }, 0);
+                                //     break;
+                            case "priority":
+                                el.setPriority(newVal.priority);
+                                break;
+                            case "schedule":
+                                el.setSchedule(newVal.schedule);
+                                break;
+                            case "attachments":
+                                el.setAttachments(Object.keys(newVal.attachments).length);
+                                break;
+                            case "items":
+                                el.setChecklist(newVal.items);
+                                break;
+                        }
+                    }
+                    break;
+
+            }
+        }
+
+
+
+    });
+</script>

@@ -1,0 +1,459 @@
+<template>
+  <div class="title-row">
+    <eon-variable class="section-title eon-fg-h1" bind="locale.notifications.title" global="true"></eon-variable>
+    <div class="action-buttons">
+      <eon-button class="notification-view-clear notification-view-button-hide-text-mobile"
+        icon="<i class='vicon ticon-enter'></i>" bind:label="global locale.notifications.clearAll" design="outlined"
+        eon-ref="clear"></eon-button>
+    </div>
+  </div>
+
+  <div class="notification-view-tabs">
+    <div class="notification-view-tab" eon-ref="notificationNew">
+      <i class='vicon vicon-new-releases'></i>
+      <eon-variable class="section-title eon-fg-h1" bind="locale.notifications.new" global="true"></eon-variable>
+    </div>
+    <div class="notification-view-tab" eon-ref="notificationCleared">
+      <i class='vicon ticon-enter'></i>
+      <eon-variable class="section-title eon-fg-h1" bind="locale.notifications.cleared" global="true"></eon-variable>
+    </div>
+    <!-- <eon-button class="notification-view-selected-view" icon="<i class='vicon vicon-new-releases'></i>"
+      bind:label="global locale.notifications.new" design="flat" eon-ref="notificationNew"></eon-button>
+    <eon-button icon="<i class='vicon ticon-enter'></i>" bind:label="global locale.notifications.cleared" design="flat"
+      eon-ref="notificationCleared"></eon-button> -->
+  </div>
+
+  <div eon-ref="wrapper" class="mask-wrapper">
+    <!-- CONTENT MASK -->
+    <div eon-ref="mask" class="content-mask">
+      <div class="mask-row mask-grid-titles notification-mask-grid-titles eon-mask-background1"></div>
+      <div class="mask-grid-content notification-mask-grid-content">
+        <div class="mask-card eon-mask-background1"></div>
+        <div class="mask-card eon-mask-background1"></div>
+        <div class="mask-card eon-mask-background1"></div>
+        <div class="mask-card eon-mask-background1"></div>
+      </div>
+      <div class="mask-row mask-grid-titles notification-mask-grid-titles eon-mask-background1"></div>
+      <div class="mask-grid-content notification-mask-grid-content">
+        <div class="mask-card eon-mask-background1"></div>
+        <div class="mask-card eon-mask-background1"></div>
+        <div class="mask-card eon-mask-background1"></div>
+        <div class="mask-card eon-mask-background1"></div>
+      </div>
+      <div class="mask-row mask-grid-titles notification-mask-grid-titles eon-mask-background1"></div>
+      <div class="mask-grid-content notification-mask-grid-content">
+        <div class="mask-card eon-mask-background1"></div>
+        <div class="mask-card eon-mask-background1"></div>
+        <div class="mask-card eon-mask-background1"></div>
+        <div class="mask-card eon-mask-background1"></div>
+      </div>
+    </div>
+
+    <eon-swiper transition="500" external-slide="true" eon-ref="swiper">
+      <eon-swiper-slide>
+        <div class="notifications-view-content" eon-ref="content"></div>
+      </eon-swiper-slide>
+      <eon-swiper-slide>
+        <div class="notifications-view-content" eon-ref="contentCleared"></div>
+      </eon-swiper-slide>
+    </eon-swiper>
+  </div>
+
+  <!-- MASK -->
+  <eon-mask>
+    <div class="mask-title-row">
+      <div class="mask-title eon-mask-background1"></div>
+      <div class="mask-button eon-mask-background1"></div>
+    </div>
+
+    <div class="mask-text notification-mask-text eon-mask-background1"></div>
+
+    <div class="mask-row mask-grid-titles notification-mask-grid-titles eon-mask-background1"></div>
+    <div class="mask-grid-content notification-mask-grid-content">
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+    </div>
+    <div class="mask-row mask-grid-titles notification-mask-grid-titles eon-mask-background1"></div>
+    <div class="mask-grid-content notification-mask-grid-content">
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+    </div>
+    <div class="mask-row mask-grid-titles notification-mask-grid-titles eon-mask-background1"></div>
+    <div class="mask-grid-content notification-mask-grid-content ">
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+    </div>
+
+  </eon-mask>
+</template>
+
+<script>
+  eon.element("notifications-view", {
+    style: "notifications-view.css",
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-scroll",
+      "@ui/eon-button",
+      "@ui/eon-text",
+      "@ui/eon-swiper",
+      "notification-row"
+    ],
+
+    properties: {
+      notifications: {
+        value: "",
+        observe: true
+      },
+      workspaceData: {
+        value: ""
+      }
+    },
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function refresh (public) [Refresh view]
+      refresh: function () {
+        var el = this;
+
+        this._showContentMask();
+
+        el._newView();
+        if (!app.isFirstVisit) {
+          el.loadWorkspaceData(null, function () {
+            el.loadData();
+          });
+        }
+      },
+      // @function setData (public) [Print data to screen] @param-optional data [If not given previously stored data will be used]
+      setData: function (data, parent) {
+        this.printNotificationsAsync(data, parent);
+        this._hideContentMask();
+      },
+      // @function _printNotificationsAsync (public) []
+      printNotificationsAsync: function (data, parent) {
+        var el = this;
+        var length = data.length;
+        var currentNotif, blockId, sectionHeader;
+        var fragment = document.createDocumentFragment();
+
+        el._misc.sections = {};
+        parent.innerHTML = "";
+
+        function __printNotif(notifData, index) {
+
+          // Check block existance first
+          blockId = notifData.section.section + ":" + notifData.section.subSection + ":" + notifData.section.title;
+          if (!el._misc.sections[blockId]) {
+            el._misc.sections[blockId] = document.createElement("div");
+            el._misc.sections[blockId].classList.add("notifications-view-section");
+            sectionHeader = el._setData_header(notifData.section);
+            el._misc.sections[blockId].appendChild(sectionHeader);
+            fragment.appendChild(el._misc.sections[blockId]);
+          }
+          // Create notification
+          currentNotif = el._setData_content(notifData);
+          el._misc.sections[blockId].appendChild(currentNotif);
+          parent.appendChild(fragment);
+
+          index++;
+
+          currentNotif.onReady(function () {
+            if (index < length) {
+              __printNotif(data[index], index);
+            }
+          });
+        }
+
+        if(length) {
+          __printNotif(data[0], 0);
+        } else {
+          el._emptyPlaceholder(parent);
+        }
+      },
+      // @function addNotification (public) [Add a single notification to already shown data]
+      addNotification: function (data) {
+        var el = this;
+        var blockId = data.section.section + ":" + data.section.subSection + ":" + data.section.title;
+        if (!el._misc.sections[blockId]) {
+          el._misc.sections[blockId] = document.createElement("div");
+          el._misc.sections[blockId].classList.add("notifications-view-section");
+          var sectionHeader = el._setData_header(data.section);
+          el._misc.sections[blockId].appendChild(sectionHeader);
+          el._refs.content.appendChild(el._misc.sections[blockId]);
+          el._emptyPlaceholder();
+        }
+        var content = el._setData_content(data);
+        el._misc.sections[blockId].insertBefore(content, el._misc.sections[blockId].childNodes[1]);
+        el._misc.sections[blockId].parentElement.insertBefore(el._misc.sections[blockId], el._misc.sections[
+          blockId].parentElement.firstChild);
+        notification.markAsRead(data.id);
+      },
+      // @function loadData (public) [Load data from database]
+      loadData: function () {
+        var el = this;
+        notification.getNew(function (data) {
+          el.setData(data, el._refs.content);
+        });
+      },
+      // @function loadCleared (public) [Load cleared notifications from database]
+      loadCleared: function () {
+        var el = this;
+        notification.getCleared(function (data) {
+          el.setData(data, el._refs.contentCleared);
+        });
+      },
+      // @function loadWorkspaceData (public) [Load workspace data from database] @param filters @param callback
+      loadWorkspaceData: function (filters, callback) {
+        var el = this;
+        if (session.isAdmin()) {
+          var url = "/rest/workspace/" + session.data.currentWorkspaceId;
+          eon.ajax(url, {
+            params: filters,
+            contentType: "application/json"
+          }, function (error, data) {
+            if (!error) {
+              el.workspaceData = JSON.parse(data.responseText);
+              if (callback) {
+                callback(null, el.workspaceData);
+              }
+            } else if (data.status == 401) {
+              callback(true);
+              session.logout();
+            }
+          });
+        } else {
+          var url = "/rest/workspace/" + session.data.currentWorkspaceId + "/" + session.data.id;
+          eon.ajax(url, {
+            params: filters,
+            contentType: "application/json"
+          }, function (error, data) {
+            if (!error) {
+              el.workspaceData = JSON.parse(data.responseText);
+              if (callback) {
+                callback(null, el.workspaceData);
+              }
+            } else if (data.status == 401) {
+              callback(true);
+              session.logout();
+            }
+          });
+        }
+      }
+    },
+    privateFunctions: {
+      // @function _drawStatic (private)
+      drawStatic: function () {
+        var el = this;
+
+        // Hide view mask after language loaded at least
+        eon.onLocaleLoaded(function () {
+          // Minimun mask time to avoid flickering
+          setTimeout(function () {
+            // Hide home mask
+            mask.hideViewMask("notifications");
+            el.hideEonMask();
+          }, 100);
+        });
+      },
+      // @function _showContentMask (private)
+      showContentMask: function () {
+        this._refs.swiper.classList.add("hide");
+        this._refs.mask.classList.remove("hide");
+      },
+      // @function _hideContentMask (private)
+      hideContentMask: function () {
+        this._refs.swiper.classList.remove("hide");
+        this._refs.mask.classList.add("hide");
+      },
+      // @function _init (private)
+      init: function () {
+        var el = this;
+        el._misc.view = "new";
+        el._setup();
+        // el.refresh();
+      },
+      // @function _setup (private)
+      setup: function () {
+        var el = this;
+        el._addListener();
+        el._socketListeners();
+      },
+      // @function _addListener (private)
+      addListener: function () {
+        var el = this;
+        el._refs.clear.addEventListener("click", function () {
+          notification.clearAll(function () {
+            el._misc.sections = {};
+            el._refs.content.innerHTML = "";
+            el._emptyPlaceholder(el._refs.content);
+            // el._refs.content.classList.add("notifications-view-clear-hide");
+            // setTimeout(() => {
+            //   el._refs.content.innerHTML = "";
+            //   el._refs.content.classList.remove("notifications-view-clear-hide");
+            // }, 300);
+          });
+        });
+        notification.onNotification_clearSection(function (section) {
+          // var blockId = section.section + ":" + section.subSection + ":" + section.title;
+          // el._misc.sections[blockId].classList.add("notifications-view-clear-hide");
+          // setTimeout(() => {
+          //   el._misc.sections[blockId].parentElement.removeChild(el._misc.sections[blockId]);
+          //   delete el._misc.sections[blockId];
+          // }, 300);
+
+          var blockId = section.section + ":" + section.subSection + ":" + section.title;
+          el._misc.sections[blockId].parentElement.removeChild(el._misc.sections[blockId]);
+          delete el._misc.sections[blockId];
+          if (Object.keys(el._misc.sections).length <= 0) {
+            el._emptyPlaceholder(el._refs.content);
+          }
+        });
+        notification.onNotification_clear(function (notificationId) {
+
+        });
+        el._refs.notificationNew.addEventListener("click", function () {
+          el.refresh();
+          // el._misc.view = "new";
+          // el._refs.notificationNew.classList.add("notification-view-selected-view");
+          // el._refs.notificationCleared.classList.remove("notification-view-selected-view");
+        });
+        el._refs.notificationCleared.addEventListener("click", function () {
+          el._clearedView();
+          el.loadCleared();
+        });
+      },
+      // @function _socketListeners (private)
+      socketListeners: function () {
+        var el = this;
+        session.onReady(function () {
+          app.socket.on("notification", function (socketData) {
+            var urlPath = window.location.pathname.split("/");
+            if (urlPath.indexOf("notifications") > -1 && el._misc.view === "new") {
+              switch (socketData.action) {
+                case "create":
+                  el.addNotification(socketData.notification);
+                  break;
+              }
+            } else if (urlPath.indexOf("notifications") > -1) {
+              notification.new();
+            }
+          });
+        });
+      },
+      // @function _setData_header (private) [Set data for header] @param data
+      setData_header: function (data) {
+        var el = this;
+        var sectionHeader = document.createElement("div");
+        sectionHeader.setAttribute("section", JSON.stringify(data));
+        sectionHeader.classList.add("notifications-view-section-header", "grid-titles");
+        var sectionTitles = document.createElement("div");
+        sectionTitles.classList.add("notifications-view-section-header-titles");
+        var sectionSubTitle = document.createElement("div");
+        sectionSubTitle.classList.add("notifications-view-section-header-subTitle", "no-selectable");
+        var subtitleInner = eon.locale.notifications.sections[data.section];
+        if (data.subSection && data.subSection != "") {
+          subtitleInner += " > " + data.subSection;
+        }
+        sectionSubTitle.innerText = subtitleInner;
+        sectionTitles.appendChild(sectionSubTitle);
+        var sectionTitle = document.createElement("div");
+        sectionTitle.classList.add("notifications-view-section-header-title", "no-selectable");
+        sectionTitle.innerText = data.title;
+        sectionTitles.appendChild(sectionTitle);
+        sectionHeader.appendChild(sectionTitles);
+        var sectionSeparator = document.createElement("div");
+        sectionSeparator.classList.add("separator");
+        sectionHeader.appendChild(sectionSeparator);
+        if (el._misc.view === "new") {
+          var sectionClear = document.createElement("eon-button");
+          sectionClear.design = "outlined";
+          sectionClear.classList.add("notifications-view-section-header-clear",
+            "notification-view-button-hide-text-mobile");
+          sectionClear.icon = "<i class='vicon ticon-enter'></i>";
+          sectionClear.label = eon.locale.notifications.archive;
+          sectionClear.addEventListener("click", function () {
+            notification.clearSection(JSON.parse(this.parentElement.getAttribute("section")));
+          });
+          sectionHeader.appendChild(sectionClear);
+        }
+        return sectionHeader
+      },
+      // @function _setData_content (private) [Set data content]
+      setData_content: function (sectionData) {
+        var el = this;
+        var row = document.createElement("notification-row");
+        row.notification = sectionData;
+        row.notificationsView = el;
+        return row;
+      },
+      // @function _newView (private) [Actions taken when going to new view]
+      newView: function () {
+        var el = this;
+        el._misc.view = "new";
+        el._refs.swiper.slideTo(0);
+        el._refs.notificationNew.classList.add("notification-view-selected-view");
+        el._refs.notificationCleared.classList.remove("notification-view-selected-view");
+        el._refs.clear.classList.remove("hide");
+      },
+      // @function _clearedView (private) [Actions taken when going to cleared view]
+      clearedView: function () {
+        var el = this;
+        el._refs.swiper.slideTo(1);
+        el._misc.view = "cleared";
+        el._refs.notificationCleared.classList.add("notification-view-selected-view");
+        el._refs.notificationNew.classList.remove("notification-view-selected-view");
+        el._refs.clear.classList.add("hide");
+      },
+      // @function _emptyPlaceholder (private) [Toggle empty placeholder] @param parent [Element where to append the placeholder]
+      emptyPlaceholder: function (parent) {
+        var el = this;
+        if (parent) {
+          if (!el._refs.placeHolder) {
+            el._refs.placeHolder = createPlaceHolder(eon.locale.global.noNotifications, "img/no-content/communication.svg", eon.locale.global.noNotificationsTitle);
+          }
+          el._refs.placeHolder.classList.remove("hide");
+          parent.appendChild(this._refs.placeHolder);
+        } else if (el._refs.placeHolder) {
+          el._refs.placeHolder.parentElement.removeChild(el._refs.placeHolder);
+          el._refs.placeHolder = null;
+        }
+      }
+    },
+
+    onCreated: function () {
+      var el = this;
+      eon.createCallback("onNotify", el, "ready");
+    },
+
+    onTransformed: function () {
+      // Draw static content
+      this._drawStatic();
+      this._init();
+    },
+
+    onReady: function () {
+      var el = this;
+      // session.onWorkspaceChanged(function () { // TODO fix multiple onWorkspaceChange trigger
+      //   session.onReady(function () {
+      //     el.refresh();
+      //   });
+      // });
+      session.onReady(function () {
+        el.refresh();
+      });
+    }
+
+
+  });
+</script>

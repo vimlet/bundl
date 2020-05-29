@@ -1,0 +1,26 @@
+app-files-uploader{
+}
+.app-files-uploader{
+  border: 2px dashed #ccc;
+  border-radius: 2px;
+  padding: 20px;
+}
+app-files-uploader .hide{
+  display:none;
+}
+
+app-files-uploader .highlight {
+  border-color: #38c6bb;
+}
+
+app-files-uploader input{
+  display:none;
+}
+app-files-uploader eon-variable{
+  color:grey;
+  margin-bottom:5px;
+}
+
+app-files-uploader eon-button .eon-fg2-filled{
+  color:white !important;
+}

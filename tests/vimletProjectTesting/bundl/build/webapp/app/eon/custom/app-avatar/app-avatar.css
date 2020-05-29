@@ -1,0 +1,54 @@
+app-avatar{
+  position:relative;
+  height: 41px;
+  width: 41px;
+}
+app-avatar .app-avatar-background {
+  display: flex;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  align-items: center;
+  height: 41px;
+  width: 41px;
+  min-width: 25px;
+  border: 1px solid #efefef;
+  box-sizing: border-box;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+app-avatar .app-avatar-image {
+  background-size: contain;
+  border-radius: 50%;
+  height: 35px;
+  width: 35px;
+  z-index:10;
+  background-position: center;
+}
+app-avatar .app-avatar-letter {
+  position:absolute;
+}
+
+app-avatar .app-avatar-icon{
+  display:none;
+  position: absolute;
+  font-size: 15px;
+  bottom: -3px;
+  right: -2px;
+  color:#ffffff;
+  padding: 2px;
+  border-radius: 50%;
+  height: 15px;
+  border: 1px solid white;
+}
+
+.app-avatar-extra .app-avatar-background {
+  background-color :#999999;
+}
+.app-avatar-extra .app-avatar-letter {
+  font-size: 20px;
+  margin-left: auto;
+  margin-right: 2px;
+}

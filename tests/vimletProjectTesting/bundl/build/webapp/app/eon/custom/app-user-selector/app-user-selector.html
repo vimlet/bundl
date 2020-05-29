@@ -1,0 +1,399 @@
+<template>
+  <eon-variable bind="locale.workspace.groups.title" class="form-grouptitle form-only-title eon-fg-h2" global="true"
+    eon-ref="title">
+  </eon-variable>
+  <div class="app-user-selector-switch">
+    <eon-variable class="app-user-selector-switch-child app-user-selector-switch-left" bind="locale.global.users"
+      global="true" eon-ref="usersSwitch">
+    </eon-variable>
+    <div class="app-user-selector-switch-spacer"></div>
+    <eon-variable class="app-user-selector-switch-child app-user-selector-switch-right" bind="locale.global.groups"
+      global="true" eon-ref="groupsSwitch"></eon-variable>
+  </div>
+
+  <div class="app-user-selector-view app-user-selector-view-active" eon-ref="usersView">
+    <div class="app-user-selector-view-action">
+      <eon-toggle bind:label="global locale.global.all" label-anim="false" inline="false" eon-ref="allUsersCheckbox">
+      </eon-toggle>
+      <app-pagination class="app-user-selector-pagination" eon-ref="usersPagination" container="check-users" to="false"></app-pagination>
+    </div>
+    <eon-scroll static="true" thickness="8">
+      <selector-users id="check-users" class="check-group" eon-ref="checkUsers"></selector-users>
+    </eon-scroll>
+  </div>
+
+
+  <div class="app-user-selector-view" eon-ref="groupsView">
+    <div class="app-user-selector-view-action">
+      <eon-toggle bind:label="global locale.global.all" label-anim="false" inline="false" eon-ref="allGroupsCheckbox">
+      </eon-toggle>
+      <app-pagination class="app-user-selector-pagination" eon-ref="groupsPagination" container="check-groups" to="false"></app-pagination>
+    </div>
+    <eon-scroll static="true" thickness="8">
+      <selector-groups id="check-groups" class="check-group" eon-ref="checkGroups"></selector-groups>
+    </eon-scroll>
+  </div>
+</template>
+
+<script>
+  eon.element({
+
+    name: "app-user-selector",
+    style: "app-user-selector.css",
+
+    dependencies: [
+      "@ui/eon-scroll",
+      "@custom/app-avatar",
+      "@custom/app-pagination",
+      "selector-users",
+      "selector-groups"
+    ],
+    properties: {
+      // @html-attribute applyMembers (public) [Show/Hide apply to members button. Default show]
+      applyMembers: {
+        value: "true",
+        reflect: true
+      },
+      // @html-attribute label (public) [Title if any]
+      label: {
+        value: "",
+        observe: true
+      },
+      // @html-attribute groupSelector (public) [Enable/disable group selector]
+      groupSelector: {
+        value: "true",
+        reflect: true
+      },
+      // @html-attribute avatar (public) [Enable/disable avatar]
+      avatar: {
+        value: "true",
+        reflect: true
+      },
+      pagination: {
+        value: "6",
+        reflect: true
+      }
+    },
+    privateProperties: {
+      /*
+        @property (private) {Object} _misc
+        @description Object with useful information
+      */
+      misc: {
+        value: {},
+        reflect: false
+      },
+      /*
+        @property (private) {Object} _refs
+        @description Object with references to frequently queried nodes
+      */
+      refs: {
+        value: {},
+        reflect: false
+      }
+    },
+    functions: {
+      // @function reset (public) 
+      reset: function () {
+        var el = this;
+
+      },
+      // @function clear (public) [Clear form]
+      clear: function () {
+        var el = this;
+        el._refs.usersSwitch.classList.add("app-user-selector-switch-active");
+        el._refs.groupsSwitch.classList.remove("app-user-selector-switch-active");
+        el._refs.usersView.classList.add("app-user-selector-view-active");
+        el._refs.groupsView.classList.remove("app-user-selector-view-active");
+
+        el._misc.clearing = true;
+        el._misc.allMembersUncheck = false;
+        el._misc.allGroupsUncheck = false;
+
+        setTimeout(function () {
+          el._misc.clearing = false;
+        }, 0);
+        el._refs.checkUsers.innerHTML = "";
+        el._refs.checkGroups.innerHTML = "";
+        el._misc.membersChecked = [];
+        el._misc.groupsChecked = [];
+        el._misc.usersChecks = [];
+        el._misc.groupsChecks = [];
+        el._misc.set = false;
+      },
+
+      // @function getData (public) [Get form data]
+      getData: function (node, type) {
+        var el = this;
+
+        if (node) {
+          var membersChecked = el._misc.membersChecked;
+          var groupsChecked = el._misc.groupsChecked;
+
+          if (type == "user") {
+            membersChecked = el._getCheckeds(membersChecked, el._misc.membersChecked, el._refs.allUsersCheckbox, el._misc.allMembersUncheck, el._misc.data.members, el._refs.checkUsers, el._misc.usersChecks, node);
+          } else {
+            groupsChecked = el._getCheckeds(groupsChecked, el._misc.groupsChecked, el._refs.allGroupsCheckbox, el._misc.allGroupsUncheck, el._misc.data.groups, el._refs.checkGroups, el._misc.groupsChecks, node);
+          }
+
+        } else {
+          var membersChecked = el._misc.membersChecked ? el._misc.membersChecked : [];
+          var groupsChecked = el._misc.groupsChecked ? el._misc.groupsChecked : [];
+
+          membersChecked = el._getCheckeds(membersChecked, el._misc.membersChecked, el._refs.allUsersCheckbox, el._misc.allMembersUncheck, el._misc.data.members, el._refs.checkUsers, el._misc.usersChecks);
+          groupsChecked = el._getCheckeds(groupsChecked, el._misc.groupsChecked, el._refs.allGroupsCheckbox, el._misc.allGroupsUncheck, el._misc.data.groups, el._refs.checkGroups, el._misc.groupsChecks);
+        }
+
+        el._misc.membersChecked = membersChecked;
+        el._misc.groupsChecked = groupsChecked;
+
+        el._refs.usersPagination.refresh(membersChecked);
+        el._refs.groupsPagination.refresh(groupsChecked);
+
+        return {
+          members: {
+            checked: membersChecked
+          },
+          groups: {
+            checked: groupsChecked
+          }
+        };
+      },
+
+      refresh: function (membersChecked, groupsChecked) {
+        var el = this;
+        
+        el._misc.membersChecked = JSON.parse(JSON.stringify(membersChecked));
+        el._misc.groupsChecked = JSON.parse(JSON.stringify(groupsChecked));
+
+        el._refs.usersPagination.refresh(membersChecked, true);
+        el._refs.groupsPagination.refresh(groupsChecked, true);
+      },
+
+      // @function setData (public) [Create checkboxes for members] @param workspace @param-optional checked [Members who should be checked] @param-optional groupsChecked [Groups who should be checked]
+      setData: function (data, membersChecked, groupsChecked) {
+        var el = this;
+        if (data) {
+          el.clear();
+          el._misc.data = JSON.parse(JSON.stringify(data));
+
+          el._misc.membersChecked = membersChecked ? JSON.parse(JSON.stringify(membersChecked)) : [];
+          el._misc.groupsChecked = groupsChecked ? JSON.parse(JSON.stringify(groupsChecked)) : [];
+
+          el._setToggleStatus(el._misc.membersChecked, el._misc.data.members, el._refs.allUsersCheckbox);
+          el._setToggleStatus(el._misc.groupsChecked, el._misc.data.groups, el._refs.allGroupsCheckbox);
+
+          el._refs.usersPagination.setPaginationItems(data, "members", membersChecked);
+          el._refs.groupsPagination.setPaginationItems(data, "groups", groupsChecked);
+        }
+      },
+
+
+      // @function setLabel (public) [Set up title] @param title
+      setLabel: function () {
+        var el = this;
+
+        if (el.label && el.label != "") {
+          el._refs.title.setAttribute("bind", el.label);
+        } else {
+          el._refs.title.classList.add("hide");
+        }
+      }
+    },
+
+    privateFunctions: {
+      // @function _getCheckeds (private)
+      getCheckeds: function (newItemsChecked, currentItemsChecked, allCheck, allUncheck, itemData, selectorNode, checksNodes, node) {
+        var el = this;
+
+        // Prepares members checked array
+        // Checks if allChecked toggle is active to take all items, even the nodes that not loaded yet for the pagination
+        if (allCheck.checked) {
+          var allItems = Object.keys(itemData);
+
+          for (var i = 0; i < allItems.length; i++) {
+            if (itemData[allItems[i]]) {
+              newItemsChecked = el._insertCheck(newItemsChecked, allItems[i], selectorNode);
+            }
+          }
+
+        } else {
+          // Check or uncheck a single item
+          if (node) {
+            // When prevously was active all checks toggle
+            if (selectorNode._misc.uncheckedSingle) {
+              selectorNode._misc.uncheckedSingle = false;
+              for (var i = 0; i < currentItemsChecked.length; i++) {
+                if (currentItemsChecked[i] == node.value) {
+                  currentItemsChecked.splice(i, 1);
+                }
+              };
+            } else {
+              newItemsChecked = el._insertCheck(currentItemsChecked, node.value, selectorNode);
+            }
+
+            newItemsChecked = currentItemsChecked;
+
+            // Check or uncheck all items
+          } else if (allUncheck || allCheck.checked) {
+            if (allUncheck) {
+              newItemsChecked = [];
+            } else {
+              for (var i = 0; i < checksNodes.length; i++) {
+                if (checksNodes[i].checked) {
+                  newItemsChecked = el._insertCheck(newItemsChecked, checksNodes[i].value, selectorNode);
+                }
+              }
+
+            }
+          }
+
+        }
+
+        return newItemsChecked;
+      },
+      // @function _insertCheck (private)
+      insertCheck: function (checkedArray, checkItem, selectorNode) {
+        var el = this;
+        exist = el._handleRedundancy(checkItem, checkedArray);
+
+        if (!exist) {
+          checkedArray.push(checkItem);
+        }
+        return checkedArray;
+      },
+      // @function _handleRedundancy (private)
+      handleRedundancy: function (currentValue, checkeds) {
+        var el = this;
+
+        var exist = false;
+        for (var j = 0; j < checkeds.length; j++) {
+          if (checkeds[j] == currentValue) {
+            exist = true;
+          }
+        };
+        return exist;
+      },
+      // @function _setSwitchListeners (private)
+      setSwitchListeners: function () {
+        var el = this;
+
+        el._refs.usersSwitch.addEventListener("click", function (e) {
+          if (!this.classList.contains("app-user-selector-switch-active")) {
+            el._refs.groupsSwitch.classList.remove("app-user-selector-switch-active");
+            this.classList.add("app-user-selector-switch-active");
+
+            el._refs.groupsView.classList.remove("app-user-selector-view-active");
+            el._refs.usersView.classList.add("app-user-selector-view-active");
+          }
+        });
+
+        el._refs.groupsSwitch.addEventListener("click", function (e) {
+          if (!this.classList.contains("app-user-selector-switch-active")) {
+            el._refs.usersSwitch.classList.remove("app-user-selector-switch-active");
+            this.classList.add("app-user-selector-switch-active");
+
+            el._refs.usersView.classList.remove("app-user-selector-view-active");
+            el._refs.groupsView.classList.add("app-user-selector-view-active");
+          }
+        });
+      },
+      // @function _setChecksListeners (private)
+      setChecksListeners: function () {
+        var el = this;
+
+        el._refs.allUsersCheckbox.onCheck(function () {
+          el._misc.allMembersUncheck = false;
+          el._handleChecks(el._misc.usersChecks, el._refs.checkUsers, true);
+        });
+
+        el._refs.allUsersCheckbox.onUncheck(function () {
+          if (el._misc.usersChecks && el._misc.usersChecks.length > 0 && !el._refs.checkUsers._misc.uncheckedSingle) {
+            el._misc.allMembersUncheck = true;
+            el._handleChecks(el._misc.usersChecks, el._refs.checkUsers, false);
+          }
+        });
+
+        el._refs.allGroupsCheckbox.onCheck(function () {
+          el._misc.allGroupsUncheck = false;
+          el._handleChecks(el._misc.groupsChecks, el._refs.checkGroups, true);
+        });
+
+        el._refs.allGroupsCheckbox.onUncheck(function () {
+          if (el._misc.groupsChecks && el._misc.groupsChecks.length > 0 && !el._refs.checkGroups._misc.uncheckedSingle) {
+            el._misc.allGroupsUncheck = true;
+            el._handleChecks(el._misc.groupsChecks, el._refs.checkGroups, false);
+          }
+        });
+      },
+      // @function _handleChecks (private)
+      handleChecks: function (checksArray, selectorNode, status) {
+        var el = this;
+        for (var i = 0; i < checksArray.length; i++) {
+          checksArray[i].checked = status;
+        }
+
+        if (el._misc.set && !el._misc.clearing) {
+          eon.triggerCallback("onChange", el, el, [el.getData()]);
+        }
+      },
+
+      setToggleStatus: function (currentCheckeds, data, toggle) {
+        var el = this;
+        var dataItems = data ? Object.keys(data) : [];
+        var totalItems = [];
+
+        // Only valid users and group, that are not with status on false.
+        for (var i = 0; i < dataItems.length; i++) {
+          if (data[dataItems[i]]) {
+            totalItems.push(dataItems[i])
+          }
+        };
+        // Checks the all checked toggle
+        toggle.checked = currentCheckeds.length == totalItems.length && dataItems.length > 0 ? true : false;
+      },
+
+      // @function _setPagination (private)
+      setPagination: function () {
+        var el = this;
+
+        el._refs.usersPagination.count = parseInt(el.pagination);
+        el._refs.groupsPagination.count = parseInt(el.pagination);
+      }
+    },
+    onCreated: function () {
+      var el = this;
+      el.setLabel();
+      eon.createCallback("onChange", el);
+
+      el._misc.allMembersUncheck = false;
+      el._misc.allGroupsUncheck = false;
+
+    },
+
+    onReady: function () {
+      var el = this;
+
+      el._setPagination();
+      el._setSwitchListeners();
+      el._setChecksListeners();
+
+      el._refs.checkUsers.onChange(function (node) {
+        eon.triggerCallback("onChange", el, el, [el.getData(node, "user")]);
+      });
+
+      el._refs.checkGroups.onChange(function (node) {
+        eon.triggerCallback("onChange", el, el, [el.getData(node, "groups")]);
+      });
+    },
+
+
+    onPropertyChanged: function (attrName, oldVal, newVal) {
+      switch (attrName) {
+        case "pagination":
+          this._setPagination();
+          break;
+      }
+    }
+  });
+</script>

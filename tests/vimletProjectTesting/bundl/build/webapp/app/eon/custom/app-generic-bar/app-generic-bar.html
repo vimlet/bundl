@@ -1,0 +1,62 @@
+<template>
+  <div class="main-bar eon-fg-h1" eon-ref="bar">
+    <eon-variable class="bar-current" global="true" eon-ref="title"></eon-variable>
+    <eon-button class="bar-button h1-button" icon="<i class='vicon vicon-add'></i>" design="filled" eon-ref="button">
+    </eon-button>
+  </div>
+</template>
+
+<script>
+  eon.element("app-generic-bar", {
+
+    style: "app-generic-bar.css",
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-button"
+    ],
+
+    properties: {
+      // @html-attribute title (public) [Bar title]
+      title: {
+        value: "",
+        reflect: true
+      },
+      // @html-attribute button (public) [Button label]
+      button: {
+        value: ""
+      }
+    },
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {},
+    privateFunctions: {
+      // @function _addListener(private)
+      addListener: function () {
+        var el = this;
+        this._refs.button.addEventListener("click", function (e) {
+          eon.triggerCallback("onButtonClick", el, el);
+        });
+      },
+    },
+    onCreated: function () {
+      var el = this;
+      el._refs.title.setAttribute("bind", el.title);
+
+      if (el.button) {
+        el._refs.button.setAttribute("bind:label", el.button);
+      } else {
+        el._refs.bar.removeChild(el._refs.button);
+      }
+      
+      eon.createCallback("onButtonClick", el);
+    },
+    onTransformed: function () {
+      this._addListener();
+    }
+  });
+</script>

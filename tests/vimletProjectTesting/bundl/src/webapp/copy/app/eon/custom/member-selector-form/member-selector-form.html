@@ -1,0 +1,292 @@
+<template>
+  <div eon-ref="title"></div>
+  <div class="form-group">
+    <eon-scroll thickness="10">
+      <eon-variable bind="locale.workspace.groups.title" global="true" class="eon-fg-h3 hide form-marginbottom"
+        eon-ref="groupTitle"></eon-variable>
+      <div class="check-group form-marginbottom hide" eon-ref="checkGroup"></div>
+      <div class="member-selector-form-row form-marginbottom">
+        <eon-variable  bind="locale.global.members" global="true" class="eon-fg-h3 member-title"></eon-variable>
+        <eon-toggle bind:label="global locale.global.selectAll" label-anim="false" inline="false" eon-ref="allCheckbox">
+        </eon-toggle>
+      </div>
+      <div class="check-group" eon-ref="checkMember"></div>
+    </eon-scroll>
+  </div>
+</template>
+
+<script>
+  eon.element("member-selector-form", {
+    style: "member-selector-form.css",
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-scroll",
+      "@ui/eon-toggle",
+      "@ui/eon-check",
+      "@custom/app-avatar"
+    ],
+    properties: {
+      // @html-attribute applyMembers (public) [Show/Hide apply to members button. Default show]
+      applyMembers: {
+        value: "true",
+        reflect: true
+      },
+      // @html-attribute label (public) [Title if any]
+      label: {
+        value: "",
+        observe: true
+      },
+      // @html-attribute groupSelector (public) [Enable/disable group selector]
+      groupSelector: {
+        value: "false",
+        reflect: true
+      },
+      // @html-attribute avatar (public) [Enable/disable avatar]
+      avatar: {
+        value: "true",
+        reflect: true
+      }
+    },
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function clear (public) [Clear form]
+      clear: function () {
+        var el = this;
+        el._misc.clearing = true;
+        el._refs.allCheckbox.checked = false;
+        setTimeout(function () {
+          el._misc.clearing = false;
+        }, 0);
+        el._refs.checkMember.innerHTML = "";
+        el._refs.checkGroup.innerHTML = "";
+        el._misc.checks = [];
+        el._misc.groups = [];
+        el._misc.set = false;
+      },
+      // @function getData (public) [Get form data]
+      getData: function (asObject) {
+        var el = this;
+        var checked = asObject ? {} : [];
+        var unchecked = [];
+        for (var i = 0; i < el._misc.checks.length; i++) {
+          if (el._misc.checks[i].checked) {
+            if (asObject) {
+              checked[el._misc.checks[i].value] = true;
+            } else {
+              checked.push(el._misc.checks[i].value);
+            }
+          } else {
+            unchecked.push(el._misc.checks[i].value);
+          }
+        }
+        var groupChecked = [];
+        var groupUnchecked = [];
+        if (el._misc.groups) {
+          for (var i = 0; i < el._misc.groups.length; i++) {
+            if (el._misc.groups[i].checked) {
+              if (asObject) {
+                groupChecked[el._misc.groups[i].value] = true;
+              } else {
+                groupChecked.push(el._misc.groups[i].value);
+              }
+            } else {
+              groupUnchecked.push(el._misc.groups[i].value);
+            }
+          }
+        }
+        return {
+          members: {
+            checked: checked,
+            unchecked: unchecked
+          },
+          groups: {
+            checked: groupChecked,
+            unchecked: groupUnchecked
+          }
+        };
+      },
+      // @function setData (public) [Create checkboxes for members] @param workspace @param-optional checked [Members who should be checked] @param-optional groupsChecked [Groups who should be checked]
+      setData: function (workspace, checked, groupsChecked) {
+        var el = this;
+        el.clear();
+        var members = workspace.members;
+        var fragment = document.createDocumentFragment();
+        var allChecked = true;
+        
+        for (var key in members) {
+          var entry = members[key];
+          if (entry) {
+            var checkbox = document.createElement("eon-check");
+            checkbox.value = key;
+            checkbox.label = entry.alias;
+            if (entry.owner) {
+              // Owner
+              checkbox.label += "<span class='owner-span position-reset'> (owner)</span>";
+              checkbox.classList.add("owner-check");
+            }
+            if (checked && checked.indexOf(key) > -1) {
+              checkbox.checked = true;
+            } else {
+              allChecked = false;
+            }
+            checkbox.onCheck(function () {
+              if (el._misc.set && !el._misc.clearing) {
+                eon.triggerCallback("onChange", el, el, [el.getData()]);
+              }
+            });
+            checkbox.onUncheck(function () {
+              if (el._misc.set && !el._misc.clearing) {
+                eon.triggerCallback("onChange", el, el, [el.getData()]);
+              }
+            });
+            el._misc.checks.push(checkbox);
+            var block = document.createElement("div");
+            block.classList.add("member-selector-form-userBlock")
+            if (el.avatar && eon.util.isTrue(el.avatar)) {
+              var avi = document.createElement("app-avatar");
+              avi.userName = entry.alias;
+              avi.image = "/rest/user/avatar/" + key;
+              block.appendChild(avi);
+            }
+            block.appendChild(checkbox);
+            fragment.appendChild(block);
+          }
+        }
+        if (allChecked) {
+          el._refs.allCheckbox.checked = true;
+        }
+        el._refs.checkMember.appendChild(fragment);
+        if (el.groupSelector && eon.util.isTrue(el.groupSelector)) {
+          el._refs.groupTitle.classList.remove("hide");
+          el.setGroups(workspace.groups, groupsChecked);
+        }
+        setTimeout(function () {
+          el._misc.set = true;
+        }, 0);
+      },
+      // @function setGroups (public) [Set groups checkbox] @param groups
+      setGroups: function (groups, checked) {
+        var el = this;
+        var fragment = document.createDocumentFragment();
+        
+        el._misc.groupsData = groups;
+        for (var key in groups) {
+          var entry = groups[key];
+          if (entry) {
+            var checkbox = document.createElement("eon-check");
+            checkbox.classList.add("member-selector-form-userBlock");
+            checkbox.value = key;
+            checkbox.label = entry.name;
+            if (checked && checked.indexOf(key) > -1) {
+              checkbox.checked = true;
+            }
+            checkbox.onCheck(function () {
+              if (el._misc.set && !el._misc.clearing) {
+                eon.triggerCallback("onChange", el, el, [el.getData()]);
+              }
+            });
+            checkbox.onUncheck(function () {
+              if (el._misc.set && !el._misc.clearing) {
+                eon.triggerCallback("onChange", el, el, [el.getData()]);
+              }
+            });
+            el._misc.groups.push(checkbox);
+            var block = document.createElement("div");
+            block.classList.add("member-selector-form-userBlock")
+            if (el.avatar && eon.util.isTrue(el.avatar)) {
+              var avi = document.createElement("app-avatar");
+              avi.userName = entry.name;
+              avi.icon = "ticon-users";
+              block.appendChild(avi);
+            }
+            block.appendChild(checkbox);
+            fragment.appendChild(block);
+          }
+        }
+
+        if (groups && Object.keys(groups).length === 0 || !groups) {
+          if (!this._refs.placeHolder) {
+            this._refs.placeHolder = createPlaceHolderText(eon.locale.global.empty);
+          }
+          this._refs.placeHolder.classList.remove("hide");
+          fragment.appendChild(this._refs.placeHolder);
+        } else if (this._refs.placeHolder) {
+          // Remove place holder
+          this._refs.placeHolder.classList.add("hide");
+        }
+        el._refs.checkGroup.appendChild(fragment);
+        el._refs.checkGroup.classList.remove("hide");
+      },
+      // @function setLabel (public) [Set up title] @param title
+      setLabel: function (title) {
+        var el = this;
+        var title = document.createElement("eon-variable");
+        title.classList.add("form-grouptitle", "form-only-title", "eon-fg-h2");
+        title.setAttribute("global", true);
+        title.setAttribute("bind", el.label);
+        el._refs.title.innerHTML = "";
+        el._refs.title.appendChild(title);
+      }
+    },
+    privateFunctions: {
+      // @function _init (private)
+      init: function () {
+        var el = this;
+        el._misc.checks = [];
+      },
+      // @function _setup (private) 
+      setup: function () {
+        var el = this;
+        el._addListeners();
+      },
+      // @function _addListeners (private)
+      addListeners: function () {
+        var el = this;
+        el._refs.allCheckbox.onCheck(function () {
+          for (var i = 0; i < el._misc.checks.length; i++) {
+            el._misc.checks[i].checked = true;
+          }
+          if (el._misc.set && !el._misc.clearing) {
+            eon.triggerCallback("onChange", el, el, [el.getData()]);
+          }
+        });
+        el._refs.allCheckbox.onUncheck(function () {
+          if (el._misc.checks && el._misc.checks.length > 0) {
+            for (var i = 0; i < el._misc.checks.length; i++) {
+              el._misc.checks[i].checked = false;
+            }
+          }
+          if (el._misc.set && !el._misc.clearing) {
+            eon.triggerCallback("onChange", el, el, [el.getData()]);
+          }
+        });
+      }
+    },
+    onCreated: function () {
+      var el = this;
+      if (el.label && el.label != "") {
+        el.setLabel(el.label);
+      }
+      eon.createCallback("onChange", el);
+      el._misc.isSet = false;
+    },
+    onTransformed: function () {
+      var el = this;
+      el._init();
+      el._setup();
+    },
+    onPropertyChanged: function (key, oldVal, newVal) {
+      switch (key) {
+        case "title":
+          el.setLabel(newVal);
+          break;
+      }
+    }
+  });
+</script>

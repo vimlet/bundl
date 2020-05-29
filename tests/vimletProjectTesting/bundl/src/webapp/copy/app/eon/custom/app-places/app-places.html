@@ -1,0 +1,575 @@
+<template>
+
+  <div class="app-places-data eon-fg2">
+    <label class="app-places-label"></label>
+    <label class="app-places-counter"></label>
+  </div>
+
+  <div class="app-places-main eon-bg2 eon-fg2"></div>
+
+  <span class="app-places-underline"></span>
+
+  <div class="app-places-description"></div>
+
+</template>
+
+<script>
+  eon.element({
+
+    name: "app-places",
+    style: "app-places.css",
+
+    themed: true,
+
+    dependencies: [
+      "@ui/eon-scroll"
+    ],
+    properties: {
+      /*
+        @property {String} name
+        @description Name to identify the element in a form
+      */
+      name: {
+        value: "",
+        reflect: true
+      },
+      /*
+        @property {String} placeholder
+        @description Placeholder for the user typing area
+      */
+      placeholder: {
+        value: "Enter a location",
+        reflect: true
+      },
+      /*
+        @property {String} label
+        @description Label for the element
+      */
+      label: {
+        value: "",
+        reflect: true,
+        reflectDefault: true
+      },
+      /*
+        @property {Boolean} inline 
+        @description Space that occupies the button inside its parent container.
+      */
+      inline: {
+        value: true,
+        reflect: true,
+        reflectDefault: true
+      },
+      /*
+        @property {String} value
+        @description Value of the element
+      */
+      value: {
+        value: "",
+        reflect: true
+      },
+      /*
+        @property {String} default
+        @description Value of the element when the element is reset, if will also be the value of the element if no value is provided
+      */
+      default: {
+        value: "",
+        reflect: true
+      },
+      /*
+        @property {string} readonly
+        @description Toggles the readonly status of the element
+      */
+      readonly: {
+        value: false,
+        reflect: true
+      },
+      /*
+        @property {String} disabled
+        @description Toggles the disabled status of the element
+      */
+      disabled: {
+        value: false,
+        reflect: true
+      },
+      /*
+        @property {String} tooltip
+        @description Text to be shown for the element
+      */
+      tooltip: {
+        value: "",
+        reflect: true,
+        reflectDefault: false
+      },
+      /*
+        @property {String} labelAnim
+        @description Whether the label will have animation or not
+      */
+      labelAnim: {
+        value: true,
+        reflect: true
+      },
+      /*
+        @property {Boolean} invalid
+        @description Whether the element meets the requirements or not
+      */
+      invalid: {
+        value: false,
+        reflect: true,
+        reflectDefault: false
+      }
+    },
+    privateProperties: {
+      /*
+        @property (private) {String} _formElement 
+        @description Necessary property for a form
+      */
+      formElement: {
+        value: "places"
+      },
+      /*
+        @property (private) {Object} _misc
+        @description Object with useful information
+      */
+      misc: {
+        value: {},
+        reflect: false
+      },
+      /*
+        @property (private) {Object} _refs
+        @description Object with references to frequently queried nodes
+      */
+      refs: {
+        value: {},
+        reflect: false
+      }
+    },
+    functions: {
+      /*
+        @function clear
+        @description Empties the value
+      */
+      clear: function () {
+        this.value = "";
+      },
+      /*
+        @function reset
+        @description Resets the value of the element to the default one, if no default is provided then empties the value
+      */
+      reset: function () {
+        var el = this;
+
+        if (el.default != "") {
+          el.value = el.default;
+        } else {
+          el.clear();
+        }
+      },
+      /*
+        @function updateDescription
+        @description Updates the description value for the element
+      */
+      updateDescription: function (text) {
+        this._misc.descriptionText = text;
+        this._refs.description.innerHTML = this._misc.descriptionText;
+      },
+      /*
+        @function resetDescription
+        @description Updates the description value for the element
+      */
+      resetDescription: function () {
+        var el = this;
+        var description = el.tooltip != "" ? el.tooltip : "";
+
+        el._misc.descriptionText = description;
+        el._refs.description.innerHTML = description;
+      },
+      // @function focus (public) [Give focus to vc-text]
+      focus: function () {
+        var el = this;
+        el.onReady(function () {
+          el._refs.input.focus();
+        });
+      },
+      getLocation: function () {
+        return this._misc.location;
+      }
+    },
+    privateFunctions: {
+      /*
+        @function (private) _setup
+        @description Sets up all the necessary stuff for the element
+      */
+      setup: function () {
+        var el = this;
+
+        el._setupInput();
+
+        el._initDefault();
+        el._initValue();
+
+        el._setupDescription();
+
+        el._updateLabel();
+        el._updateDisabled();
+        el._updateReadOnly();
+        el._updateInvalid();
+      },
+      /*
+        @function (private) _setupLabelAnimation
+        @description Inits label animation classes and style
+      */
+      setupLabelAnimation: function () {
+        var el = this;
+
+        if (eon.util.isTrue(el.labelAnim)) {
+
+          if (el.value == "" && el.default == "") {
+            el._refs.label.classList.add("app-places-movedLabel");
+          }
+
+          if (el.placeholder != "") {
+            el._refs.data.style.overflow = "hidden";
+          }
+        }
+      },
+      /*
+        @function (private) _setupRefs
+        @description Creates references for relevant nodes
+      */
+      setupRefs: function () {
+        var el = this;
+
+        el._refs.data = el.template.querySelector(".app-places-data");
+        el._refs.main = el.template.querySelector(".app-places-main");
+        el._refs.label = el.template.querySelector(".app-places-label");
+        el._refs.description = el.template.querySelector(".app-places-description");
+      },
+      /*
+        @function (private) _setupAsTextarea
+        @description Created all nodes and events for all the types except the area
+      */
+      setupInput: function () {
+        var el = this;
+
+        var main = el.querySelector(".app-places-main");
+        var input = document.createElement("input");
+
+        el._refs = el._refs || {};
+        el._refs.input = input;
+
+        input.setAttribute("type", "text");
+        input.setAttribute("placeholder", el.placeholder);
+        input.classList.add("eon-fg2");
+
+        input.addEventListener("keypress", function (e) {
+
+          // Checks if the key press corresponds to ENTER
+          if (e.keyCode == 13) {
+            eon.triggerCallback("onEnter", el)
+          }
+
+        });
+
+        input.addEventListener("input", function (e) {
+          el.value = input.value;
+          el._misc.location = null;
+        });
+
+        input.addEventListener("focus", function (e) {
+          if (!eon.util.isTrue(el.readonly) && !eon.util.isTrue(el.disabled)) {
+            el.classList.add("app-places-focus");
+            el._animateLabel();
+            eon.triggerCallback("onFocus", el);
+          }
+        });
+
+        input.addEventListener("blur", function (e) {
+
+          if (!el.getLocation()) {
+            el.value = "";
+          }
+
+          el.classList.remove("app-places-focus");
+          el._animateLabel();
+          eon.triggerCallback("onBlur", el);
+
+        });
+
+        main.appendChild(input)
+      },
+      /*
+        @function (private) {String} _setupDescription
+        @description Creates the touch blur
+      */
+      setupDescription: function () {
+        var el = this;
+
+        if (el.tooltip != "") {
+          el.updateDescription(el.tooltip);
+        }
+      },
+      setupApiCallback: function () {
+
+        var el = this;
+
+        // Request only once
+        if (!eon.requestedLocationAPI) {
+
+          eon.requestedLocationAPI = true;
+
+          el._pushToAutocompleteQueue();
+
+          var el, autocomplete;
+
+          for (var i = 0; i < eon.autocompleteQueue.length; i++) {
+            el = eon.autocompleteQueue[i];
+
+
+            autocomplete = new google.maps.places.Autocomplete(el._refs.input);
+            el._setupAutocomplete(autocomplete);
+          }
+
+          eon.hasLocationAPI = true;
+
+        } else {
+
+          // Only if the api has been imported into the document we set up our autocomplete,
+          // otherwise we push this component to the queue to be set up when the api loads
+          if (!eon.hasLocationAPI) {
+
+            el._pushToAutocompleteQueue();
+
+          } else {
+
+            var autocomplete = new google.maps.places.Autocomplete(el._refs.input);
+            el._setupAutocomplete(autocomplete);
+
+          }
+
+        }
+
+      },
+      pushToAutocompleteQueue: function () {
+        var el = this;
+        eon.autocompleteQueue = eon.autocompleteQueue || [];
+        eon.autocompleteQueue.push(el);
+      },
+      setupAutocomplete: function (autocomplete) {
+
+        var el = this;
+
+        autocomplete.addListener('place_changed', function () {
+          var place = autocomplete.getPlace();
+
+          if (place.geometry) {
+
+            var locationObj = {
+              latitude: place.geometry.location.lat(),
+              longitude: place.geometry.location.lng(),
+              address: el._refs.input.value
+            };
+
+            el.__value = el._refs.input.value;
+            el._misc.location = locationObj;
+
+            eon.triggerCallback("onPlaceSelected", el, el, [locationObj]);
+
+          }
+
+        });
+
+      },
+      /*
+        @function (private) _initDefault
+        @description If a value has been provided by the user we set it for our element
+      */
+      initDefault: function () {
+        this.value = this.default != "" && this.value == "" ? this.default : this.value;
+      },
+      /*
+        @function (private) _initValue
+        @description Sets the initial value depending if an innerText or a value has been provided
+      */
+      initValue: function () {
+        var el = this;
+
+        el._misc.initialText = el.value != "" ? el.value : el._misc.initialText;
+
+        if (el._misc.initialText != "") {
+
+          if (el._misc.initialText.length > parseInt(el.maxLength)) {
+            el._misc.initialText = el._misc.initialText.substring(0, el.maxLength);
+          }
+
+        }
+
+        if (el.type != "area") {
+          el._refs.input.value = el._misc.initialText;
+        } else {
+          el._refs.editableArea.innerText = el._misc.initialText;
+        }
+
+        el.__value = el._misc.initialText;
+
+      },
+      /*
+        @function (private) {String} _getValue
+        @description Returns the proper value for the element
+      */
+      getValue: function () {
+        return this._refs.editableArea.innerText;
+      },
+      /*
+        @function (private) _animateLabel
+        @description Depending on the focus state animates the label or not
+      */
+      animateLabel: function () {
+        var el = this;
+
+        if (eon.util.isTrue(el.labelAnim)) {
+
+          if (el.classList.contains("app-places-focus") || el.value != "") {
+            el._refs.label.classList.remove("app-places-movedLabel");
+          } else {
+            el._refs.label.classList.add("app-places-movedLabel");
+          }
+        }
+      },
+      /*
+        @function (private) _updateLabel
+        @description Updates the label node with the new label
+      */
+      updateLabel: function () {
+        var el = this;
+
+        if (el.label != "") {
+          el.querySelector(".app-places-label").innerHTML = el.label;
+        }
+      },
+      /*
+        @function (private) _updateDisabled
+        @description Updates disabled status
+      */
+      updateDisabled: function () {
+        var el = this;
+        var typingNode = el.type == "area" ? el._refs.editableArea : el._refs.input;
+
+        if (!eon.util.isTrue(el.disabled)) {
+
+          typingNode.classList.add("eon-fg2");
+          typingNode.classList.remove("eon-fg2-disabled");
+
+          el._refs.data.classList.remove("eon-fg2-disabled");
+          el._refs.main.classList.remove("eon-fg2-disabled");
+
+          el.removeAttribute("disabled");
+          typingNode.removeAttribute("disabled");
+        } else {
+          typingNode.setAttribute("disabled", "true");
+
+          typingNode.classList.remove("eon-fg2");
+          typingNode.classList.add("eon-fg2-disabled");
+
+          el._refs.data.classList.add("eon-fg2-disabled");
+          el._refs.main.classList.add("eon-fg2-disabled");
+        }
+      },
+      /*
+        @function (private) _updateReadOnly
+        @description Updates readonly status
+      */
+      updateReadOnly: function () {
+        var el = this;
+
+        if (eon.util.isTrue(el.readonly)) {
+
+          el._refs.input.setAttribute("readonly", "true");
+
+        } else {
+
+          el._refs.input.removeAttribute("readonly");
+
+        }
+      },
+      /*
+        @function (private) _updateValue
+        @description Updates the value
+      */
+      updateValue: function () {
+        var el = this;
+        el.onReady(function () {
+          el._refs.input.value = el.value;
+        });
+
+        // ** TODO
+        el._animateLabel();
+      },
+      /*
+        @function (private) _updateInvalid
+        @description Updates the invalid status
+      */
+      updateInvalid: function () {
+        var el = this;
+        var classListFn = eon.util.isTrue(el.invalid) ? "add" : "remove";
+
+        el.classList[classListFn]("app-places-error");
+      }
+    },
+    onCreated: function () {
+      var el = this;
+
+      el._misc.initialText = this.source.textContent;
+      el._misc.descriptionText = "";
+
+      el.value = el.value == "" && el._misc.initialText != "" ? el._misc.initialText : el.value;
+
+      el.source.textContent = "";
+
+      eon.createCallback("onEnter", el);
+      eon.createCallback("onBlur", el);
+      eon.createCallback("onFocus", el);
+      eon.createCallback("onPlaceSelected", el);
+
+      el.onEnter(function () {
+        el.value = "";
+      });
+
+    },
+    onInit: function () {
+      this._setupRefs();
+      this._setupLabelAnimation();
+    },
+    onBubbleRender: function () {
+      this._setup();
+    },
+    onReady: function () {
+      var el = this;
+      // TODO - Make AMD Maps API import global on eon
+      util.importMapsAPI();
+
+      // TODO - app exists on tobeio only
+      app.mapsReady(function () {
+        el._setupApiCallback();
+      });
+    },
+    onPropertyChanged: function (key, oldVal, newVal) {
+      switch (key) {
+        case "label":
+          this._updateLabel();
+          break;
+        case "disabled":
+          this._updateDisabled();
+          break;
+        case "readonly":
+          this._updateReadOnly();
+          break;
+        case "value":
+          this._updateValue();
+          break;
+        case "invalid":
+          this._updateInvalid();
+          break;
+      }
+    }
+  });
+</script>

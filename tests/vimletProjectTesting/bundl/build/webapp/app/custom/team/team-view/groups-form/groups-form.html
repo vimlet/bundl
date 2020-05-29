@@ -1,0 +1,150 @@
+<template>
+  <eon-form default-style="false" eon-ref="form">
+    <eon-text class="form-text form-marginbottom-description" bind:label="global locale.global.name" name="name" label-anim="false" inline="false"
+      eon-ref="name"></eon-text>
+
+    <app-user-selector label="locale.workspace.usersSelect.title" eon-ref="userSelector" group-selector="false">
+    </app-user-selector>
+  </eon-form>
+</template>
+<script>
+  eon.element("groups-form", {
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-form",
+      "@ui/eon-scroll",
+      "@custom/app-user-selector"
+    ],
+    properties: {},
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function clear (public) [Clear form]
+      clear: function () {
+        var el = this;
+        this._refs.form.clear();
+      },
+      // @function setChecks (public) [Set up checks for members] @param data @param-optional groupId
+      setChecks: function (data, groupId) {
+        var el = this;
+
+        var checked;
+        if (groupId) {
+          checked = data.groups[groupId].members;
+          el._refs.name.value = data.groups[groupId].name;
+        }
+
+        el._misc.data = data;
+        el._misc.checkedMembers = checked;
+
+        el._refs.userSelector.setData(data, checked);
+      },
+      // @function validate (public) [Validate form] @param callback [Callback called (error,data)]
+      validate: function (callback) {
+        var el = this;
+        var formData = el._refs.form.getData();
+
+        formData.members = el._refs.userSelector.getData().members.checked;
+        el._refs.form.validate(el._refs.schema, null, function (error) {
+          if (callback) {
+            callback(error, formData);
+          }
+        });
+      },
+
+      validateDelete: function (callback) {
+        var el = this;
+
+        openDeleteConfirmation(function () {
+          // Submit delete 
+          var formData = el._refs.form.getData();
+          formData.delete = true;
+          formData.members = el._refs.userSelector.getData().members.checked;
+
+          el._refs.form.validate(el._refs.schema, null, function (error) {
+            if (callback) {
+              callback(error, formData);
+            }
+          });
+        });
+      },
+    },
+    privateFunctions: {
+      // @function _setup (private)
+      setup: function () {
+        var el = this;
+        el._addListeners();
+        el._refs.schema = {
+          properties: {
+            "name": {
+              required: true
+            }
+          }
+        };
+      },
+      // @function _addListeners (private)
+      addListeners: function () {
+        var el = this;
+      },
+
+      // @function _isDesktop (private)
+      isDesktop: function () {
+        if (window.innerWidth <= 600) {
+          this._misc.desktop = false;
+        } else {
+          this._misc.desktop = true;
+        }
+
+        return this._misc.desktop;
+      }
+    },
+
+    onCreated: function () {
+      var el = this;
+      eon.createCallback("onSlide", el);
+    },
+
+
+    onTransformed: function () {
+      var el = this;
+      var pagination = el._isDesktop() ? 8 : 5;
+      el._setup();
+
+      el._refs.userSelector.pagination = pagination;
+    },
+
+    onWindowResize: function () {
+      var el = this;
+      var throttled = false;
+      var delay = 10;
+
+      // Decrease resize calls
+      if (!throttled) {
+        throttled = true;
+        // Check resolution
+        var isDesktop = window.innerWidth <= 600 ? false : true;
+
+        if (isDesktop && !el._misc.desktop) {
+          el._misc.desktop = true;
+          el._refs.userSelector.pagination = 8;
+          el._refs.userSelector.setData(el._misc.data, el._misc.checkedMembers);
+          
+        } else if (!isDesktop && el._misc.desktop) {
+          el._misc.desktop = false;
+          el._refs.userSelector.pagination = 5;  
+          el._refs.userSelector.setData(el._misc.data, el._misc.checkedMembers);
+        }
+
+        // Set a timeout to un-throttle
+        setTimeout(function () {
+          throttled = false;
+        }, delay);
+      }
+    }
+  });
+</script>

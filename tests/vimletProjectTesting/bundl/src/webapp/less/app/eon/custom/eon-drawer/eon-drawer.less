@@ -1,0 +1,35 @@
+@element: eon-drawer;
+
+@{element} {
+  & {
+    // TODO - accpet fixed/absolute
+    position: fixed;
+    box-sizing: border-box;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px;
+    transition: transform .2s;
+    z-index: 100;
+  }
+  &[type="right"] {
+    right: 0;
+    left: auto;
+  }
+  &[type="top"] {
+    left: auto;
+    right: auto;
+    width: 100%;
+    height: 250px;
+  }
+  &[type="bottom"] {
+    top: auto;
+    bottom: 0;
+    left: auto;
+    width: 100%;
+    height: 250px;
+  }
+  &.@{element}-static {
+    z-index: inherit;
+  }
+}

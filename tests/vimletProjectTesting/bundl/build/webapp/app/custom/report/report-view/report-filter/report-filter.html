@@ -1,0 +1,353 @@
+<template>
+
+  <div class="report-filter-content">
+    <div class="box" eon-ref="search">
+      <div class="report-filter-field-date" eon-ref="date.field">
+        <span eon-ref="date.monthField">
+          <eon-variable bind="locale.report.month" global="true"></eon-variable>
+        </span>
+        <i class="vicon vicon-calendar"></i>
+        <span class="report-filter-date-clickable" eon-ref="date.clickable"></span>
+        <eon-date class="report-filter-date" eon-ref="date.picker" day-picking="false" time="false" type="calendar">
+        </eon-date>
+      </div>
+
+      <div class="spacer"></div>
+
+      <span class="search vicon vicon-search">
+        <span class="search-clickable" eon-ref="searchClick"></span>
+      </span>
+    </div>
+
+    <div class="report-filter-pagination" eon-ref="pagination">
+      <span class="report-filter-pagination-left vicon vicon-chevron-left" eon-ref="backward">
+        <span class="report-filter-pagination-left-clickable" eon-ref="leftClick"></span>
+      </span>
+
+      <span class="report-filter-pagination-from" eon-ref="from"></span>
+      <span>-</span>
+      <span class="report-filter-pagination-to" eon-ref="to"></span>
+      <span>/</span>
+      <span class="report-filter-pagination-total" eon-ref="total"></span>
+
+      <span class="report-filter-pagination-right vicon vicon-chevron-right" eon-ref="forward">
+        <span class="report-filter-pagination-right-clickable" eon-ref="rightClick"></span>
+      </span>
+    </div>
+  </div>
+</template>
+
+<script>
+  eon.element("report-filter", {
+
+    style: "report-filter.css",
+    themed: true,
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-date"
+    ],
+
+    properties: {
+      search: {
+        value: true
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function open
+      open: function (data) {
+        var el = this;
+        document.body.appendChild(this._refs.overlay);
+        this._misc.modal.active = true;
+        this._assignCalendarStyle();
+        this._refs.overlay.classList.add("report-filter-date-opaque");
+        // Make sure the picker is completely opened
+        // TODO - Open animation
+        setTimeout(function () {
+          el._misc.modal.openRendered = true;
+        }, 300);
+      },
+      // @function close
+      close: function (data) {
+        if (this._misc.modal.openRendered) {
+          document.body.removeChild(this._refs.overlay);
+          this._refs.overlay.classList.remove("report-filter-date-opaque");
+          this._misc.modal.active = false;
+          this._misc.modal.openRendered = false;
+        }
+      },
+      // @function setValues
+      setValues: function (data) {
+        if (eon.util.isTrue(this.search)) {
+          this.setMonth(data);
+        }
+        this.setPagingValues(data);
+      },
+      // @function setMonth
+      setMonth: function (data) {
+        // Set picker
+        var year = Number(data.month.substring(0, 4));
+        var month = Number(data.month.substring(4, 6));
+        var date = moment().year(year).month(month - 1).toDate();
+        this._refs.date.picker.value = eon.time.getDateWithFormat(date, this._refs.date.picker.valueFormat, navigator.language);
+        var monthMoment = moment(date);
+        var month = monthMoment.format("MMMM");
+        // Update month field
+        this._refs.date.monthField.innerHTML = month;
+        this._refs.date.year = monthMoment.format("YYYY");
+        this._refs.date.month = monthMoment.format("MM");
+      },
+      // @function getDate
+      getDate: function (splitter) {
+        var el = this;
+        splitter = !splitter ? "" : splitter;
+        return el._refs.date.year + splitter + el._refs.date.month;
+      },
+      // @function setPagingValues
+      setPagingValues: function (data) {
+        this._refs.from.innerHTML = data.from + 1;
+        this._refs.to.innerHTML = data.to;
+        this._refs.total.innerHTML = data.total;
+
+        // Disabled navigation buttons
+        if (data.to == data.total) {
+          this._refs.forward.classList.add("nav-disabled");
+        }
+        if (data.from <= 1) {
+          this._refs.backward.classList.add("nav-disabled");
+        }
+
+        if (!data.total) {
+          this._refs.from.innerHTML = 0;
+          this._refs.to.innerHTML = 0;
+          this._refs.forward.classList.add("nav-disabled");
+          this._refs.backward.classList.add("nav-disabled");
+        }
+      }
+    },
+    privateFunctions: {
+      // @function _setupRefs (private)
+      setupRefs: function () {
+        this._misc.modal = {};
+        this._refs.report = this.getEnclosingComponent();
+        this._refs.reportGrid = this._refs.report._refs.grid;
+      },
+      // @function _setupOverlay (private)
+      setupOverlay: function () {
+        var el = this;
+        eon.registerPathListener(this._refs.date.picker, "date");
+
+        el._refs.overlay = el.generateOverlayNode();
+        el._refs.overlay.classList.add("report-filter-date-overlay", "eon-bg1-modal");
+
+        // Prevents scrolling on mobile devices
+        el._refs.overlay.addEventListener("wheel", function (e) {
+          if (!el._refs.date.picker.isOnPath) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, { passive: false });
+
+        // Overlay blur
+        el._refs.overlay.addEventListener("click", function (e) {
+          if (el._misc.modal.active && !el._refs.date.picker.isOnPath) {
+            e.preventDefault();
+            e.stopPropagation();
+            el.close();
+          }
+        });
+
+        // If the user scrolls the window scrollbar we hide the calendar
+        window.addEventListener("scroll", function (e) {
+          if (el._misc.modal.active) {
+            el.close();
+          }
+        });
+        el._refs.overlay.appendChild(el._refs.date.picker);
+
+      },
+      // @function _assignCalendarStyle (private)
+      assignCalendarStyle: function () {
+        if (window.innerWidth <= eon.tabletWidth) {
+          if (!this._refs.overlay.classList.contains("report-filter-date-device")) {
+
+            this._refs.date.picker.style.top = "auto";
+            this._refs.date.picker.style.left = "auto";
+
+            this._refs.overlay.classList.add("report-filter-date-device");
+            this._refs.overlay.classList.add("eon-bg1-modal");
+          }
+        } else {
+          // Get field position and apply to the picker
+          this._refs.overlay.classList.remove("report-filter-date-device");
+          this._refs.overlay.classList.remove("eon-bg1-modal");
+
+          this._refs.date.picker.style.top = this._refs.date.field.getBoundingClientRect().top + 1 + this._refs.date.field.offsetHeight + "px";
+          this._refs.date.picker.style.left = this._refs.date.field.getBoundingClientRect().left + "px";
+          this._refs.date.picker.style.width = this._refs.date.field.offsetWidth + "px";
+          this._refs.date.picker.style.height = "auto";
+        }
+      },
+
+      // @function _setupFilter (private)
+      setupFilter: function () {
+        if (eon.util.isTrue(this.search)) {
+          // Set default month value
+          var monthValue = moment().format("MM");
+          var month = moment().month(Number(monthValue) - 1).format('MMMM');
+          this._refs.date.monthField.innerHTML = month;
+
+          this._refs.date.month = monthValue;
+          this._refs.date.year = Number(new Date().getFullYear());
+          this._filterListener();
+        } else {
+          this._refs.search.classList.add("hide");
+        }
+      },
+      // @function _filterListener (private)
+      filterListener: function () {
+        var el = this;
+        var options, date;
+
+        this._refs.searchClick.addEventListener("click", el._filter.bind(el, options, date), false);
+      },
+      // @function _filter (private)
+      filter: function (options, date) {
+        var el = this;
+
+        el._refs.report.onDataLoaded(function () {
+          eon.triggerCallback("onFilter", el, el);
+          date = el._refs.date.year + el._refs.date.month;
+
+          options = {
+            date: date,
+            from: el._refs.report._misc.data.from,
+            count: 20
+          };
+
+          // Refresh report entries
+          el._refs.reportGrid.refresh(options, function (data) {
+            eon.triggerCallback("onFiltered", el, el, [data]);
+          });
+
+          // Update url state
+          updatePathParams(window.location.href, {
+            month: date,
+            start: "",
+            end: ""
+          });
+        });
+      },
+      // @function _setupDateFilter (private)
+      setupDateFilter: function () {
+        this._dateListener();
+      },
+      // @function _setupPagingFilter (private)
+      setupPagingFilter: function () {
+        this._pagingListener();
+      },
+      // @function _dateListener (private)
+      dateListener: function () {
+        var el = this;
+        var noDayDate, month, monthValue;
+
+        // Close picker listener
+        this._refs.date.clickable.addEventListener("click", function () {
+          el.open();
+        });
+
+        this._refs.date.picker.onMonthSelected(function () {
+          // Update field value
+          noDayDate = this.value.split("-")[0] + "-" + this.value.split("-")[1];
+          monthValue = moment(noDayDate, "YYYY-MM").format("MM");
+          month = moment().month(Number(monthValue) - 1).format('MMMM');
+          el._refs.date.monthField.innerHTML = month;
+
+          el._refs.date.month = monthValue;
+          el._refs.date.year = Number(year);
+
+          el.close();
+
+          el._filter();
+        });
+      },
+      // @function _pagingListener (private)
+      pagingListener: function () {
+        var el = this;
+        var options, date;
+
+        this._refs.leftClick.addEventListener("click", function (e) {
+          // Refresh grid if no limit pages have been reached
+          if (!el._hasReachedLimits(el._refs.report._misc.data)) {
+            eon.triggerCallback("onFilter", el, el);
+            var from = el._refs.report._misc.data.from - el._refs.report._misc.data.count;
+            from = from < 0 ? 0 : from;
+
+            options = {
+              date: el._refs.date.year + el._refs.date.month,
+              from: el._refs.report._misc.data.count,
+              count: 20
+            }
+            el._refs.reportGrid.refresh(options, function (data) {
+              eon.triggerCallback("onFiltered", el, el, [data]);
+            });
+          }
+        }, false);
+        this._refs.rightClick.addEventListener("click", function (e) {
+          // TODO - forward page limit check to avoid multiple requests
+          if (!el._hasReachedLimits(el._refs.report._misc.data, true)) {
+            eon.triggerCallback("onFilter", el, el);
+
+            options = {
+              date: el._refs.date.year + el._refs.date.month,
+              from: el._refs.report._misc.data.count,
+              count: 20
+            };
+
+            el._refs.reportGrid.refresh(options, function (data) {
+              eon.triggerCallback("onFiltered", el, el, [data]);
+            });
+          }
+        }, false);
+      },
+      // @function _hasReachedLimits (private)
+      hasReachedLimits: function (data, forward) {
+        var reached;
+        // Check paging direction
+        if (forward) {
+          reached = data.to >= data.total ? true : false;
+          // reached = false;
+        } else {
+          // Check the lower entry limit
+          reached = data.from - data.count < 0 ? true : false;
+        }
+        return reached;
+      }
+    },
+    onCreated: function () {
+      eon.createCallback("onFilter", this);
+      eon.createCallback("onFiltered", this);
+    },
+    onTransformed: function () {
+      this._setupRefs();
+      this._setupFilter();
+      this._setupDateFilter();
+      this._setupPagingFilter();
+      this._setupOverlay();
+    },
+    onWindowResize: function () {
+      if (this._misc.modal.active) {
+        this.close();
+      }
+    }
+  });
+</script>

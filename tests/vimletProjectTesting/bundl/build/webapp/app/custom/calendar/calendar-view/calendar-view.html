@@ -1,0 +1,1025 @@
+<style>
+  calendar-view calendar-month {
+    flex-grow: 1;
+    padding: 0;
+    height: auto;
+  }
+
+  calendar-view .section-title {
+    padding-left: 10px;
+  }
+
+  calendar-view .calendar-nav {
+    display: flex;
+    width: 100%;
+    height: 38px;
+    margin: 10px 0;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+
+  calendar-view .calendar-nav-date {
+    display: flex;
+    align-items: center;
+    padding-right: 18px;
+  }
+
+  calendar-view .calendar-nav-current {
+    text-align: center;
+    width: 100%;
+  }
+
+  calendar-view .calendar-nav-date i {
+    margin-left: 10px;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+
+  calendar-view .calendar-nav-date:hover i {
+    color: #8c27cf;
+  }
+
+  calendar-view .eon-swiper-child {
+    display: flex;
+    flex-direction: column;
+  }
+
+  calendar-view .view-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  calendar-view .field-date {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-left: 4px;
+    position: relative;
+    max-width: 110px;
+    width: 120px;
+  }
+
+  calendar-view .field-date {
+    margin-left: 10px;
+  }
+
+  calendar-view .field-date>span:first-child {
+    margin-right: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .hidden-picker {
+    position: relative;
+    width: 300px !important;
+  }
+
+  .hidden-picker-overlay {
+    position: fixed;
+    margin: 0;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    -webkit-transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 0);
+    -moz-transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 0);
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+
+  .hidden-picker-opaque {
+    opacity: 1;
+  }
+
+  .hidden-picker-device {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hidden-picker-device .hidden-picker {
+    width: 90%;
+    max-width: 90%;
+    min-width: 90%;
+    position: relative;
+  }
+
+  .calendar-event-type {
+    height: 30px;
+    min-width: 80px;
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .calendar-event-dates {
+    display: flex;
+    align-items: center;
+  }
+
+  .calendar-event-dates eon-variable {
+    width: auto;
+  }
+
+  .calendar-event-dates eon-date {
+    max-height: 44px;
+    box-sizing: border-box;
+    border: 2px solid #efefef;
+    border-radius: 20px;
+    transition: min-width .2s;
+  }
+
+  .calendar-event-dates eon-date .eon-date-main {
+    border: 0;
+    border-radius: 20px;
+  }
+
+  .calendar-event-dates eon-date .eon-date-underline {
+    display: none;
+  }
+
+
+  .calendar-event-desc {
+    width: 100% !important;
+  }
+
+  calendar-view .calendar-nav-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  calendar-view .calendar-nav-actions>div {
+    margin-left: 10px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+
+  calendar-view .calendar-nav-actions.clickable:after {
+    top: calc(50% - 20px);
+    left: calc(50% - 16px);
+  }
+
+  /* Create calendar dialog */
+
+  #calendarDialog eon-text {
+    max-width: 300px;
+  }
+
+  /* Create event dialog */
+  /* Theme */
+  #eventDialog eon-label .eon-label-data,
+  #eventDialog eon-label .eon-label-main {
+    padding: 0;
+  }
+
+  #eventDialog eon-label .eon-label-main {
+    border: 0;
+    min-width: 300px;
+    font-size: 20px;
+  }
+
+  @media screen and (orientation: landscape) {
+    .hidden-picker-device .hidden-picker {
+      height: 90%;
+      min-height: 90%;
+      max-height: 90%;
+    }
+  }
+</style>
+<template>
+  <eon-swiper eon-ref="swiper" class="view-swiper" transition="500" external-slide="true">
+    <!-- Calendars view -->
+    <eon-swiper-slide>
+      <div class="title-row">
+        <eon-variable class="section-title eon-fg-h1" bind="locale.calendar.titlePl" global="true"></eon-variable>
+
+        <div class="action-buttons">
+          <eon-button eon-ref="create" class="bar-button h1-button" bind:label="global locale.global.new"
+            icon="<i class='ticon ticon-add'></i>" design="filled"></eon-button>
+        </div>
+      </div>
+
+      <div eon-ref="content" class="view-content content-row"></div>
+    </eon-swiper-slide>
+    <!-- Single Calendar view-->
+    <eon-swiper-slide>
+      <div class="title-row">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-menu">
+          <span eon-ref="back" class="breadcrumb-back eon-fg-h1 eon-fg-h1-hoverable ticon vicon-arrow-back clickable"></span>
+          <eon-variable eon-ref="breadcrumbPrev" class="breadcrumb-prev eon-fg-h1-breadcrumb eon-fg-h1-hoverable"
+            bind="locale.calendar.titlePl" global="true"></eon-variable>
+          <span class="breadcrumb-slash eon-fg-h1-breadcrumb">/</span>
+          <span eon-ref="breadcrumbCurrent" class="breadcrumb-current eon-fg-h1-breadcrumb"></span>
+        </div>
+
+        <div class="action-buttons">
+          <eon-button class="bar-button h1-button" bind:label="global locale.calendar.newEvent"
+            icon="<i class='ticon ticon-add'></i>" design="filled" eon-ref="new"></eon-button>
+          <eon-button class="bar-button h1-button" bind:label="global locale.global.settings"
+            icon="<i class='ticon ticon-settings'></i>" design="filled" eon-ref="settings"></eon-button>
+          <!-- <eon-button class="bar-button h1-button" bind:label="global locale.global.back"
+            icon="<i class='ticon vicon-arrow-back'></i>" design="filled" eon-ref="back"></eon-button> -->
+        </div>
+      </div>
+
+      <div eon-ref="monthContent" class="view-content">
+        <div eon-ref="calendarNav" class="calendar-nav">
+          <div class="calendar-nav-date box">
+            <div class="field-date" eon-ref="date.field">
+              <div eon-ref="date.current" class="calendar-nav-current clickable"></div>
+              <i class="vicon vicon-calendar"></i>
+            </div>
+
+            <eon-date class="hidden-picker" eon-ref="date.picker" day-picking="false" time="false" type="calendar">
+            </eon-date>
+          </div>
+          <div class="calendar-nav-actions">
+            <!-- TODO replace row inners with icons/buttons -->
+            <div eon-ref="prev" class="ticon-chevron-left eon-fg2-hoverable clickable"></div>
+            <div eon-ref="next" class="ticon-chevron-right eon-fg2-hoverable clickable"></div>
+          </div>
+        </div>
+        <calendar-month eon-ref="monthCalendar"></calendar-month>
+      </div>
+    </eon-swiper-slide>
+  </eon-swiper>
+
+  <!-- CALENDAR DIALOG -->
+  <eon-dialog eon-ref="calendarDialog" id="calendarDialog" allow-scroll="false" class="dialog-form interactDialog"
+    modal="true" default-style="false" bind:heading="global locale.calendar.create">
+    <eon-section type="content">
+      <eon-form eon-ref="form" default-style="false">
+        <div class="form-grouptitle eon-fg-h2">
+          <eon-variable class="form-only-title" bind="locale.global.information" global="true"></eon-variable>
+        </div>
+
+        <div class="form-content">
+          <eon-text eon-ref="calendarDialog.name" bind:label="global locale.global.name"
+            bind:placeholder="global locale.calendar.name" class="form-text form-marginbottom" name="name"
+            label-anim="false" inline="false">
+          </eon-text>
+          <app-color class="form-marginleft" value="#e0a467" bind:label="global locale.global.color" icon="ticon-color"
+            predefined="#ff540d,#f81c07,#ff00df,#7b68ee,#50e3c2,#08adff,#ffcf00,#333333" button="false"
+            eon-ref="colorPicker"></app-color>
+        </div>
+
+        <member-selector-form class="form-content" label="locale.global.inviteMembers" group-selector="true"
+          eon-ref="membersSelector" class="eon-bg1-border"></member-selector-form>
+
+        <!-- MASK -->
+        <eon-loading eon-ref="form.mask" duration="10000" class="form-mask" format="descendant" display="false">
+        </eon-loading>
+
+      </eon-form>
+    </eon-section>
+
+    <eon-section type="footer" class="form-actions">
+      <eon-button bind:value="global locale.global.delete" eon-ref="calendarDialog.deleteButton" class="hide">
+      </eon-button>
+      <eon-button bind:value="global locale.global.cancel" eon-ref="calendarDialog.cancel">
+      </eon-button>
+      <eon-button bind:value="global locale.global.accept" eon-ref="calendarDialog.accept">
+      </eon-button>
+    </eon-section>
+  </eon-dialog>
+
+  <!-- NEW EVENT DIALOG -->
+  <eon-dialog eon-ref="eventDialog" id="eventDialog" allow-scroll="false" class="dialog-form interactDialog"
+    modal="true" default-style="false" bind:heading="global locale.calendar.newEvent">
+    <eon-section type="content">
+      <event-form eon-ref="eventForm"></event-form>
+    </eon-section>
+
+    <eon-section type="footer" class="form-actions">
+      <eon-button bind:value="global locale.global.delete" eon-ref="eventDialog.deleteButton" design="delete"
+        class="hide delete-button">
+      </eon-button>
+      <eon-button bind:value="global locale.global.cancel" eon-ref="eventDialog.cancel" class="cancel-button">
+      </eon-button>
+      <eon-button bind:value="global locale.global.accept" disabled="true" eon-ref="eventDialog.accept"
+        class="accept-button">
+      </eon-button>
+    </eon-section>
+  </eon-dialog>
+</template>
+<script>
+  eon.element({
+    name: "calendar-view",
+    // style: "calendar-view.css",
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-button",
+      "@ui/eon-date",
+      "@ui/eon-swiper",
+      "@ui/eon-text",
+      "@ui/eon-label",
+      "@ui/eon-scroll",
+      "@custom/app-color",
+      "@custom/member-selector-form",
+      "@custom/calendar/calendar-month",
+      "event-form"
+    ],
+
+    properties: {
+      /*
+        @property {Object} calendars 
+        @description Contains calendars data
+     */
+      calendars: {
+        value: {},
+        observe: true
+      },
+      /*
+          @property {Object} events 
+          @description Events arranged by month
+       */
+      events: {
+        value: {}
+      }
+    },
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      refresh: function () {
+        var el = this;
+        el.clean();
+
+        el.loadData(function (error, data) {
+          if (!error) {
+            el._buildCalendars(data);
+
+            if (!app.isFirstVisit) {
+              mask.hide();
+            }
+          } else {
+            if (!app.isFirstVisit) {
+              mask.hide();
+            }
+          }
+        });
+      },
+      loadData: function (cb) {
+        // ** Ajax request
+        readAllCalendars(session.data.currentWorkspaceId, function (error, data) {
+          if (!error) {
+            if (cb) {
+              cb(null, data);
+            }
+          } else { }
+        });
+      },
+      // @function validate (public) [Validate form] @param callback [Callback called (error,data)]
+      validate: function (callback) {
+        var el = this;
+        var formData = el._refs.form.getDirtyData();
+        var members;
+
+        // * TODO Member selector getDirtyFunction
+        members = el._refs.membersSelector.getData(true);
+        formData.users = members.members;
+        formData.groups = members.groups;
+
+        // Get color
+        formData.color = el._refs.colorPicker.value;
+
+        el._refs.form.validate(el._refs.schema, null, function (error) {
+          // console.log('error', error);
+          if (callback) {
+            callback(error, formData);
+          }
+        });
+      },
+      // @function _clean (private) 
+      clean: function (data) {
+        var el = this;
+        el._refs.content.innerHTML = "";
+      },
+      // @function openPicker
+      openPicker: function () {
+        var el = this;
+        document.body.appendChild(this._refs.overlay);
+        this._misc.modal.active = true;
+        this._assignCalendarStyle();
+        this._refs.overlay.classList.add("hidden-picker-opaque");
+        // Make sure the picker is completely opened
+        // TODO - Open animation
+        setTimeout(function () {
+          el._misc.modal.openRendered = true;
+        }, 300);
+      },
+      // @function closePicker
+      closePicker: function () {
+        if (this._misc.modal.openRendered) {
+          document.body.removeChild(this._refs.overlay);
+          this._refs.overlay.classList.remove("hidden-picker-opaque");
+          this._misc.modal.active = false;
+          this._misc.modal.openRendered = false;
+        }
+      }
+    },
+    privateFunctions: {
+      // @function _setupSchema (private)
+      setupSchema: function () {
+        var el = this;
+        el._refs.schema = {
+          properties: {
+            "name": {
+              required: true
+            }
+          }
+        };
+      },
+      // @function _buildCalendars (private) 
+      buildCalendars: function (data) {
+        var fragment = document.createDocumentFragment();
+        // Order boards alphabetically
+        data.entries.sort(sortAlphabetically("name"));
+
+        if (isEmpty(data.entries)) {
+          if (!this._refs.placeHolder) {
+            this._refs.placeHolder = createPlaceHolder(eon.locale.global.noContent, "img/no-content/no-content.svg", eon.locale.global.noContentTitle);
+          }
+          this._refs.placeHolder.classList.remove("hide");
+          fragment.appendChild(this._refs.placeHolder);
+        } else {
+          for (var i = 0; i < data.entries.length; i++) {
+            fragment.appendChild(this._buildCalendar(data.entries[i]));
+          }
+          if (this._refs.placeHolder) {
+            // Remove place holder
+            this._refs.placeHolder.classList.add("hide");
+          }
+        }
+
+        this._refs.content.appendChild(fragment);
+      },
+      // @function _buildCalendar (private) 
+      buildCalendar: function (calendar) {
+        var card = document.createElement("div");
+        var title = document.createElement("div");
+        card.classList.add("card", "item-card");
+        if (calendar.color) {
+          card.style.backgroundColor = calendar.color;
+          card.classList.add("colored-card");
+        }
+        title.classList.add("item-card-title");
+        title.innerHTML = calendar.name;
+
+        card.addEventListener("click", this._displayCalendar.bind(this, calendar), false);
+        card.appendChild(title);
+
+        this.calendars[calendar.id] = { node: card, data: calendar };
+        return card;
+      },
+      // @function _removeCalendar (private) 
+      removeCalendar: function (node, data) {
+        node.parentNode.removeChild(node);
+        delete this.calendars[data.id];
+      },
+      // @function _removeEvent (private) 
+      removeEvent: function (node, data) {
+        node.parentNode.removeChild(node);
+        delete this._misc.data.events[data.id];
+      },
+      // @function _displayCalendar (private) 
+      displayCalendar: function (data) {
+        var el = this;
+        this._refs.swiper.slideTo(1);
+        // ** Mask
+        // ** Calendar month request
+
+        // Paint calendar
+        this._misc.monthReadyFn = function () {
+          // Paint month
+          el._misc.data = data;
+          el._setupBreadcrumb(data);
+          // Format events data
+          el._formatEventsData(data.events);
+
+          el._misc.year = this.data.year || new Date().getFullYear();
+          el._misc.month = this.data.month || new Date().getMonth() + 1;
+          el._refs.date.current.innerHTML = el._misc.year + " - " + ("0" + (el._misc.month)).slice(-2);
+
+          el._refs.monthCalendar.paint(el._misc.data);
+        }
+
+        this._refs.monthCalendar.onReady(this._misc.monthReadyFn);
+      },
+      // @function _setupBreadcrumb (private) 
+      setupBreadcrumb: function (data) {
+        this._refs.breadcrumbCurrent.innerHTML = data.name;
+      },
+      // @function _formatEventsData (private) 
+      formatEventsData: function (events) {
+        if (events) {
+          var startMoment, endMoment, duration;
+
+          for (var key in events) {
+            var evt = events[key];
+
+            startMoment = moment(evt.startISO, util.isoFormat);
+            endMoment = moment(evt.endISO, util.isoFormat);
+            evt.duration = moment.duration(endMoment.diff(startMoment)).asDays() + 1;
+            evt.date = startMoment.format("YYYY-M-D");
+            evt.start = startMoment.toDate();
+            evt.end = endMoment.toDate();
+          }
+        }
+      },
+      // @function _setupMainListeners (private) 
+      setupMainListeners: function (data) {
+        var el = this;
+        // Open new calendar dialog
+        el._refs.create.addEventListener("click", function (e) {
+          el._newCalendar();
+        }, false);
+      },
+      // @function _setupDialogListeners (private) 
+      setupDialogListeners: function (data) {
+        var el = this;
+        el._refs.monthCalendar.weekStart = session.data.weekStart;
+
+        // Enable submit
+        el._refs.calendarDialog.name.addEventListener("input", function (val) {
+          el._toggleAdd(el._refs.calendarDialog);
+        });
+
+        // Submit creation
+        el._refs.calendarDialog.name.addEventListener("keydown", function () {
+          if (event.isComposing || event.keyCode === 229) {
+            return;
+          } else if (event.keyCode === 13) {
+            if (el._misc.edit) {
+              el._editCalendar();
+            } else {
+              el._createCalendar();
+            }
+          }
+        });
+
+        // CREATE LISTENERS
+        el._refs.calendarDialog.accept.addEventListener("click", function (e) {
+          if (el._misc.edit) {
+            el._editCalendar();
+          } else {
+            el._createCalendar();
+          }
+        });
+        el._refs.calendarDialog.deleteButton.addEventListener("click", function () {
+          el._deleteCalendar(el._misc.data.id);
+        });
+
+        el._refs.eventForm.onEventCreate(function (data) {
+          el._createEvent(data);
+        });
+        el._refs.eventForm.onEventEdit(function (id, data) {
+          el._editEvent(id, data);
+        });
+        el._refs.eventForm.onEventDelete(function (id) {
+          el._deleteEvent(id);
+        });
+
+        // CLOSE LISTENERS
+        el._refs.calendarDialog.onClose(function () {
+          el._refs.form.mask.hide();
+        });
+        el._refs.eventDialog.onClose(function () {
+          el._refs.eventForm.mask.hide();
+        });
+        el._refs.calendarDialog.cancel.addEventListener("click", function (e) {
+          el._refs.calendarDialog.close();
+        }, false);
+        el._refs.eventDialog.cancel.addEventListener("click", function (e) {
+          el._refs.eventDialog.close();
+        }, false);
+        el._refs.eventDialog.cancel.addEventListener("click", function (e) {
+          el._refs.eventDialog.close();
+        }, false);
+      },
+      // @function _setupCalendarListeners (private) 
+      setupCalendarListeners: function (data) {
+        var el = this;
+        // Navigation
+        el._refs.prev.addEventListener("click", function (e) {
+          el._refs.monthCalendar.prev();
+          // Update date field
+          el._misc.year = el._refs.monthCalendar.year;
+          el._misc.month = moment().month(el._refs.monthCalendar.month).format("MM");
+          el._refs.date.current.innerHTML = el._misc.year + " - " + el._misc.month;
+        }, false);
+        el._refs.next.addEventListener("click", function (e) {
+          el._refs.monthCalendar.next();
+          // Update date field
+          el._misc.year = el._refs.monthCalendar.year;
+          el._misc.month = moment().month(el._refs.monthCalendar.month).format("MM");
+          el._refs.date.current.innerHTML = el._misc.year + " - " + el._misc.month;
+        }, false);
+        // New Event
+        el._refs.new.addEventListener("click", function (e) {
+          el._newEvent();
+        }, false);
+        // Settings
+        el._refs.settings.addEventListener("click", function (e) {
+          el._newEditCalendar();
+        }, false);
+        // Back to calendars view
+        el._refs.back.addEventListener("click", function (e) {
+          el._refs.swiper.slideTo(0);
+        }, false);
+        el._refs.breadcrumbPrev.addEventListener("click", function (e) {
+          el._refs.swiper.slideTo(0);
+        }, false);
+        // Back to calendars view
+        el._refs.monthCalendar.onEventClick(function (node, id) {
+          el._newEditEvent(id);
+        }, false);
+      },
+      // @function _setupDateListener(private)
+      setupDateListener: function () {
+        var el = this;
+        var dateMoment;
+
+        // Close picker listener
+        this._refs.date.current.addEventListener("click", function () {
+          el.openPicker();
+        });
+
+        this._refs.date.picker.onMonthSelected(function () {
+          // Update field value
+          dateMoment = moment(this.value, "YYYY-MM-DD");
+          el._refs.date.current.innerHTML = dateMoment.format("YYYY - MM");
+
+          el._misc.month = dateMoment.month();
+          el._misc.year = dateMoment.year();
+
+          el._refs.monthCalendar.paint({
+            month: el._misc.month,
+            year: el._misc.year,
+            events: el._misc.data.events
+          });
+
+          el.closePicker();
+        });
+      },
+      // @function _socketListeners (private)
+      socketListeners: function () {
+        var el = this;
+        // ** NOT WORKING
+        session.onReady(function () {
+          app.socket.on("calendar", function (socketData) {
+            if (session.data.id != socketData.user) {
+              if (socketData.users.indexOf(session.data.id) > -1) {
+                switch (socketData.action) {
+                  case "create":
+                    // readCalendar(socketData.id, function (error, data) {
+                    //   el.calendars[socketData.id] = data;
+                    //   el._refs.content.appendChild(el._buildCalendar(data));
+                    // });
+                    break;
+                }
+              }
+            }
+          });
+        });
+      },
+      // @function _setupOverlay (private)
+      setupOverlay: function () {
+        var el = this;
+        el._misc.modal = el._misc.modal || {};
+
+        eon.registerPathListener(this._refs.date.picker, "date");
+
+        el._refs.overlay = el.generateOverlayNode();
+        el._refs.overlay.classList.add("hidden-picker-overlay", "eon-bg1-modal");
+
+        // Prevents scrolling on mobile devices
+        el._refs.overlay.addEventListener("wheel", function (e) {
+          if (!el._refs.date.picker.isOnPath) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, {
+          passive: false
+        });
+
+        // Overlay blur
+        el._refs.overlay.addEventListener("click", function (e) {
+          if (el._misc.modal.active && !el._refs.date.picker.isOnPath) {
+            e.preventDefault();
+            e.stopPropagation();
+            el.closePicker();
+          }
+        });
+
+        // If the user scrolls the window scrollbar we hide the calendar
+        window.addEventListener("scroll", function (e) {
+          if (el._misc.modal.active) {
+            el.closePicker();
+          }
+        });
+        el._refs.overlay.appendChild(el._refs.date.picker);
+      },
+      // @function _assignCalendarStyle (private)
+      assignCalendarStyle: function () {
+        if (window.innerWidth <= eon.tabletWidth) {
+          if (!this._refs.overlay.classList.contains("hidden-picker-device")) {
+
+            this._refs.date.picker.style.top = "auto";
+            this._refs.date.picker.style.left = "auto";
+
+            this._refs.overlay.classList.add("hidden-picker-device");
+            this._refs.overlay.classList.add("eon-bg1-modal");
+          }
+        } else {
+          // Get field position and apply to the picker
+          this._refs.overlay.classList.remove("hidden-picker-device");
+          this._refs.overlay.classList.remove("eon-bg1-modal");
+
+          this._refs.date.picker.style.top = this._refs.date.field.getBoundingClientRect().top + 1 + this._refs
+            .date.field.offsetHeight + "px";
+          this._refs.date.picker.style.left = this._refs.date.field.getBoundingClientRect().left + "px";
+          this._refs.date.picker.style.width = this._refs.date.field.offsetWidth + "px";
+          this._refs.date.picker.style.height = "auto";
+        }
+      },
+      // @function _toggleAdd (private) 
+      toggleAdd: function (dialog) {
+        if (dialog.name.value) {
+          dialog.accept.disabled = false;
+        } else {
+          dialog.accept.disabled = true;
+        }
+      },
+      // @function _newCalendar (private) 
+      newCalendar: function (data) {
+        var el = this;
+        el._misc.edit = false;
+        el._refs.calendarDialog.heading = eon.locale.calendar.create;
+        el._refs.calendarDialog.deleteButton.classList.add("hide");
+
+        // Show create calendar dialog
+        el._refs.calendarDialog.open();
+        // Push dialog state
+        pushDialogState(el._refs.calendarDialog);
+
+        util.resetDlgOpenCallbacks(el._refs.calendarDialog);
+
+        util.openDlgOperations(el._refs.calendarDialog, el._refs.form.mask, function () {
+          el._refs.form.clear();
+
+          // Set advanced data
+          // * TODO - WEB SOCKETS TO UPDATE WORKSPACE
+          readWorkspace(session.data.currentWorkspaceId, function (error, data) {
+            if (!error) {
+              // Update session
+              session.data.currentWorkspace = data;
+
+              el._refs.membersSelector.setData(data);
+
+              // Update calendar information
+              el._refs.calendarDialog.name.initialValue = "";
+
+              el._refs.form.mask.hide();
+            }
+          });
+        });
+      },
+      // @function _newEvent (private) 
+      newEvent: function (data) {
+        var el = this;
+        var startMoment, endMoment;
+        el._refs.eventDialog.heading = eon.locale.calendar.newEvent;
+        el._refs.eventDialog.deleteButton.classList.add("hide");
+
+        util.resetDlgOpenCallbacks(el._refs.eventDialog);
+
+        util.openDlgOperations(el._refs.eventDialog, el._refs.eventForm.mask, function () {
+          el._refs.eventForm.clear();
+
+          startMoment = moment().startOf("day");
+          endMoment = startMoment.clone().add(1, "days").startOf("day");
+
+          el._refs.eventForm.setData({
+            type: "event",
+            startTime: startMoment.format("YYYY-MM-DD HH:mm"),
+            endTime: endMoment.format("YYYY-MM-DD HH:mm"),
+            fullDay: true,
+            description: ""
+          });
+
+          el._refs.eventForm.mask.hide();
+        });
+
+        // Show create event dialog
+        el._refs.eventDialog.open();
+        // Push dialog state
+        pushDialogState(el._refs.eventDialog);
+      },
+      // @function _newEditCalendar (private) 
+      newEditCalendar: function () {
+        var el = this;
+        el._misc.edit = true;
+        el._refs.calendarDialog.heading = eon.locale.calendar.edit;
+
+        el._refs.calendarDialog.deleteButton.classList.remove("hide");
+
+        util.resetDlgOpenCallbacks(el._refs.calendarDialog);
+
+        util.openDlgOperations(el._refs.calendarDialog, el._refs.form.mask, function () {
+          el._refs.form.clear();
+
+          // Set advanced data
+          // * TODO - WEB SOCKETS TO UPDATE WORKSPACE
+          readWorkspace(session.data.currentWorkspaceId, function (error, data) {
+            if (!error) {
+              // Update session
+              session.data.currentWorkspace = data;
+              // Fill workspace members selector
+              el._refs.membersSelector.setData(data, keysAsArray(el._misc.data.users));
+              el._refs.colorPicker.value = el._misc.data.color;
+
+              el._refs.form.mask.hide();
+            }
+          });
+          // Fill calendar information
+          el._refs.calendarDialog.name.initialValue = el._misc.data.name;
+        });
+
+        // Show create event dialog
+        el._refs.calendarDialog.open();
+        // Push dialog state
+        pushDialogState(el._refs.calendarDialog);
+      },
+      // @function _newEditEvent (private) 
+      newEditEvent: function (id) {
+        var el = this;
+        var startMoment, endMoment;
+        el._refs.eventDialog.heading = eon.locale.calendar.editEvent;
+        el._refs.eventDialog.deleteButton.classList.remove("hide");
+
+        util.resetDlgOpenCallbacks(el._refs.eventDialog);
+
+        util.openDlgOperations(el._refs.eventDialog, el._refs.eventForm.mask, function () {
+          el._refs.eventForm.clear();
+
+          readCalendarEvent(session.data.currentWorkspaceId, id, function (error, data) {
+            if (!error) {
+              data.edit = true;
+
+              data.startTime = moment(data.startISO).format("YYYY-MM-DD HH:mm");
+              data.endTime = moment(data.endISO).format("YYYY-MM-DD HH:mm");
+
+              el._refs.eventForm.setData(data);
+
+              el._refs.eventForm.mask.hide();
+            }
+          });
+
+        });
+
+        // Show create event dialog
+        el._refs.eventDialog.open();
+        // Push dialog state
+        pushDialogState(el._refs.eventDialog);
+      },
+      // @function _createCalendar (private) 
+      createCalendar: function (calendarData) {
+        var el = this;
+
+        el.validate(function (error, calendarData) {
+          if (!error) {
+            createCalendar(session.data.currentWorkspaceId, calendarData, function (error, data) {
+              // ** REMOVE When WS works 
+              if (!error) {
+                // ** REMOVE - Read all calendars retrieves not updated data 
+                // ** Check server atomic operations
+                setTimeout(function () {
+                  el.refresh();
+                }, 200);
+              } else {
+                showInfoDialog(eon.locale.calendar.calendarCreationFail);
+              }
+              el._refs.calendarDialog.close();
+            });
+          } else { }
+        });
+      },
+      // @function _editCalendar (private) 
+      editCalendar: function () {
+        var el = this;
+
+        el.validate(function (error, calendarData) {
+          if (!error) {
+            updateCalendar(session.data.currentWorkspaceId, el._misc.data.id, calendarData, function (error, calendar) {
+              // ** REMOVE When WS works 
+              if (!error) {
+                if (el.calendars[calendar.id]) {
+                  el.refresh();
+                  el._setupBreadcrumb(calendar);
+                }
+              } else {
+                showInfoDialog(eon.locale.calendar.calendarEditFail);
+              }
+              el._refs.calendarDialog.close();
+            });
+          } else { }
+        });
+      },
+      // @function _deleteCalendar (private) 
+      deleteCalendar: function (id) {
+        var el = this;
+
+        showDeleteAlert(eon.locale.calendar.warning, true, function () {
+          var alertDlg = this;
+
+          deleteCalendar(el._misc.data.workspaceId, el._misc.data.id, function (error, calendar) {
+            alertDlg.close();
+
+            if (!error) {
+              // Move to calendars view
+              el._refs.swiper.slideTo(0);
+              el.refresh();
+            } else {
+              showInfoDialog(eon.locale.calendar.calendarDeleteFail);
+            }
+            el._refs.calendarDialog.close();
+          });
+        });
+      },
+      // @function _createEvent(private)
+      createEvent: function (data) {
+        var el = this;
+
+        createCalendarEvent(el._misc.data.workspaceId, el._misc.data.id, data, function (error, evt) {
+          // ** REMOVE When WS works 
+          if (!error) {
+            el._misc.data.events[evt.id] = evt;
+            el._formatEventsData(el._misc.data.events);
+            el._refs.monthCalendar.paint(el._misc.data);
+          } else {
+            showInfoDialog(eon.locale.calendar.calendarEventCreationFail);
+          }
+          el._refs.eventDialog.close();
+        });
+      },
+      // @function _editEvent (private) 
+      editEvent: function (id, data) {
+        var el = this;
+
+        updateCalendarEvent(el._misc.data.workspaceId, el._misc.data.id, id, data, function (error, evt) {
+          // ** REMOVE When WS works 
+          if (!error) {
+            el._misc.data.events[evt.id] = evt;
+            el._formatEventsData(el._misc.data.events);
+            el._refs.monthCalendar.paint(el._misc.data);
+          } else {
+            showInfoDialog(eon.locale.calendar.calendarEventEditFail);
+          }
+          el._refs.eventDialog.close();
+        });
+      },
+      // @function _deleteEvent (private) 
+      deleteEvent: function (id) {
+        var el = this;
+
+        deleteCalendarEvent(this._misc.data.workspaceId, this._misc.data.id, id, function (error, evt) {
+          if (!error) {
+            delete el._misc.data.events[evt.id];
+            el._formatEventsData(el._misc.data.events);
+            el._refs.monthCalendar.paint(el._misc.data);
+          } else {
+            showInfoDialog(eon.locale.calendar.calendarEventDeleteFail);
+          }
+          el._refs.eventDialog.close();
+        });
+      },
+    },
+    onTransformed: function () {
+      var el = this;
+
+      el._setupSchema();
+      el._setupMainListeners();
+      el._setupCalendarListeners();
+      el._setupOverlay();
+
+      session.onReady(function () {
+        el._setupDateListener();
+        el._setupDialogListeners();
+        // el._socketListeners();
+        el.refresh();
+      });
+    }
+  });
+</script>

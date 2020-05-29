@@ -1,0 +1,26 @@
+
+
+.bubble {
+  /* Configure position for each button individually */
+  transition: ease bottom 1.0s;
+}
+.bubble[visibility="false"]{
+  bottom:-100px;
+}
+
+.bubble .eon-button-button {
+  border-radius: 50%;
+  height: auto;
+  padding: 10px !important;
+  -webkit-box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.5);
+}
+
+.bubble .eon-button-button i {
+  font-size: 30px;
+}
+
+.bubble a .eon-button-button i {
+  margin-right: 0px !important;
+}

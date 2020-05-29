@@ -1,0 +1,211 @@
+@font-face {
+  font-family: "tobeio";
+  src:url("<%= data.release ? 'eon/theme/' : '../' %>font/tobeio/fonts/tobeio.eot");
+  src:url("<%= data.release ? 'eon/theme/' : '../' %>font/tobeio/fonts/tobeio.eot?#iefix") format("embedded-opentype"),
+    url("<%= data.release ? 'eon/theme/' : '../' %>font/tobeio/fonts/tobeio.woff") format("woff"),
+    url("<%= data.release ? 'eon/theme/' : '../' %>font/tobeio/fonts/tobeio.ttf") format("truetype"),
+    url("<%= data.release ? 'eon/theme/' : '../' %>font/tobeio/fonts/tobeio.svg#tobeio") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.ticon {
+  font-size: 22px;  /* Preferred icon size */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Support for IE. */
+  font-feature-settings: "liga";
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+}
+
+[data-icon]:before {
+  font-family: "tobeio" !important;
+  content: attr(data-icon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class^="ticon-"]:before,
+[class*=" ticon-"]:before {
+  font-family: "tobeio" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ticon-activity:before {
+  content: "\61";
+}
+.ticon-date:before {
+  content: "\62";
+}
+.ticon-projects:before {
+  content: "\65";
+}
+.ticon-reports:before {
+  content: "\66";
+}
+.ticon-settings:before {
+  content: "\67";
+}
+.ticon-users:before {
+  content: "\68";
+}
+.ticon-add:before {
+  content: "\69";
+}
+.ticon-alert:before {
+  content: "\6a";
+}
+.ticon-delete:before {
+  content: "\6b";
+}
+.ticon-meeting:before {
+  content: "\6c";
+}
+.ticon-pdf:before {
+  content: "\6d";
+}
+.ticon-chevron-down:before {
+  content: "\6e";
+}
+.ticon-csv:before {
+  content: "\6f";
+}
+.ticon-menu-close:before {
+  content: "\71";
+}
+.ticon-menu-open:before {
+  content: "\72";
+}
+.ticon-search:before {
+  content: "\73";
+}
+.ticon-search-tiny:before {
+  content: "\74";
+}
+.ticon-location:before {
+  content: "\42";
+}
+.ticon-close:before {
+  content: "\46";
+}
+.ticon-chevron-up:before {
+  content: "\47";
+}
+.ticon-chevron-left:before {
+  content: "\49";
+}
+.ticon-enter:before {
+  content: "\75";
+}
+.ticon-extract:before {
+  content: "\76";
+}
+.ticon-food:before {
+  content: "\77";
+}
+.ticon-garbage:before {
+  content: "\78";
+}
+.ticon-home:before {
+  content: "\7a";
+}
+.ticon-upgrade:before {
+  content: "\43";
+}
+.ticon-chrono:before {
+  content: "\4a";
+}
+.ticon-attach-file:before {
+  content: "\4b";
+}
+.ticon-flag:before {
+  content: "\4e";
+}
+.ticon-chat:before {
+  content: "\4f";
+}
+.ticon-coffee:before {
+  content: "\41";
+}
+.ticon-download:before {
+  content: "\50";
+}
+.ticon-add-user:before {
+  content: "\4c";
+}
+.ticon-exit:before {
+  content: "\64";
+}
+.ticon-ok:before {
+  content: "\51";
+}
+.ticon-join:before {
+  content: "\54";
+}
+.ticon-resend:before {
+  content: "\58";
+}
+.ticon-color:before {
+  content: "\30";
+}
+.ticon-archived:before {
+  content: "\57";
+}
+.ticon-wip:before {
+  content: "\5a";
+}
+.ticon-pending:before {
+  content: "\31";
+}
+.ticon-done:before {
+  content: "\32";
+}
+.ticon-edit:before {
+  content: "\70";
+}
+.ticon-arrow-right:before {
+  content: "\63";
+}
+.ticon-checklist:before {
+  content: "\79";
+}
+.ticon-clocking:before {
+  content: "\48";
+}
+.ticon-timeline:before {
+  content: "\52";
+}
+.ticon-tasks:before {
+  content: "\53";
+}
+.ticon-calendar:before {
+  content: "\56";
+}
+.ticon-board:before {
+  content: "\59";
+}
+.ticon-list:before {
+  content: "\44";
+}
+.ticon-grade:before {
+  content: "\4d";
+}

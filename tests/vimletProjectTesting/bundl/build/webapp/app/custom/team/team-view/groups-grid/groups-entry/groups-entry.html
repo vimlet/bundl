@@ -1,0 +1,71 @@
+<template>
+  <div eon-ref="name"></div>
+  
+  <div eon-ref="edit" class="cell-action cell-edit vicon ticon-edit visible clickable">
+  </div>
+</template>
+
+<script>
+  eon.element("groups-entry", {
+
+    style: "groups-entry.css",
+
+    properties: {
+      // @html-property name (public) [Group name]
+      name: {
+        value: "",
+        reflect: true
+      },
+      // @html-property groupId (public)
+      groupId: {
+        value: "",
+        observe: true
+      }
+    },
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function setName (public) @param name
+      setName: function (name) {
+        var el = this;
+        name = name || el.name;
+        el._refs.name.innerText = name;
+      }
+    },
+    privateFunctions: {
+      // @function _setup (private)
+      setup: function () {
+        var el = this;
+        el._addListener();
+        el.setName(el.name);
+      },
+      // @function _addListener (private)
+      addListener: function () {
+        var el = this;
+        el._refs.edit.addEventListener("click", function (e) {
+          eon.triggerCallback("onEdit", el, el, [el.groupId]);
+        }, false);
+      }
+    },
+
+    onCreated: function () {
+      var el = this;
+      eon.createCallback("onEdit", el);
+    },
+    onTransformed: function () {
+      var el = this;
+      el._setup();
+    },
+    onPropertyChanged: function (key, oldVal, newVal) {
+      switch (key) {
+        case "name":
+          el.setName(newVal);
+          break;
+      }
+    }
+  });
+</script>

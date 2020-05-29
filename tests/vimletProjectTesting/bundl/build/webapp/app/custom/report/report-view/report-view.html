@@ -1,0 +1,380 @@
+<template>
+
+  <div class="title-row">
+    <eon-variable class="section-title eon-fg-h1" bind="locale.report.title" global="true"></eon-variable>
+    <div class="action-buttons">
+      <eon-button class="bar-button h1-button" eon-ref="create" bind:label="global locale.report.export"
+        icon="<i class='h1-icon ticon ticon-download'></i>" design="filled"
+        onclick="document.querySelector('report-view').openExportDialog()"></eon-button>
+    </div>
+  </div>
+
+  <report-filter eon-ref="filter"></report-filter>
+
+  <report-grid class="grid" eon-ref="grid"></report-grid>
+
+  <report-filter search="false" eon-ref="noSearchFilter"></report-filter>
+
+  <!-- Export dialog -->
+  <eon-dialog id="export-dialog" class="alertDialog" modal="true" blur="true" eon-ref="exportDialog"
+    default-style="false">
+    <eon-section type="content">
+      <eon-variable bind="locale.report.exportText" global="true"></eon-variable>
+    </eon-section>
+
+    <eon-section type="footer" location="center">
+      <div class="export-icon eon-fg2-hoverable" eon-ref="exportPdf"
+        onclick="document.querySelector('report-view').export('pdf')">
+        <i class='ticon-pdf'></i>
+      </div>
+      <div class="export-icon eon-fg2-hoverable" eon-ref="exportCsv"
+        onclick="document.querySelector('report-view').export('csv')">
+        <i class='ticon-csv'></i>
+      </div>
+
+      <eon-loading eon-ref="mask" duration="50000" class="downloading-mask" format="descendant" display="false">
+      </eon-loading>
+    </eon-section>
+  </eon-dialog>
+
+  <eon-mask>
+    <div class="mask-title-row">
+      <div class="mask-title eon-mask-background1"></div>
+      <div class="mask-button eon-mask-background1"></div>
+    </div>
+
+    <div class="mask-bar eon-mask-background1"></div>
+
+    <div class="mask-row mask-grid-titles eon-mask-background1"></div>
+
+    <div class="mask-grid-content">
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+      <div class="mask-card eon-mask-background1"></div>
+    </div>
+  </eon-mask>
+
+</template>
+
+<script>
+  eon.element("report-view", {
+
+    style: "report-view.css",
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-dialog",
+      "@ui/eon-form",
+      "@ui/eon-text",
+      "@ui/eon-button",
+      "@ui/eon-loading",
+      "report-filter",
+      "report-grid"
+    ],
+
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function refresh
+      refresh: function () {
+        this._refresh();
+      },
+      // @function setPaging
+      setPaging: function (data) {
+        // TODO - For all instances
+        var filters = this.$("report-filter");
+
+        for (var i = 0; i < filters.length; i++) {
+          filters[i].setPagingValues(data);
+        }
+      },
+      // @function setFiltersValues
+      setFiltersValues: function (data) {
+        // TODO - For all instances
+        var filters = this.$("report-filter");
+
+        for (var i = 0; i < filters.length; i++) {
+          filters[i].setValues(data);
+        }
+      },
+      // @function getStateParams
+      getStateParams: function () {
+        var params = {};
+        var date = getParameterByName("month");
+        var year, month;
+
+        params.start = Number(getParameterByName("start"));
+        // Parse date param string into date
+        if (!date) {
+          date = new Date();
+          year = date.getFullYear();
+          month = date.getMonth() + 1;
+        } else {
+          year = Number(date.substring(0, 4));
+          month = Number(date.substring(4, 6));
+        }
+
+        params.month = moment().year(year).month(month - 1).format("YYYYMM");
+
+        if (params.start && params.start != 0) {
+          params.end = Number(getParameterByName("end"));
+        }
+        return params;
+      },
+
+      openExportDialog: function (userData, singleReport) {
+        el = this;
+        el._misc.singleReport = singleReport;
+
+        if (userData) {
+          el._misc.userData = userData;
+        }
+
+        el._refs.exportDialog.open();
+        // Push dialog state
+        pushDialogState(el._refs.exportDialog);
+      },
+
+      export: function (type) {
+        var el = this;
+        var currentDate = !el._misc.data.month ? el._refs.filter.getDate("") : el._misc.data.month;
+
+        // On export request
+        el._showDownloadingMask();
+
+        if (el._misc.userData && el._misc.singleReport) {
+
+          el._getUserReportDetailed(currentDate, el._misc.userData.userId, function (data) {
+            el.exportData(type, data);
+          });
+        } else {
+          if (session.data.workspaces[session.data.currentWorkspaceId].role != "admin") {
+
+            el._getUserReportDetailed(currentDate, session.data.id, function (data) {
+              el.exportData(type, data);
+            });
+          } else {
+            el._getReportsDetailed(currentDate, function (data) {
+              el.exportData(type, data);
+            });
+          }
+        }
+      },
+      exportData: function (type, data) {
+        var el = this;
+
+        data.monthlyHeaders = [
+          { id: "alias", name: eon.locale.report.alias },
+          { id: "total", name: eon.locale.report.total },
+          { id: "extras", name: eon.locale.report.extra }
+        ];
+        data.registryHeaders = [
+          { id: "alias", name: eon.locale.report.alias },
+          { id: "entry", name: eon.locale.registry.entry },
+          { id: "exit", name: eon.locale.registry.exit },
+          { id: "worked", name: eon.locale.registry.worked },
+          { id: "extras", name: eon.locale.registry.extras }
+        ];
+
+        if (type == "pdf") {
+          app.export.exportPDFFile(data, el._refs.filter.getDate(" - "), "report", el._hideDownloadingMask.bind(el));
+        } else {
+          // CSV
+          app.export.exportCSVFile(data, el._refs.filter.getDate(" - "), "report", el._hideDownloadingMask.bind(el));
+        }
+      },
+
+    },
+    privateFunctions: {
+      // @function _drawStatic (private)
+      drawStatic: function () {
+        var el = this;
+
+        // Hide view mask after language loaded at least
+        eon.onLocaleLoaded(function(){
+          // Minimun mask time to avoid flickering
+          setTimeout(function(){
+            // Hide home mask
+            mask.hideViewMask("report");
+            el.hideEonMask();
+          }, 100);
+        });
+      },
+      // @function _refresh (private)
+      refresh: function () {
+        var el = this;
+        // Clean report
+        el._refs.grid.clean();
+        var workspaceId = session.data.currentWorkspaceId;
+
+        mask.showViewMask("report-grid");
+
+        // Get url params and fetch state
+        var paramsObj = el.getStateParams();
+
+        paramsObj.from = 0;
+        paramsObj.count = 20;
+        paramsObj.date = paramsObj.month;
+
+        var options = {
+          params: paramsObj,
+          contentType: "application/json"
+        };
+
+        var url = "/rest/report/" + workspaceId;
+
+        if (!el._refreshing && !isEmpty(session.data.workspaces)) {
+          el._refreshing = true;
+
+          if (session.data.workspaces[session.data.currentWorkspaceId].role != "admin") {
+            url += "/" + session.data.id;
+          }
+
+          eon.ajax(url, options, function (error, data) {
+            if (!error) {
+              el._misc.data = JSON.parse(data.responseText);
+
+              eon.triggerCallback("onDataLoaded", el, el);
+
+              el._misc.data.month = paramsObj.month;
+
+              if (paramsObj.start) {
+                el._misc.data.start = paramsObj.start;
+                el._misc.data.end = paramsObj.end;
+              }
+              // Update filters
+              el.setFiltersValues(el._misc.data);
+              // Update entries
+              el._refs.grid._createEntries(el._misc.data.entries);
+
+              // TODO delay and threshold params
+            } else if (data.status == 401) {
+              session.logout();
+            }
+            el._refreshing = false;
+          });
+        }
+      },
+      // TODO:
+      // @function _getUserReportDetailed (private)
+      getUserReportDetailed: function (date, userId, cb) {
+        var workspaceId = session.data.currentWorkspaceId;
+
+        var url = "/rest/report/detailed/" + workspaceId + "/" + userId;
+        var filter = {
+          date: date
+        }
+
+        eon.ajax(url, { params: filter, contentType: "application/json" }, function (error, data) {
+          if (!error) {
+            if (cb) {
+              cb(JSON.parse(data.responseText));
+            }
+          } else if (data.status == 401) {
+            // session.logout();
+          }
+        });
+      },
+      // TODO:
+      // @function _getReportsDetailed (private)
+      getReportsDetailed: function (date, cb) {
+        var workspaceId = session.data.currentWorkspaceId;
+
+        var url = "/rest/report/detailed/workspace/" + workspaceId;
+        // var url = "/rest/report/test";
+        var filter = {
+          date: date
+        }
+
+        eon.ajax(url, { params: filter, contentType: "application/json", method: "GET" }, function (error, data) {
+          if (!error) {
+            if (cb) {
+              cb(JSON.parse(data.responseText));
+            }
+          } else if (data.status == 401) {
+            // session.logout();
+          }
+        });
+      },
+      // @function (private) _showDownloadingMask
+      showDownloadingMask: function () {
+        var el = this;
+        el._refs.mask.show();
+      },
+      // @function (private) _hideDownloadingMask
+      hideDownloadingMask: function () {
+        var el = this;
+        setTimeout(function () {
+          el._refs.mask.hide();
+
+          // Close dialog
+          el._refs.exportDialog.close();
+        }, 400);
+      },
+      // @function (private) _setupFilterListeners 
+      setupFilterListeners: function () {
+        var el = this;
+        // Hide filters on grid data changes
+        onGridDataChange(el._refs.filter, function () {
+          // Update bottom filter data
+          el._refs.noSearchFilter.setMonth({ month: this.getDate() });
+          // Hide pagination filter copy to avoid visual errors
+          el._refs.noSearchFilter.classList.add("hide");
+        }, function () {
+          // Show pagination filter
+          el._refs.noSearchFilter.classList.remove("hide");
+          el._refs.grid._refreshing = false;
+        });
+
+        // Hide filters on grid data changes
+        onGridDataChange(el._refs.noSearchFilter, function () {
+          // Hide pagination filter copy to avoid visual errors
+          this.classList.add("hide");
+        }, function () {
+          // Show pagination filter
+          this.classList.remove("hide");
+        });
+      }
+    },
+    onCreated: function () {
+      eon.createCallback("onDataLoaded", this, "ready");
+
+      // Hide loading mask if report is the first loaded view
+      if (!app.isFirstVisit) {
+        mask.hide(null, 0);
+      }
+    },
+    onTransformed: function () {
+      // Draw static content
+      this._drawStatic();
+    },
+    onRender: function () {
+      var el = this;
+
+      session.onReady(function () {
+        el.refresh();
+      });
+      session.onWorkspaceChanged(function () {
+        el.refresh();
+      });
+
+      el._setupFilterListeners();
+    }
+  });
+</script>

@@ -1,0 +1,154 @@
+@element: workweek-break;
+
+@{element} {
+  & {
+    margin-top: 10px;
+    box-sizing: border-box;
+    opacity: 1;
+    transition: all 0.4s;
+    /* background: #ebebebab; */
+    position: relative;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 6px;
+    border: 2px solid #ebebebab;
+    // -webkit-box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.10);
+    // -moz-box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.10);
+    // box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.10)  
+  }
+
+  &.@{element}-hidden {
+    opacity: 0;
+  }
+
+  .eon-date-description {
+    height: 0 !important;
+  }
+  .eon-combo-description {
+    height: 0 !important;
+  }
+
+  .@{element}-field {
+    flex-basis: auto;
+    flex-grow: 1;
+    min-width: 120px;
+    width: 120px;
+  }
+  .@{element}-field input {
+    padding: 5px 10px !important;
+  }
+
+  .@{element}-rows {
+    display: flex;
+    align-items: center;
+  }
+
+  .@{element}-cols {
+    display: flex;
+    flex-grow: 1;
+    justify-content: flex-end;
+    flex-direction: column;
+  }
+  .@{element}-grow {
+    flex-grow: 1;
+    flex-basis: 0;
+  }
+  .@{element}-label {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #8c27cf;
+    width: 100%;
+  }
+
+  .@{element}-marginright {
+    margin-right: 15px;
+  }
+
+  .@{element}-date {
+    display: flex;
+  }
+
+  .@{element}-dayCombo {
+    min-width: 120px;
+    width: 120px;
+  }
+  .@{element}-dayCombo input {
+    padding: 5px 10px !important;
+  }
+
+  .@{element}-from, .@{element}-to {
+    display: flex;
+  }
+
+  &.no-type .@{element}-from {
+    margin-left: 0;
+  }
+
+
+
+  eon-variable {
+    width: 100%;
+  }
+
+  // ////////
+
+  .@{element}-time {
+    min-width: 110px;
+    width: 110px;
+    flex-grow: 0 !important;
+    min-width: 90px;
+    width: 90px;
+  }
+
+  // ////////
+
+  .@{element}-actions {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    flex-grow: 0;
+    top: 5px;
+    right: 5px;
+  }
+  .@{element}-actions > .action-icon {
+    margin-left: 10px;
+  }
+
+  .@{element}-actions .delete-icon,
+  .@{element}-actions .action-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    color: #8c27cf;
+    transition: opacity .2s cubic-bezier(0.4, 0, 0.2, 0);
+  }
+  .@{element}-actions .delete-icon:hover,
+  .@{element}-actions .action-icon:hover {
+    opacity: 0.7;
+  }
+  
+  @media (max-width: 700px) {
+    .@{element}-grow {
+      flex-basis: auto;
+      width: 100%;
+    }
+    .@{element}-rows {
+      flex-direction: column;
+    }
+    .@{element}-marginright {
+      margin-right: 0;
+    }
+    .@{element}-type {
+      width: 100%;
+    }
+    .@{element}-field {
+      min-width: auto;
+      width: 100%;
+    }
+  }
+}

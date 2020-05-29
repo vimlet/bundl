@@ -1,0 +1,308 @@
+<style>
+  workspace-view .visible {
+    display: flex !important;
+  }
+
+  workspace-view>.card {
+    border: none !important;
+    margin-top: 15px !important;
+  }
+
+  workspace-view eon-form {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 0;
+  }
+
+  workspace-view .admin-info {
+    display: none;
+  }
+
+  workspace-view .admin-info-field.visible {
+    display: inline-block !important;
+  }
+
+  workspace-view .admin-info-field input {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+  }
+
+  workspace-view .form-text {
+    width: 400px;
+    max-width: 400px;
+  }
+
+  workspace-view .permissions-column {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  workspace-view .permission-checks {
+    min-width: 280px;
+    margin-bottom: 4px;
+  }
+
+  workspace-form app-places.visible-flex {
+    display: block !important;
+  }
+
+  @media (max-width: 1024px) {
+    workspace-view .bar-button .eon-button-button {
+      width: 39px;
+      padding: 10px !important;
+    }
+
+    workspace-view .bar-button .eon-button-buttonText {
+      display: none;
+    }
+
+    workspace-view .bar-button .eon-button-buttonIcon {
+      margin-right: 0 !important;
+    }
+  }
+</style>
+<template>
+  <!-- WORKSPACE SETTINGS -->
+  <div class="title-row workspace-node">
+    <eon-variable class="section-title eon-fg-h1" bind="locale.workspace.title" global="true"></eon-variable>
+    <div class="action-buttons">
+      <eon-button class="workspace-bar-leave bar-button h1-button" eon-ref="leave"
+        bind:label="global locale.workspace.buttons.leave" icon="<i class='ticon vicon-log-out'></i>" design="filled">
+      </eon-button>
+    </div>
+  </div>
+
+  <div class="workspace-node">
+    <workspace-form class="info-box form" eon-ref="form"></workspace-form>
+
+    <div class="form-actions">
+      <eon-button class="admin-info delete-button" bind:value="global locale.global.delete" design="delete" eon-ref="deleteButton"></eon-button>
+      <eon-button class="admin-info" bind:value="global locale.user.saveButton" eon-ref="saveButton"></eon-button>
+    </div>
+  </div>
+
+  <!-- Leave Alert -->
+  <eon-dialog id="leaveDialog" class="alertDialog" eon-ref="leaveDialog" modal="true" closable="false"
+    default-style="false">
+    <eon-section type="content">
+      <div class="main-title">
+        <eon-variable bind="locale.workspace.dialogTitles.leave" global="true"></eon-variable>
+      </div>
+      <div class="main-buttons">
+        <eon-button eon-ref="leaveConfirmation"  bind:label="global locale.main.dialog.deleteContinue">
+        </eon-button>
+        <eon-button bind:label="global locale.main.dialog.cancel" class=""
+          onclick="document.querySelector('#leaveDialog').close()"></eon-button>
+      </div>
+    </eon-section>
+  </eon-dialog>
+
+  <!-- MASK -->
+  <eon-mask>
+    <div class="mask-title-row">
+      <div class="mask-title eon-mask-background1"></div>
+      <div class="mask-button eon-mask-background1"></div>
+    </div>
+
+    <div class="mask-text mask-text-large eon-mask-background1"></div>
+
+    <div class="mask-form">
+      <div class="mask-field">
+        <div class="mask-text eon-mask-background1"></div>
+        <div class="mask-field-text eon-mask-background1"></div>
+      </div>
+
+      <div class="mask-field">
+        <div class="mask-text eon-mask-background1"></div>
+        <div class="mask-field-text eon-mask-background1"></div>
+      </div>
+
+    </div>
+    <div class="mask-row settings-mask-row workspace-mask-actions-row">
+      <div class="mask-button-rect eon-mask-background1"></div>
+      <div class="mask-button-rect eon-mask-background1"></div>
+    </div>
+  </eon-mask>
+</template>
+
+<script>
+  eon.element({
+    name: "workspace-view",
+    parse: true,
+
+    dependencies: [
+      "@ui/eon-dialog",
+      "@ui/eon-button"
+    ],
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      refresh: function () {
+        var el = this;
+
+        el.loadData(null, function (error, data) {
+          el._refs.form.setData(data);
+        });
+      },
+      // @function hideSettings (private)
+      hideSettings: function (section) {
+        if (section == "workspace") {
+          // Hide workspace view
+          var workspaceNodes = this.$(".workspace-node");
+          for (var i = 0; i < workspaceNodes.length; i++) {
+            workspaceNodes[i].classList.add("hide");
+          }
+        }
+      },
+      // @function showSettings (private)
+      showSettings: function (section) {
+        if (section == "workspace") {
+          // Hide workspace view
+          var workspaceNodes = this.$(".workspace-node");
+          for (var i = 0; i < workspaceNodes.length; i++) {
+            workspaceNodes[i].classList.remove("hide");
+          }
+        }
+      },
+      // @function loadData (private)
+      loadData: function (filters, cb) {
+        var el = this;
+
+        var infoAdminNodes = document.querySelectorAll(".admin-info");
+
+        // Turn admin nodes to visible
+        if (session.isAdmin()) {
+
+          readWorkspace(session.data.currentWorkspaceId, function (error, data) {
+            if (!error) {
+              el._misc.data = data;
+
+              //  Owner cannot leave its workspace
+              if (data.owner == session.data.id) {
+                el._refs.leave.classList.remove("visible-flex");
+              } else {
+                el._refs.leave.classList.add("visible-flex");
+              }
+
+              if (cb) {
+                cb(null, data);
+              }
+            } else {
+              if (cb) {
+                cb(true);
+              }
+            }
+          });
+
+          for (var i = 0; i < infoAdminNodes.length; i++) {
+            var node = infoAdminNodes[i];
+            node.classList.add("visible-flex");
+          }
+        } else {
+          for (var i = 0; i < infoAdminNodes.length; i++) {
+            var node = infoAdminNodes[i];
+            node.classList.remove("visible-flex");
+          }
+
+          if (cb) {
+            cb(null, session.data.workspaces[session.data.currentWorkspaceId]);
+          }
+        }
+      },
+      handleLeaveWorkspace: function () {
+        var el = this;
+        var userData = {
+          id: session.data.id,
+          workspaceId: session.data.currentWorkspaceId
+        };
+
+        leaveWorkspace(userData, function (error, data) {
+          if (!error) {
+            window.location.href = "/app/workspace";
+          } else {
+            showInfoDialog(eon.locale.workspace.alert.leaveFail);
+            el._refs.leaveDialog.close();
+          }
+        });
+      },
+    },
+    privateFunctions: {
+      // @function _drawStatic (private)
+      drawStatic: function () {
+        var el = this;
+
+        // Hide view mask after language loaded at least
+        eon.onLocaleLoaded(function () {
+          // Minimun mask time to avoid flickering
+          setTimeout(function () {
+            // Hide home mask
+            mask.hideViewMask("workspace");
+            el.hideEonMask();
+          }, 100);
+        });
+      },
+      // @function _addWorkspaceListeners (private)
+      addWorkspaceListeners: function () {
+        var el = this;
+
+        el._refs.deleteButton.addEventListener("click", function (e) {
+          openDeleteDialog();
+        });
+        el._refs.saveButton.addEventListener("click", function (e) {
+          el._submitSettings();
+        });
+
+        // Leave workspace
+        el._refs.leave.addEventListener("click", function () {
+          el._refs.leaveDialog.open();
+          // Push dialog state
+          pushDialogState(el._refs.leaveDialog);
+
+          el._refs.leaveConfirmation.addEventListener("click", function () {
+            el.handleLeaveWorkspace();
+          });
+        });
+      },
+      // @function _submitSettings (private)
+      submitSettings: function () {
+        var el = this;
+
+        this._refs.form.validateGen(function (error, formData) {
+          if (!error) {
+            updateWorkspace(el._misc.data.id, formData, function (error, data) {
+              if (error) {
+                showInfoDialog(eon.locale.workspace.alert.editFail);
+              }
+            });
+          }
+        });
+      }
+    },
+    onTransformed: function () {
+      // Draw static content
+      this._drawStatic();
+      this._addWorkspaceListeners();
+    },
+    onRender: function () {
+      var el = this;
+
+      session.onReady(function () {
+        el.refresh();
+      });
+      
+      session.onWorkspaceChanged(function () {
+        el.refresh();
+      });
+    }
+  });
+</script>

@@ -1,0 +1,178 @@
+<!-- TODO * Cancel animation -->
+<style>
+  app-circular-progress {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  app-circular-progress svg {
+    height: 100%;
+    width: 100%;
+  }
+
+  app-circular-progress circle {
+    fill: transparent;
+  }
+
+  app-circular-progress circle:last-child {
+    stroke-dashoffset: 66;
+  }
+
+  app-circular-progress #progress-percent {
+    position: absolute;
+  }
+</style>
+
+<template>
+  <svg eon-ref="svg" viewBox="0 0 100 100" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <circle eon-ref="rail" cx="50" cy="50" r="42"></circle>
+    <circle eon-ref="progress" cx="50" cy="50" r="42"></circle>
+  </svg>
+
+  <div id="progress-percent" eon-ref="label"></div>
+</template>
+
+<script>
+  eon.element("app-circular-progress", {
+
+    properties: {
+      /*
+        @html-attribute {String} size
+      */
+      size: {
+        value: 35,
+        reflect: true
+      },
+      /*
+        @html-attribute {String} percent
+      */
+      percent: {
+        value: 0,
+        reflect: true
+      },
+      /*
+        @html-attribute {String} fontSize
+      */
+      fontSize: {
+        value: "14px",
+        reflect: true
+      },
+      /*
+        @html-attribute {String} thickness
+      */
+      thickness: {
+        value: 12,
+        reflect: true
+      },
+      /*
+        @html-attribute {String} colorSlice
+      */
+      colorSlice: {
+        value: "#33b679",
+        reflect: true
+      },
+      /*
+        @html-attribute {String} colorCircle
+      */
+      colorCircle: {
+        value: "#e6e6e6",
+        reflect: true
+      },
+      /*
+        @html-attribute {String} end
+      */
+      end: {
+        value: 264,
+        reflect: true
+      },
+      /*
+        @html-attribute {Number} time
+      */
+      time: {
+        value: 30,
+        reflect: true
+      },
+      /*
+        @html-attribute {Boolean} animate
+      */
+      animate: {
+        value: true,
+        reflect: true
+      }
+    },
+
+    privateProperties: {
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function progress (public) 
+      progress: function (value, options) {
+        if (options && options.unset) {
+          this._refs.label.innerText = "?";
+        } else {
+          this.percent = Number(value) || value === 0 ? value : this.percent;
+
+          this._refs.label.innerText = this.percent + "%";
+
+          this._clearTimeouts();
+
+          var delayTime = options && options.cancelAnim ? 0 : this.time;
+
+          for (var i = 0; i <= this.end; i++) {
+            if (i > this.percent) {
+              return;
+            }
+            this._misc.delayed.push(setTimeout(this._progress.bind(this, i), i * delayTime));
+          }
+        }
+      }
+    },
+    privateFunctions: {
+      // @function setup (private)
+      setup: function () {
+        // Setup rail
+        this._setupRail();
+        // Setup progress
+        this._setupLabel();
+        // Setup progress
+        this._setupProgress();
+      },
+      // @function _setupRail (private)
+      setupRail: function () {
+        if (this.colorCircle) {
+          this._refs.rail.style = `stroke: ${this.colorCircle}; stroke-width: ${this.thickness}px;`;
+        }
+      },
+      // @function _setupProgress (private)
+      setupProgress: function () {
+        this._refs.progress.style = `fill: transparent; stroke: ${this.colorSlice}; stroke-width: ${this.thickness};`;
+        this.progress(this.percent);
+      },
+      // @function _setupLabel(private)
+      setupLabel: function () {
+        this._refs.label.style = `font-size: ${this.fontSize}; font-weight: ${this.fontWeight}; color: ${this.fontColor}`;
+      },
+      // @function _progress(private)
+      progress: function (value) {
+        var d = parseInt(value * 2.64);
+        this._refs.progress.style.strokeDasharray = `${d} ${this.end - d}`;
+      },
+      // @function _clearTimeouts(private)
+      clearTimeouts: function () {
+        for (var i = 0; i < this._misc.delayed.length; i++) {
+          clearTimeout(this._misc.delayed[i]);
+        };
+      }
+    },
+    onCreated: function () {
+      this._misc.delayed = [];
+    },
+    onTransformed: function () {
+      this._setup();
+    }
+  });
+</script>

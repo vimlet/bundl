@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Tobeio</title>
+
+  <!-- Apple touch devices desktop icon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
+  <!-- Favicon (link rel "shortcut" keyword does nothing, present in older browsers practices) -->
+  <link rel="icon" href="img/favicon/favicon.ico">
+  <!-- "sizes" property not supported in any browser but exists -->
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+  <!-- Mac not active tab icon -->
+  <link rel="mask-icon" href="img/favicon/safari-pinned-tab.svg" color="#5bbad5">
+  <!-- Fav icons/PWA/theme and other information -->
+  <link rel="manifest" href="manifest.json">
+  <!-- Microsoft (Pinned tabs style. Vendor specific elements) -->
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-config" content="img/favicon/browserconfig.xml">
+
+  <!-- Main style -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300&display=swap">
+
+  <link rel="stylesheet" type="text/css"
+    href="css/bundle.css">
+
+  <!-- Stripe -->
+  <!-- <script src="https://js.stripe.com/v3/"></script> -->
+
+  <script>
+    // Eon default theme
+    var eon = {
+      theme: "att-claro",
+      importCacheBusting: true,
+      themeCacheBusting: true,
+      pollyfillCacheBusting: true,
+      build: false
+    };
+    eon.themeSchema = {
+      "att-claro": ["eon-drawer", "eon-sticky", "eon-dialog", "eon-date", "eon-loading"]
+    }    
+  </script>
+  <!-- Import eon -->  
+  <script src="eon/eon-bundle.js"></script>
+
+  <script>
+
+    eon.createCallback("onLocaleLoaded", eon, "ready");
+    // TODO - Multiple languages support
+    window.locale = navigator.language.split("-")[0] == "es" ? "es" : "en";
+
+    eon.ajax("util/locale/" + window.locale + ".json", null, function (error, data) {
+      if (!error) {
+        eon.locale = JSON.parse(data.responseText);
+        // Triggered on session user locale check (session.js)
+        // eon.triggerCallback("onLocaleLoaded", eon, eon, []);
+      }
+    });
+  </script>
+
+  <script>
+    eon.importBuild("index-build.js");
+    
+    eon.import([
+      "custom/main/main-view",
+      "eon/ui/eon-dialog",
+      "eon/ui/eon-combo",
+      "eon/ui/eon-panel",
+      "eon/ui/eon-text",
+      "eon/ui/eon-button",
+      "eon/ui/eon-stack",
+      "eon/ui/eon-loading"
+    ]);
+  </script>
+
+  <script>
+    // Fix social login hash
+    if (location.href.indexOf("#") != -1) {
+      window.location.href = "/app";
+    }  
+  </script>
+
+  <!-- Bundle js -->
+  <script src="bundle.js"></script>
+
+  <!-- Google Maps & Stripe-->
+  <script>
+
+    // Stripe ready callback
+    eon.createCallback("stripeReady", app, "ready");
+  </script>
+
+</head>
+
+<!-- class notraslate necessary to avoid page translation -->
+
+<body class="notranslate">
+  <!-- Mask -->
+  <div class="loading">
+    <div id="split-logo">
+      <!-- Logo -->
+      <svg id="Capa_1" class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 139.7 39.3"><style>.stw{fill:#fff}</style><path class="stw" d="M 26.7 12 c -7.5 0 -13.5 6 -13.5 13.5 S 19.2 39 26.7 39 s 13.5 -6 13.5 -13.5 S 34.1 12 26.7 12 z m 0 21.5 c -4.4 0 -8 -3.6 -8 -8 s 3.6 -8 8 -8 s 8 3.6 8 8 s -3.6 8 -8 8 z M 59.2 12.2 c -3.8 -0.6 -7.4 0.4 -10.1 2.5 V 2.8 c 0 -1.5 -1.2 -2.7 -2.7 -2.7 c -1.5 0 -2.8 1.2 -2.8 2.7 v 23.7 c 0.5 7 6.4 12.5 13.5 12.5 c 7.9 0 14.3 -6.9 13.4 -15 c -0.6 -6 -5.3 -10.9 -11.3 -11.8 z m -2.1 21.3 c -4.4 0 -8 -3.6 -8 -8 s 3.6 -8 8 -8 s 8 3.6 8 8 s -3.6 8 -8 8 z M 85.7 39 z M 85.4 39 z M 85.6 39 h 0.1 h -0.2 h 0.1 M 100.8 24.7 c -0.4 -7 -6.1 -12.6 -13.2 -12.7 h -0.3 c -7.5 0 -13.5 6 -13.5 13.5 S 79.8 39 87.3 39 h 0.2 c 1.5 -0.1 2.6 -1.3 2.6 -2.7 s -1.2 -2.7 -2.6 -2.7 h -0.2 c -3.3 0 -6.1 -2 -7.3 -4.8 h 16.8 c 1.8 0 3.3 -1.2 3.8 -2.8 c 0.1 -0.4 0.2 -0.8 0.2 -1.2 v -0.1 z m -21.2 -1.5 c 1 -3.3 4 -5.7 7.7 -5.7 h 0.3 c 3.5 0.1 6.4 2.5 7.4 5.7 H 79.6 z M 106.7 8.5 c -1.5 0 -2.8 1.2 -2.8 2.7 v 25 c 0 1.5 1.2 2.8 2.7 2.8 c 1.5 0 2.8 -1.2 2.8 -2.8 v -25 c 0.1 -1.5 -1.1 -2.7 -2.7 -2.7 z M 106.7 0.1 c -1.5 0 -2.8 1.2 -2.8 2.7 c 0 1.5 1.2 2.7 2.7 2.7 c 1.5 0 2.8 -1.2 2.8 -2.7 c 0.1 -1.5 -1.1 -2.7 -2.7 -2.7 z M 5.5 26.2 V 15.8 h 3.1 c 1.5 0 2.7 -1.2 2.7 -2.7 c 0 -1.5 -1.2 -2.7 -2.7 -2.7 H 5.5 V 2.7 C 5.5 1.2 4.3 0 2.8 0 C 1.2 0 0 1.2 0 2.7 v 23.5 c 0.1 6 4.2 11.1 9.7 12.7 c 1.6 0.5 3.3 -0.8 3.3 -2.5 v -0.3 c 0 -1.2 -0.8 -2.2 -1.9 -2.5 c -3.2 -1 -5.5 -3.9 -5.6 -7.4 z"/></svg>
+      <!-- Letter "O" from logo -->
+      <div id="o">
+        <div id="halfclip">
+          <div class="halfcircle" id="clipped">
+            <div class="edge"></div>
+          </div>
+          <div id="o-bar"></div>
+        </div>
+        <div class="halfcircle" id="fixed">
+          <div class="edge"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dots">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Background layer -->
+  <div class="app-background"></div>
+
+  <main-view class="main">
+    <!-- Content -->
+    <div class="sections">
+
+
+<!-- htmlmin:ignore -->
+<$ view("/app/", "./sections/home.html" ) $>
+<$ view("/app/?*", "./sections/home.html" ) $>
+<$ view("/app/index.html", "./sections/home.html" ) $>
+<$ view("/app/home*", "./sections/home.html" ) $>
+<$ view("/app/calendar*", "./sections/calendar.html" ) $>
+<$ view("/app/projects*", "./sections/projects.html" ) $>
+<$ view("/app/registry*", "./sections/registry.html" ) $>
+<$ view("/app/team*", "./sections/team.html" ) $>
+<$ view("/app/workspace*", "./sections/workspace.html" ) $>
+<$ view("/app/user*", "./sections/user.html" ) $>
+<$ view("/app/report*", "./sections/report.html" ) $>
+<$ view("/app/business*", "./sections/business.html" ) $>
+<$ view("/app/upgrade*", "./sections/upgrade.html" ) $>
+<$ view("/app/back*", "./sections/back.html" ) $>
+<$ view("/app/notifications*", "./sections/notifications.html" ) $>
+<!-- htmlmin:ignore -->
+    </div>
+  </main-view>
+
+  <script>
+    mask.hide();
+
+    initSockets();
+    mainSetup();
+
+  </script>
+
+  
+  <!-- Mobile drag and drop -->
+  <script> 
+    var polyfillApplied = MobileDragDrop.polyfill({
+      dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride,
+      holdToDrag: config.holdToDrag
+    });
+     try {   // Safari 10.x and higher
+            window.addEventListener('touchmove', function () {
+            }, {passive: false});
+        } catch(e) {}
+  </script>
+</body>
+
+</html>

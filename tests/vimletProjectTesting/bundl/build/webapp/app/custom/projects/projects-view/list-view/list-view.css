@@ -1,0 +1,25 @@
+@element: list-view;
+
+@{element} {
+  & {
+    overflow: hidden;
+  }
+
+  & .list-view-layout{
+    padding:0px 40px;
+  }
+
+  .wip-overlay { 
+    padding: 0 50px;
+  }
+  .wip-overlay > div {
+    background-image: url("/app/img/wip/lists-mob.png");
+  }
+
+  @media (min-width: 768px) {
+   .wip-overlay > div {
+      background-image: url("/app/img/wip/lists.png");
+    }
+  }
+
+}

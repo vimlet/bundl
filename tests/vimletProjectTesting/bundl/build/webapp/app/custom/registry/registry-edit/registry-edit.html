@@ -1,0 +1,537 @@
+<template>
+  <eon-swiper eon-ref="swiper" class="form-swiper" transition="500" external-slide="true">
+    <eon-swiper-slide class="first-slide">
+      <eon-variable class="form-grouptitle eon-fg-h2 form-only-title" bind="locale.registry.infoTitle" global="true">
+      </eon-variable>
+      <eon-scroll thickness="10" style="margin-bottom: 10px;">
+        <eon-form eon-ref="firstForm" class="registry-form" default-style="false">
+          <div class="form-group">
+            <div class="form-rows ">
+              <div class="form-cols form-marginright">
+                <eon-variable class="form-label eon-fg0" bind="locale.registry.entry" global="true"></eon-variable>
+
+                <div class="form-rows">
+                  <div class="form-cols form-marginright form-marginbottom">
+                    <eon-date eon-ref="startDay" class="registry-view-field form-date" time="true" time-icon="true"
+                      mask="DDMMYYYY" value-format="YYYY-MM-DD hh:mm" name="dateStart" inline="false">
+                    </eon-date>
+                  </div>
+                </div>
+              </div>
+              <div class="form-cols">
+                <eon-variable class="form-label eon-fg0" bind="locale.registry.exit" global="true"></eon-variable>
+                <div class="form-rows">
+                  <div class="form-cols form-marginright form-marginbottom">
+                    <eon-date eon-ref="endDay" class="registry-view-field form-date" time="true" time-icon="true"
+                      mask="DDMMYYYY" value-format="YYYY-MM-DD hh:mm" name="dateEnd" inline="false">
+                    </eon-date>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-rows">
+              <eon-text class="registry-view-field form-text hide-description form-marginright form-marginbottom" readonly="true"
+                bind:label="global locale.registry.member" bind:placeholder="global locale.registry.member"
+                name="member" label-anim="false" inline="false" eon-ref="members">
+              </eon-text>
+              <eon-toggle bind:label="global locale.registry.remote" eon-ref="notifyEditions"
+                class="registry-view-field form-marginleft" name="type" label-anim="false" inline="false">
+              </eon-toggle>
+            </div>
+          </div>
+        </eon-form>
+      </eon-scroll>
+
+      <!-- MASK -->
+      <eon-loading eon-ref="mainMask" duration="5000" class="form-mask" format="descendant" display="false">
+      </eon-loading>
+    </eon-swiper-slide>
+
+    <!-- SECOND SLIDE -->
+    <eon-swiper-slide>
+      <div class="swipeButtons eon-fg0 toBack">
+        <i class="vicon vicon-arrow-back"></i>
+        <eon-variable bind="locale.registry.editBack" global="true"></eon-variable>
+      </div>
+      <div class="form-group">
+        <!-- <div class="title-row"> -->
+        <div class="form-action-title">
+          <eon-variable class="form-grouptitle eon-fg-h2" bind="locale.registry.breaks" global="true"></eon-variable>
+          <eon-button class="bar-button h1-button" eon-ref="addEventButton" bind:label="global locale.registry.addBreak"
+            icon="<i class='vicon vicon-add'></i>" design="filled"></eon-button>
+        </div>
+        <eon-scroll thickness="10">
+          <div class="break-ranges ranges" eon-ref="eventsWrapper"></div>
+        </eon-scroll>
+      </div>
+
+      <!-- MASK -->
+      <eon-loading eon-ref="breaksMask" duration="5000" class="form-mask" format="descendant" display="false">
+      </eon-loading>
+    </eon-swiper-slide>
+
+    <!-- THIRD SLIDE -->
+    <eon-swiper-slide>
+      <div class="swipeButtons eon-fg0 toBack">
+        <i class="vicon vicon-arrow-back"></i>
+        <eon-variable bind="locale.registry.editBack" global="true"></eon-variable>
+      </div>
+      <div class="form-group">
+        <!-- <div class="title-row"> -->
+        <div class="form-action-title">
+          <eon-variable class="form-grouptitle eon-fg-h2" bind="locale.registry.activities" global="true">
+          </eon-variable>
+          <eon-button class="bar-button h1-button" eon-ref="addActivityButton"
+            bind:label="global locale.registry.addActivity" icon="<i class='vicon vicon-add'></i>" design="filled">
+          </eon-button>
+        </div>
+        <eon-scroll thickness="10">
+          <div class="activities-ranges ranges" eon-ref="activitiesWrapper"></div>
+        </eon-scroll>
+      </div>
+
+      <!-- MASK -->
+      <eon-loading eon-ref="activityMask" duration="5000" class="form-mask" format="descendant" display="false">
+      </eon-loading>
+    </eon-swiper-slide>
+
+    <!-- LAST SLIDE -->
+    <eon-swiper-slide class="workday-slide validateSlide">
+      <div class="swipeButtons eon-fg0 toBack">
+        <i class="vicon vicon-arrow-back"></i>
+        <eon-variable bind="locale.registry.editBack" global="true"></eon-variable>
+      </div>
+      <div class="form-group">
+        <div class="form-action-title">
+          <eon-variable class="form-grouptitle eon-fg-h2" bind="locale.registry.workday" global="true"></eon-variable>
+        </div>
+        <app-workweek eon-ref="workweek" workweek-day="true"></app-workweek>
+      </div>
+
+      <!-- MASK -->
+      <eon-loading eon-ref="workdayMask" duration="50000" class="form-mask" format="descendant" display="false">
+      </eon-loading>
+    </eon-swiper-slide>
+  </eon-swiper>
+</template>
+<script>
+  eon.element("registry-edit", {
+    parse: true,
+    style: "registry-edit.css",
+    dependencies: [
+      "edit-range",
+      "@ui/eon-form",
+      "@ui/eon-combo",
+      "@ui/eon-text",
+      "@ui/eon-toggle",
+      "@ui/eon-check",
+      "@ui/eon-toggle",
+      "@ui/eon-swiper",
+      "@ui/eon-loading",
+      "@custom/app-workweek"
+    ],
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      clear: function () {
+        this._refs.firstForm.clear();
+        this._refs.workweek.clear();
+
+        // Clear 
+        this._refs.eventsWrapper.innerHTML = "";
+        this._refs.activitiesWrapper.innerHTML = "";
+      },
+      setMainData: function (data) {
+        this._misc.srcData = data;
+        
+        var entryMoment = moment.parseZone(this._misc.srcData.entryISO, util.isoFormat);
+        var exitMoment = this._misc.srcData && this._misc.srcData.exitISO ? moment.parseZone(this._misc.srcData.exitISO, util.isoFormat) : "Invalid Date";
+
+        var formData = {
+          user: data.userId,
+          type: data.type == "remote" ? true : false,
+          dateStart: entryMoment.format("YYYY-MM-DD HH:mm")
+        };
+
+        if (exitMoment != "Invalid Date") {
+          formData.dateEnd = exitMoment.format("YYYY-MM-DD HH:mm");
+        }
+
+        this._refs.firstForm.setData(formData);
+
+        // NEW
+        this._misc.srcData.initEvents = {};
+
+        // TODO Clear date fields which have invalid date values
+        if (exitMoment == "Invalid Date") {
+          // ** Clear does not update de value property on eon-date
+          this._refs.endDay.clear();
+          this._refs.endDay.value = entryMoment.add(1, "minutes").format("YYYY-MM-DD HH:mm");
+        }
+
+        // Set member
+        this._refs.members._refs.input.placeholder = data.alias;
+        this._refs.members.value = data.alias;
+      },
+      setData: function (data) {
+        this._setBreaks(data);
+        this._setActivities(data);
+        this._refs.workweek.setData(data.workday);
+      },
+
+      onSubmit: function (cb) {
+        this._submitCallback = cb;
+      },
+
+      validate: function () {
+        var el = this;
+        // Submit edition
+        var formData = el._refs.firstForm.getData();
+        el._submitCallback(null, el._buildSrcData(formData));
+      },
+
+      validateDelete: function () {
+        var el = this;
+        openDeleteConfirmation(function () {
+          // Submit delete 
+          formData = {};
+          formData.delete = true;
+          formData.id = el._misc.srcData.id;
+
+          // Trigger submit
+          el._submitCallback(null, formData);
+        });
+      }
+    },
+    privateFunctions: {
+      // @function _setupSchema (private)
+      setupSchema: function () {
+        var el = this;
+
+        this._refs.firstSchema = {
+          properties: {
+            "dateStart": {
+              required: true
+            },
+            "dateEnd": {
+              required: true
+            },
+            "member": {
+              required: true
+            }
+          }
+        }
+      },
+      // @function _setBreaks (private)
+      setBreaks: function (data) {
+        var el = this;
+        var eventsFragment = document.createDocumentFragment();
+        var eventsData, dateStart, dateEnd;
+
+        el._refs.eventsWrapper.innerHTML = "";
+
+        if (data.events) {
+          for (var key in data.events) {
+            var evt = data.events[key];
+
+            if (evt.type !== "activity") {
+              eventsData = {
+                type: evt.type,
+                entryDate: moment.parseZone(evt.entryISO, util.isoFormat).format("YYYY-MM-DD HH:mm"),
+                exitDate: moment.parseZone(evt.exitISO, util.isoFormat).format("YYYY-MM-DD HH:mm"),
+                position: evt.position,
+                notes: evt.notes
+              };
+
+              eventsFragment.appendChild(el._createEvent(eventsData));
+              el._misc.srcData.initEvents[evt.entryUTC] = null;
+            }
+          }
+
+          el._refs.eventsWrapper.appendChild(eventsFragment);
+        }
+      },
+      // @function _setActivities (private)
+      setActivities: function (data) {
+        var el = this;
+
+        if (data.events && Object.keys(data.events).length > 0) {
+          var activities = this._getActivityEvents(data.events);
+
+          var activitiesFragment = document.createDocumentFragment();
+          var activityData, dateStart, dateEnd;
+
+          el._refs.activitiesWrapper.innerHTML = "";
+
+          if (activities) {
+            for (var i = 0; i < activities.length; i++) {
+              activityData = {
+                entryDate: moment.parseZone(activities[i].entryISO, util.isoFormat).format("YYYY-MM-DD HH:mm"),
+                exitDate: moment.parseZone(activities[i].exitISO, util.isoFormat).format("YYYY-MM-DD HH:mm"),
+                type: activities[i].type
+              };
+
+              activitiesFragment.appendChild(this._createEvent(activityData));
+              el._misc.srcData.initEvents[activities[i].entryUTC] = null;
+            }
+            el._refs.activitiesWrapper.appendChild(activitiesFragment);
+          }
+        }
+      },
+      // @function _createEvent (private)
+      createEvent: function (data) {
+        var eventRange;
+
+        eventRange = document.createElement("edit-range");
+
+        // Convert data to client timezone
+        eventRange.entry = data.entryDate;
+        eventRange.exit = data.exitDate;
+        eventRange.type = data.type;
+        eventRange.position = data.position;
+        eventRange.notes = data.notes;
+        eventRange.isBreak = ["break", "food", "absence"].indexOf(data.type) > -1;
+
+        return eventRange;
+      },
+      // @function _getActivityEvents (private)
+      getActivityEvents: function (events) {
+        var activities = [];
+        var eventKeys = Object.keys(events);
+        eventKeys.sort();
+        for (var i = 0; i < eventKeys.length; i++) {
+          if (!events[eventKeys[i]].isBreak) {
+            activities.push(events[eventKeys[i]]);
+          }
+        }
+        return activities;
+      },
+      // TODO:
+      // @function _autocompleteDays(private)
+      autocompleteDays: function (next) {
+        var el = this;
+        var startDay = el._refs.startDay.value.split(" ")[0];
+        var startDayInitial = el._refs.startDay.initialValue.split(" ")[0];
+
+        if (next && startDay !== startDayInitial) {
+          var eventsDates = el.querySelectorAll(".edit-range-date");
+          var newWeekday = moment(startDay).isoWeekday();
+          var eventDay;
+          var eventTime;
+
+          for (var i = 0; i < eventsDates.length; i++) {
+            breakDay = eventsDates[i].value.split(" ")[0];
+            breakTime = eventsDates[i].value.split(" ")[1];
+
+            eventsDates[i].value = startDay + " " + breakTime;
+
+            // Change workday
+          }
+        }
+      },
+      // @function _setSwiperListeners(private)
+      setSwiperListeners: function () {
+        var el = this;
+        var toBack = el.querySelectorAll(".toBack");
+
+        el._refs.next.addEventListener("click", function () {
+          var next = true;
+
+          if (el._refs.swiper.currentSlide.el.classList.contains("first-slide")) {
+            el._firstValidate(function (error) {
+              next = error ? false : true;
+              // el._autocompleteDays(next);
+            });
+          }
+
+          if (next) {
+            el._refs.swiper.next();
+
+            // el._toggleVisible(el._refs.swiper.currentSlide.el.$1(".batch-ranges"), true);
+            if (el._refs.swiper.currentSlide.el.classList.contains("validateSlide")) {
+              el._refs.apply.classList.remove("ghost");
+              el._refs.next.classList.add("ghost");
+            }
+          }
+        });
+
+        for (var i = 0; i < toBack.length; i++) {
+          toBack[i].addEventListener("click", function () {
+            // el._toggleVisible(el._refs.swiper.currentSlide.el.$1(".batch-ranges"), false);
+
+            el._refs.swiper.prev();
+            if (!el._refs.swiper.currentSlide.el.classList.contains("validateSlide")) {
+              el._refs.apply.classList.add("ghost");
+              el._refs.next.classList.remove("ghost");
+            }
+          });
+        }
+
+        el._refs.dialog.onClose(function functionName() {
+          el._refs.swiper.slideTo(0);
+          el._refs.apply.classList.add("ghost");
+          el._refs.next.classList.remove("ghost");
+        });
+      },
+
+      // @function _firstValidate (private)
+      firstValidate: function (cb) {
+        var el = this;
+
+        el._refs.firstForm.validate(this._refs.firstSchema, null, cb);
+      },
+      // @function _setButtonsListeners (private)
+      setButtonsListeners: function () {
+        var el = this;
+
+        el._refs.addEventButton.addEventListener("click", function () {
+          var editRange = document.createElement("edit-range");
+
+          editRange.entry = moment(el._refs.startDay.value, "YYYY-MM-DD HH:mm").format("YYYY-MM-DD");
+          editRange.exit = moment(el._refs.endDay.value, "YYYY-MM-DD HH:mm").format("YYYY-MM-DD");
+          editRange.isBreak = true;
+
+          el._refs.eventsWrapper.appendChild(editRange);
+          el._refs.scroll.scrollTop = el._refs.eventsWrapper.scrollHeight;
+        });
+
+        el._refs.addActivityButton.addEventListener("click", function () {
+          var editRange = document.createElement("edit-range");
+
+          editRange.entry = moment(el._refs.startDay.value, "YYYY-MM-DD HH:mm").format("YYYY-MM-DD");
+          editRange.exit = moment(el._refs.endDay.value, "YYYY-MM-DD HH:mm").format("YYYY-MM-DD");
+          editRange.isBreak = false;
+
+          el._refs.activitiesWrapper.appendChild(editRange);
+          el._refs.scroll.scrollTop = el._refs.activitiesWrapper.scrollHeight;
+        });
+
+        // Edit registry
+        el._refs.apply.addEventListener("click", function (e) {
+            el.validate();
+          
+          // if (!el._refs.workweek.getData()) {
+            //   console.log("Workday necessary");
+            
+            // } else {
+              //   el.validate();
+          // }
+        });
+
+        // Delete registry
+        el._refs.delete.addEventListener("click", function (e) {
+          el.validateDelete();
+        });
+      },
+
+      // @function _buildSrcData (private)
+      buildSrcData: function (data) {
+        var el = this;
+        var registryData = {};
+        var type, entrySplit, exitSplit;
+
+        entryMoment = moment(data.dateStart, "YYYY-MM-DD HH:mm");
+
+        registryData = {
+          type: data.type ? "remote" : "local",
+          entry: entryMoment.format("YYYY-MM-DD"),
+          entryHour: entryMoment.format("HH"),
+          entryMin: entryMoment.format("mm"),
+          member: data.member,
+          tzOffset: new Date().getTimezoneOffset()
+        }
+
+        if (el._misc.srcData.id) {
+          registryData.id = el._misc.srcData.id;
+        }
+
+        // TODO - check eon-date and remove...
+        if (data.dateEnd && data.dateEnd != "--") {
+          exitMoment = moment(data.dateEnd, "YYYY-MM-DD HH:mm");
+
+          registryData.exit = exitMoment.format("YYYY-MM-DD"),
+            registryData.exitHour = exitMoment.format("HH");
+          registryData.exitMin = exitMoment.format("mm");
+        }
+        // EVENTS
+        registryData.events = el._getEvents();
+
+        // WORKDAY
+        registryData.workday = el._getWorkday();
+
+        return registryData;
+      },
+
+      // @function _getEvents (private)
+      getEvents: function () {
+        var el = this;
+        var events = {
+          src: !this._misc.srcData.initEvents ? {} : this._misc.srcData.initEvents,
+          new: {}
+        }
+        var rangeValues, entry, exit, entryTZ, exitTZ;
+
+        var eventsArray = el.$("edit-range");
+
+        for (var i = 0; i < eventsArray.length; i++) {
+          rangeValues = eventsArray[i].getValue();
+
+          if (events && rangeValues.entry) {
+
+            events.new[rangeValues.entry] = {
+              entry: rangeValues.entry,
+              exit: rangeValues.exit,
+              type: rangeValues.type,
+              isBreak: rangeValues.isBreak,
+              notes: rangeValues.notes,
+              position: rangeValues.position
+            }
+          }
+        }
+
+        return events;
+      },
+      // @function _getWorkday(private)
+      getWorkday: function () {
+        var el = this;
+
+        var currentWeekday = el._misc.srcData.workday[0].entryWeekday;
+        // var newWeekday = moment(startDay).isoWeekday();
+        var workdays = el._refs.workweek.getData();
+        var workday = workdays[currentWeekday];
+        return workday;
+      },
+      // @function _setupAdvRefs (private)
+      setupAdvRefs: function () {
+        var el = this;
+
+        el._refs.section = el.getEnclosingComponent();
+        el._refs.scroll = el._refs.section.getEnclosingComponent();
+        el._refs.dialog = el._refs.section.getEnclosingComponent();
+        el._refs.delete = el._refs.dialog.$1(".edit-delete-button");
+        el._refs.apply = el._refs.dialog.$1(".edit-apply-button");
+        el._refs.next = el._refs.dialog.$1(".edit-next-button");
+      }
+    },
+    onTransformed: function () {
+      var el = this;
+
+      el._setupSchema();
+      el._setupAdvRefs();
+      el._setSwiperListeners();
+      el._setButtonsListeners();
+    }
+  });
+</script>

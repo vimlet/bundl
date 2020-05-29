@@ -1,0 +1,312 @@
+/* .dialog-form .eon-text-description,
+.dialog-form .eon-date-description,
+.dialog-form .eon-number-description {
+  display: none;
+} */
+
+.dialog-button.disabled {
+  pointer-events: none !important;
+}
+
+.dialog-workspace[data-mobile="false"] {
+  width: 750px;
+  max-width: 750px !important;
+  max-height: 550px !important;
+}
+
+.reinvite-dialog {
+  width: 400px;
+}
+
+.reinvite-dialog .main-title {
+  margin-bottom: 20px;
+}
+
+.info-dialog[data-mobile="false"] {
+  width: 520px;
+  max-width: 520px !important;
+}
+
+.main-title {
+  margin: 20px;
+  font-size: 25px;
+  text-align: center;
+  border-bottom: 1px solid #8c27cf;
+}
+
+.location-message {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+eon-dialog[theme="att-claro"].footerless .eon-dialog-content {
+  padding: 25px;
+}
+
+.registry-dialog[data-mobile="false"] {
+  width: 100%;
+  height: 100%;
+  max-width: 900px;
+  max-height: 640px;
+  /* height: calc(100% - 40px); */
+}
+
+.dialog-accept-button {
+  margin: 0 0 0 15px;
+}
+
+.confirmAlertDialog {
+  width: 450px;
+}
+
+.confirmAlertDialog eon-form {
+  width: 100%;
+  padding: 0;
+}
+
+.confirmAlertDialog .form-text {
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+#join-workspace {
+  margin-top: 20px;
+  align-self: center;
+}
+
+/* Confirmation dialog */
+
+#confirmationDialog .eon-dialog-content {
+  padding: 25px;
+}
+
+#confirmationDialog .edit-title {
+  font-size: 20px;
+  padding-bottom: 15px;
+}
+
+/* Info dialog */
+
+#alert-dialog[data-mobile="false"] {
+  max-width: 550px;
+  min-width: 300px !important;
+  height: 200px;
+}
+
+#alert-dialog .eon-dialog-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 25px;
+}
+
+#alert-dialog .eon-dialog-footer {
+  padding: 15px;
+}
+
+.alert-text {
+  font-size: 20px;
+}
+
+/* Delete Dialog */
+
+#deleteDialog .main-title {
+  margin: 20px 0 40px 0;
+}
+
+/* Delete Alert */
+
+#deleteAlert .eon-dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 25px;
+}
+
+#deleteAlert .eon-spaced-items-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.delete-title {
+  color: #ba0707;
+  font-weight: bold;
+  margin-bottom: 25px;
+  font-size: 25px;
+  text-align: center;
+}
+
+#leanDialog[data-mobile="false"] {
+  width: 100%;
+  max-width: 600px !important;
+  height: 100%;
+  max-height: 720px;
+}
+
+/* Invite Dialog */
+
+#member-edit-dialog[data-mobile="false"], #member-add-dialog[data-mobile="false"] {
+  width: 100%;
+  max-width: 600px;
+  max-height: 500px;
+}
+
+#groupDialog[data-mobile="false"] {
+  width: 100%;
+  max-width: 600px;
+  height: 100%;
+  max-height: 580px;
+}
+
+/* Business workweek dialog */
+
+#plans-add-dialog, #plans-edit-dialog {
+  width: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  height: 100%;
+}
+
+/* Business user edit dialog */
+
+#user-edit-dialog {
+  width: 100%;
+  max-width: 650px;
+}
+
+/* TOAST */
+
+#toast {
+  position: fixed;
+  pointer-events: none;
+  visibility: hidden;
+  min-width: 250px;
+  max-width: 250px;
+  min-height: 51px;
+  max-height: 90px;
+  margin-left: -125px;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  left: 50%;
+  bottom: 0;
+  padding: 16px;
+  border-radius: 2px;
+  box-sizing: border-box;
+  z-index: 101;
+  color: #fff;
+  background-color: #333;
+  transform: translate3d(0, -30px, 0);
+}
+
+#toast.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+
+@-webkit-keyframes fadein {
+  from {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, -30px, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, -30px, 0);
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    transform: translate3d(0, -30px, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    transform: translate3d(0, -30px, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-text {
+    text-align: center;
+  }
+  .alertDialog, .removeDialog, .location-dialog {
+    height: auto !important;
+    bottom: auto !important;
+  }
+}
+
+@media (max-width: 600px), (max-height: 600px) {
+  #location-dialog .eon-scroll-content {
+    display: flex;
+    align-items: center;
+  }
+  .main-title {
+    margin: 10px 10px 20px 10px;
+  }
+  .dialog-workspace, .registry-dialog {
+    max-width: none !important;
+    max-height: none !important;
+  }
+  #alert-dialog .eon-scroll-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px), (max-height: 600px) {
+  #plans-add-dialog, #plans-edit-dialog {
+    height: 100%;
+    max-height: none !Important;
+  }
+}
+
+@media (min-width: 500px) and (max-width: 850px) and (orientation: landscape) {
+  #plans-add-dialog, #plans-edit-dialog {
+    color: blueviolet !important;
+  }
+  #plans-add-dialog .eon-dialog-content, #plans-edit-dialog .eon-dialog-content {
+    padding: 0;
+  }
+  #plans-add-dialog .eon-dialog-heading, #plans-edit-dialog .eon-dialog-heading {
+    padding: 10px;
+  }
+  #plans-add-dialog .eon-dialog-footer, #plans-edit-dialog .eon-dialog-footer {
+    padding: 10px 15px 10px 15px;
+  }
+  #plans-add-dialog plans-form .swipeButtons, #plans-edit-dialog plans-form .swipeButtons {
+    margin: 0;
+    margin-bottom: 15px !important;
+  }
+}

@@ -1,0 +1,163 @@
+eon-form {
+  padding: 15px 15px 0 15px;
+}
+
+.form {
+  padding: 5px 0;
+  width: 100%;
+}
+
+.form-grouptitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+.form-action-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 8px 0;
+  margin-bottom: 20px;
+  flex-direction: row;
+}
+.form-only-title {
+  width: 100%;
+}
+.form-action-title .form-grouptitle {
+  border-bottom: 0px;
+  margin-bottom: 0 !important;
+  width: auto;
+}
+.form-content {
+  min-height: 50px;
+  display: flex;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+}
+.form-group {
+  width: 100%;
+}
+.form-rows {
+  display: flex;
+}
+.form-cols {
+  display: flex;
+  flex-direction: column;
+}
+.form-grow {
+  flex-grow: 1;
+  flex-basis: 0;
+}
+.form-time-combo {
+  max-width: 70px;
+}
+.form-label {
+  font-size: 16px;
+  margin-bottom: 5px;
+  /* color: #8c27cf; */
+  width: 100%;
+}
+/* .eon-text-label, .eon-combo-label, .app-places-label, .eon-date-label {
+  color: #8c27cf;
+} */
+.form-marginright {
+  margin-right: 15px;
+}
+.form-marginleft {
+  margin-left: 15px;
+}
+.form-marginbottom {
+  margin-bottom: 15px;
+}
+.form-marginbottom-description {
+  margin-bottom: 5px;
+}
+.eon-slider-wrapper {
+  margin-left: 10px;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.form-actions>* {
+  margin-left: 15px;
+}
+/* FORM SWIPER */
+.form-swiper eon-swiper-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  overflow: auto;
+}
+.form-swiper .workday-slide .form-mask {
+  height: calc(100% - 100px) !important;
+  margin: 100px 0 0 0 !important;
+}
+.toBack {
+  margin: 0;
+}
+.swipeButtons {
+  display: flex;
+  /* color: #8c27cf; */
+  cursor: pointer;
+  margin: 5px 0;
+  align-items: center;
+}
+@media (max-width: 700px) {
+  .form-action-title .bar-button[design="filled"] .eon-button-button:active {
+    background-color: transparent !important;
+  }
+  .form-action-title .bar-button .eon-button-buttonIcon {
+    font-size: 26px !important;
+  }
+  .form-cols, .form-rows {
+    width: 100%;
+  }
+  .form-rows {
+    flex-direction: column;
+    /* margin-bottom: 15px; */
+  }
+  .form-time-combo {
+    max-width: none;
+    flex-grow: 1;
+  }
+  .form-grow {
+    flex-basis: auto;
+    width: 100%;
+  }
+  .form-rows>*:first-child {
+    margin-right: 0;
+  }
+  .form-marginright {
+    margin-right: 0;
+  }
+  .form-marginleft {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-actions {
+    flex-wrap: wrap;
+  }
+  .form-actions>* {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 10px;
+  }
+  .form-actions>*:first-child {
+    margin-top: 0;
+  }
+  .form-actions>* a {
+    width: 100%;
+  }
+}
+@media (max-width: 400px) {
+  eon-form {
+    padding: 5px 5px 0 5px;
+  }
+}

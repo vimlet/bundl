@@ -1,0 +1,67 @@
+<template>
+
+  <!-- <div class="plans-entry-empty"></div> -->
+  <div eon-ref="name"></div>
+
+  <div eon-ref="edit" class="cell-action cell-edit vicon ticon-edit visible clickable">
+  </div>
+</template>
+
+<script>
+  eon.element("plans-entry", {
+
+    style: "plans-entry.css",
+
+    properties: {
+      refs: {
+        value: {}
+      }
+    },
+
+    privateProperties: {
+      refs: {
+        value: {}
+      },
+      misc: {
+        value: {}
+      }
+    },
+    functions: {
+      // @function setValues
+      setValues: function (data, key) {
+        this._misc.data = data;
+        this._misc.data.workweekId = key;
+        this._refs.name.innerHTML = data.name;
+      }
+    },
+    privateFunctions: {
+      // @function _setupAdvRefs (private)
+      setupAdvRefs: function () {
+        this._refs.grid = this.getEnclosingComponent();
+        this._refs.managePlansDialog = document.querySelector("#plans-edit-dialog");
+        this._refs.workspaceView = document.querySelector("workspace-view");
+      },
+      // @function _setupEdition (private)
+      setupEdition: function () {
+        var el = this;
+        el._editListener();
+      },
+      // @function _editListener (private)
+      editListener: function () {
+        var el = this;
+        this._refs.edit.addEventListener("click", function (e) {          
+          eon.triggerCallback("onEdit", el, el, [el._misc.data.workweekId]);
+        }, false);
+      }
+    },
+
+    onCreated: function () {
+      var el = this;
+      eon.createCallback("onEdit", el);
+    },
+    onTransformed: function () {
+      this._setupAdvRefs();
+      this._setupEdition();
+    }
+  });
+</script>

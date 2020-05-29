@@ -1,0 +1,706 @@
+<style>
+  calendar-month {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  calendar-month .calendar-month-view {
+    /* Important! overflow-y: auto; fixes flex-grow issues */
+    overflow-y: scroll;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #dcdcdc;
+    border-left: 1px solid #dcdcdc;
+  }
+
+  calendar-month .calendar-header-row {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+  }
+
+  calendar-month .calendar-header-cell {
+    box-sizing: border-box;
+    border-bottom: 1px solid #dcdcdc;
+    border-right: 1px solid #dcdcdc;
+    flex-grow: 1;
+    flex-basis: 0;
+    padding: 10px 5px;
+    text-align: center;
+  }
+
+  calendar-month .calendar-row {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    flex-grow: 1;
+  }
+
+  calendar-month .calendar-cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border-bottom: 1px solid #dcdcdc;
+    border-right: 1px solid #dcdcdc;
+    flex-grow: 1;
+    flex-basis: 0;
+    min-height: 100px;
+  }
+
+  calendar-month .calendar-cell.marked {
+    color: white;
+  }
+
+  calendar-month .calendar-mark {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    height: 30px;
+    width: 30px;
+    background-color: #8c27cf;
+    border-radius: 50%;
+    z-index: -1;
+  }
+
+  calendar-month .calendar-cell-date {
+    padding: 10px 0px 10px 10px;
+  }
+
+  calendar-month .calendar-bar-container {
+    position: relative;
+    height: 28px;
+    width: 100%;
+  }
+
+  calendar-month .calendar-bar-spacer {
+    position: relative;
+    height: 50px;
+    width: 100%;
+  }
+
+  calendar-month .calendar-bar {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    bottom: 3px;
+    left: 0;
+    box-sizing: border-box;
+    height: 25px;
+    width: 100%;
+    z-index: 10;
+    opacity: 0.8;
+    padding: 5px 8px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: box-shadow .2s cubic-bezier(0.4, 0, 0.2, 0);
+    /* border-radius: 4px; */
+  }
+
+  calendar-month .calendar-bar:hover {
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  calendar-month .calendar-bar-label {
+    color: white;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 14px;
+  }
+</style>
+<template>
+  <div eon-ref="monthView" class="calendar-month-view"></div>
+</template>
+<script>
+  eon.element({
+    name: "calendar-month",
+    properties: {
+      data: {},
+      month: 0,
+      year: 0,
+      weekStart: 1,
+      currentDay: true,
+      cellWidth: 0,
+      cells: {},
+      currentColor: 0,
+      colors: [
+        "#e81e63", // PINK
+        "#9b27af", // PURPLE
+        "#2195f2", // BLUE
+        "#673ab6", // DEEP PURPLE
+        "#f44336", // RED
+        "#fec007", // AMBER
+        "#00bbd3", // CYAN
+        "#3f51b4", // INDIGO
+        "#009587", // TEAL
+        "#ccdb39", // LIME
+        "#fe9700", // ORANGE
+        "#4cae50", // GREEN
+        "#607c8a", // BLUE GREY
+        "#fe5722", // DEEP ORANGE
+        "#8ac24a", // LIGHT GREEN
+        "#feea3b" // YELLOW
+      ]
+    },
+    privateFunctions: {
+      testBar: function () {
+        // Generate Random event
+        var date = this.year + "-" + (this.month + 1) + "-" + (Math.floor(Math.random() * 28) + 1);
+        var duration = Math.floor(Math.random() * 20) + 1;
+
+        this.data.events.push({
+          date: date,
+          duration: duration,
+          color: this.colors[this.currentColor]
+        });
+
+        // Increment color
+        this.currentColor++;
+        if (this.currentColor >= this.colors.length) {
+          this.currentColor = 0;
+        }
+
+        this.paint();
+      },
+      uuid: function () {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+          var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      },
+      calcCellSpace: function (cell) {
+        var space = 0;
+        var items = cell.querySelectorAll(".calendar-bar-item");
+
+        for (var i = 0; i < items.length; i++) {
+          space += Number(items[i].getAttribute("space"));
+        }
+
+        return space;
+      },
+      calcDesiredSpace: function (cell, currentDays) {
+        var startRow = Number(cell.getAttribute("row"));
+        var startColumn = Number(cell.getAttribute("column"));
+        var currentRow = startRow;
+        var currentColumn = startColumn;
+        var currentCell;
+
+        var space = 0;
+        var spaceAux;
+        var items;
+        var item;
+        var i;
+
+        for (var i = 0; i < currentDays; i++) {
+          currentCell = this.querySelector("div[row='" + currentRow + "'][column='" + (currentColumn + i) + "']");
+          if (currentCell) {
+            spaceAux = this._calcCellSpace(currentCell);
+            if (spaceAux > space) {
+              space = spaceAux;
+            }
+          }
+        }
+
+        return space;
+      },
+      drawRowSpacers: function (id, cell, currentDays) {
+        var startRow = Number(cell.getAttribute("row"));
+        var startColumn = Number(cell.getAttribute("column"));
+        var currentRow = startRow;
+        var currentColumn = startColumn;
+        var currentCellSpace;
+        var currentCell;
+        var spacer;
+        var space;
+
+        // Find desired space
+        var desiredSpace = this._calcDesiredSpace(cell, currentDays);
+
+        for (var i = 0; i < currentDays; i++) {
+          currentCell = this.querySelector("div[row='" + currentRow + "'][column='" + (currentColumn + i) + "']");
+          if (currentCell) {
+            // Calc needed space
+            currentCellSpace = this._calcCellSpace(currentCell);
+            space = desiredSpace - currentCellSpace + 1;
+            if (i == 0) {
+              space--;
+            }
+            // Create bar element
+            spacer = document.createElement("div");
+            spacer.classList.add("calendar-bar-item");
+            spacer.classList.add("calendar-bar-spacer");
+            spacer.style.height = (28 * space) + "px";
+            spacer.setAttribute("id", id);
+            spacer.setAttribute("space", space);
+            currentCell.appendChild(spacer);
+          }
+        }
+      },
+      drawEvents: function (e, monthInfo) {
+        var el = this;
+        var id = e.id;
+        var start = e.start;
+        var end = e.end;
+        var date = e.date;
+        var duration = e.duration;
+        var color = e.color;
+        var name = e.name;
+
+        var totalDays = duration;
+        var cell = this.querySelector("div[date='" + date + "']");
+        // Calc previous month cells
+        var weekStart = this._validateWeekStart(this.weekStart);
+        var prevMonthDays = monthInfo.weekday == 0 ? 7 - weekStart : monthInfo.weekday - weekStart;
+        var startDateFormatted = start.getFullYear() + "-" + (start.getMonth() + 1) + "-" + start.getDate();
+        
+        // Check if the event covers more than a month
+        if (!cell) {
+          var monthScope = el._isMonthScope(start, end, this.year, this.month, prevMonthDays);
+
+          if (monthScope) {
+
+            var currentDate = new Date(this.year, this.month, 1);
+            var lastDate = new Date(this.year, this.month, 0);
+
+            // Subtract full month days between start/end range
+            var subtractDays = this._getDaysInRange(currentDate, start);
+            totalDays -= subtractDays;
+
+            // Add previous month intrusive days
+            totalDays += prevMonthDays - 1;
+
+            // Event start cell
+            var firstDate = new Date(this.year, this.month, 1);
+
+            if (prevMonthDays > 0) {
+              // Start cell from previous month
+              var lastDay = lastDate.getDate() - prevMonthDays;
+              firstDate = new Date(this.year, this.month - 1, lastDay + 1);
+            }
+
+            // Get the start cell node
+            date = firstDate.getFullYear() + "-" + (firstDate.getMonth() + 1) + "-" + firstDate.getDate();
+            cell = this.querySelector("div[date='" + date + "']");
+          }
+        }
+
+        if (cell) {
+          // Work only inside month bounds
+          this.cellWidth = cell.getBoundingClientRect().width;
+          var startRow = Number(cell.getAttribute("row"));
+          var startColumn = Number(cell.getAttribute("column"));
+          var currentDays;
+          var currentRow = startRow;
+          var currentColumn = startColumn;
+          var currentRowFill;
+          var currentColumnFill;
+          var currentDaysFill;
+          var currentRowFill;
+          var currentColumnFill;
+          var currentDaysFill;
+          var barContainer;
+          var bar;
+
+          // Paint bar portions
+          while (totalDays > 0) {
+            // Find portion max days
+            currentDays = 7 - currentColumn;
+
+            // Use only needed days
+            if (totalDays < currentDays) {
+              currentDays = totalDays;
+            }
+            // Draw bar spacers
+            this._drawRowSpacers(id, cell, currentDays);
+
+            // Draw bar portion
+            barContainer = document.createElement("div");
+            barContainer.classList.add("calendar-bar-item");
+            barContainer.classList.add("calendar-bar-container");
+            barContainer.setAttribute("space", 1);
+            barContainer.setAttribute("id", id);
+            bar = document.createElement("div");
+            bar.classList.add("calendar-bar");
+            barLabel = document.createElement("div");
+            barLabel.classList.add("calendar-bar-label");
+
+            // Start border radius
+            if (startDateFormatted == cell.getAttribute("date")) { // Check if the event starts on this row 
+              bar.classList.add("left-radius");
+            }
+            // End border radius
+            if ((currentColumn + totalDays) <= 7) {
+              bar.classList.add("right-radius");
+            }
+            // Decrement total days
+            totalDays -= currentDays;
+
+            bar.style.width = ((this.cellWidth * currentDays) - 1) + "px"; // -1 for border correction
+            bar.style.backgroundColor = color;
+            bar.addEventListener("click", function () {
+              eon.triggerCallback("onEventClick", el, el, [bar, id]);
+            });
+
+            barLabel.innerHTML = name;
+            bar.appendChild(barLabel);
+            barContainer.appendChild(bar);
+            cell.appendChild(barContainer);
+
+            // Increment portion and assign new cell
+            currentColumn = 0;
+            currentRow++;
+
+            cell = this.querySelector("div[row='" + currentRow + "'][column='" + currentColumn + "']");
+
+            // Don't  outbound
+            if (!cell) {
+              totalDays = 0;
+            }
+          }
+        }
+      },
+      validateWeekStart: function () {
+        var weekStart = typeof this.weekStart != "undefined" ? Number(this.weekStart) : 1;
+        if (weekStart > 6) {
+          weekStart = 0;
+        }
+        return weekStart;
+      },
+      isMonthScope: function (startDate, endDate, year, month, prevMonthDays) {
+        var startDays = startDate.getDate();
+        var endDays = endDate.getDate();
+        var startMonth = startDate.getMonth();
+        var endMonth = endDate.getMonth();
+        var startYear = startDate.getFullYear();
+        var endYear = endDate.getFullYear();
+
+        var lastMonthEnd = new Date(this.year, this.month, 0).getDate();
+
+        var isBetweenYears = year > startYear && year < endYear;
+
+        // Current year is in between event years
+        if (isBetweenYears) {
+          return true;
+        } else if (year == startYear && year == endYear) {
+          // 1 - Different start/end months (EASY)
+          // 2 - Same start/end month but some cells overlap current month
+          var firstOverlapDay = (lastMonthEnd - prevMonthDays) + 1;
+          var prevDaysScope = this.month == startMonth + 1 && (startDays >= firstOverlapDay || endDays >= firstOverlapDay);
+
+          // Same months
+          var sameStartMonth = month == startMonth;
+          var sameEndMonth = month == endMonth;
+          var monthScope = month >= startMonth && month <= endMonth;
+
+          if (monthScope || prevDaysScope) {
+            return true;
+          }
+        } else {
+          // Different start and end immediate years
+          var sameStartYear = year == startYear;
+          var sameEndYear = year == endYear;
+          var startMonthScope = sameStartYear && month >= startMonth;
+          var endMonthScope = sameEndYear && month <= endMonth;
+
+          if (startMonthScope || endMonthScope) {
+            return true;
+          }
+        }
+
+        return false;
+      },
+      getDaysInRange: function (currentDate, startDate) {
+        var startYear = startDate.getFullYear();
+        var currentYear = currentDate.getFullYear();
+        var startMonth = startDate.getMonth();
+        var currentMonth = currentDate.getMonth();
+        var lastDate;
+        var days = 0;
+
+        if (startYear < currentYear) {
+          // TODO - Multiple years
+          for (var i = startYear; i <= currentYear; i++) {
+            // Get full months days
+            if (i == startYear) {
+              for (var j = startMonth + 1; j < 12; j++) {
+                lastDate = new Date(i, j + 1, 0);
+                days += lastDate.getDate();
+              }
+            } else if (i == currentYear) {
+              for (var j = 0; j < currentMonth; j++) {
+                lastDate = new Date(i, j + 1, 0);
+                days += lastDate.getDate();
+              }
+            } else {
+              for (var j = 0; j < 12; j++) {
+                lastDate = new Date(i, j + 1, 0);
+                days += lastDate.getDate();
+              }
+            }
+          }
+        } else {
+          // Same year
+          for (var i = startMonth + 1; i < currentMonth; i++) {
+            lastDate = new Date(currentYear, i + 1, 0);
+            days += lastDate.getDate();
+          }
+        }
+
+        // Add the start month days 
+        lastDate = new Date(startYear, startMonth + 1, 0);
+        days += lastDate.getDate() - startDate.getDate();
+
+        return days;
+      },
+      getMonthInfo: function (year, month) {
+        var weekday = (new Date(year, month)).getDay();
+        var daysInMonth = 32 - new Date(year, month, 32).getDate();
+
+        var yearPrev = year;
+        var monthPrev = month - 1;
+        var yearNext = year;
+        var monthNext = month + 1;
+
+        if (monthPrev < 0) {
+          monthPrev = 11;
+          yearPrev = yearPrev - 1;
+        }
+
+        if (monthNext > 11) {
+          monthNext = 0;
+          yearNext = yearPrev + 1;
+        }
+
+        var daysInMonthPrev = 32 - new Date(yearPrev, monthPrev, 32).getDate();
+        return {
+          weekday: weekday,
+          year: year,
+          yearPrev: yearPrev,
+          yearNext: yearNext,
+          month: month,
+          monthPrev: monthPrev,
+          monthNext: monthNext,
+          daysInMonth: daysInMonth,
+          daysInMonthPrev: daysInMonthPrev
+        };
+      },
+      drawMonth: function (year, month) {
+        this.cells = {};
+
+        var weekStart = this._validateWeekStart(this.weekStart);
+
+        var monthInfo = this._getMonthInfo(year, month);
+        var monthViewEl = this._refs.monthView;
+        var monthViewFragment = document.createDocumentFragment();
+        var isMonthNext = false;
+        var currentCell = 0;
+        var dateEl;
+        var dayCount = 1;
+        var cellDate;
+        var row;
+        var column;
+        var i;
+        var j;
+
+        // Calc previous month cells
+        var prevMonthCells = monthInfo.weekday - weekStart;
+        if (prevMonthCells < 0) {
+          prevMonthCells = prevMonthCells + 7;
+        }
+
+        // Clear Calendar
+        monthViewEl.innerHTML = "";
+
+        // Paint header
+        var header = document.createElement("div");
+        header.classList.add("calendar-header-row");
+
+        for (i = 0; i < 7; i++) {
+          column = document.createElement("div");
+          column.classList.add("calendar-header-cell");
+          // ** 'weekdayName' function out of the component scope
+          column.innerHTML = weekdayName ? eon.util.firstToUpperCase(weekdayName((i + weekStart) % 7)) : "";
+          header.appendChild(column);
+        }
+
+        monthViewFragment.appendChild(header);
+
+        // Paint days
+        var numberOfRows = monthInfo.daysInMonth + prevMonthCells > 35 ? 6 : 5;
+
+        for (i = 0; i < numberOfRows; i++) {
+          row = document.createElement("div");
+          row.classList.add("calendar-row");
+
+          for (j = 0; j < 7; j++) {
+            column = document.createElement("div");
+            column.classList.add("calendar-cell");
+            column.setAttribute("row", i);
+            column.setAttribute("column", j);
+
+            // Fill days according to previous month
+            if (currentCell < prevMonthCells) {
+              // Use prev month dates
+              cellDate = monthInfo.daysInMonthPrev - prevMonthCells + currentCell + 1;
+              column.setAttribute("date", monthInfo.yearPrev + "-" + (monthInfo.monthPrev + 1) + "-" + cellDate);
+            } else {
+              // Use current month dates but don't exceed days in month
+              if (dayCount > monthInfo.daysInMonth) {
+                dayCount = 1;
+                isMonthNext = true;
+              }
+              cellDate = dayCount;
+              dayCount++;
+              if (isMonthNext) {
+                column.setAttribute("date", monthInfo.yearNext + "-" + (monthInfo.monthNext + 1) + "-" + cellDate);
+              } else {
+                column.setAttribute("date", monthInfo.year + "-" + (monthInfo.month + 1) + "-" + cellDate);
+              }
+            }
+
+            dateEl = document.createElement("span");
+            dateEl.classList.add("calendar-cell-date")
+            dateEl.innerHTML = cellDate;
+            column.appendChild(dateEl);
+            currentCell++;
+
+            this.cells[column.getAttribute("date")] = {
+              node: column,
+              row: i,
+              column: j
+            };
+            row.appendChild(column);
+          }
+
+          monthViewFragment.appendChild(row);
+        }
+
+        // Highlight current day
+        if (eon.util.isTrue(this.currentDay)) {
+          this._markCurrentDate();
+        }
+
+        monthViewEl.appendChild(monthViewFragment);
+
+        // Draw events
+        for (i = 0; i < this.data.events.length; i++) {
+          this._drawEvents(this.data.events[i], monthInfo);
+        }
+      },
+      markCurrentDate: function () {
+        // Get current day cell
+        var currentCell = this.cells[this._getCurrentDate()];
+        if (currentCell) {
+          var cellMark = document.createElement("span");
+          currentCell.node.classList.add("eon-fg1-tobeio");
+          cellMark.classList.add("calendar-mark");
+          currentCell.node.appendChild(cellMark);
+        }
+      },
+      getCurrentDate: function () {
+        // Get formatted current date
+        var currentDate = new Date();
+        var year = currentDate.getFullYear()
+        var month = Number(currentDate.getMonth() + 1);
+        month = month < 10 ? "0" + month : month;
+        var day = currentDate.getDate();
+        day = day < 10 ? "0" + day : day;
+
+        return year + '-' + month + '-' + day;
+      },
+      toArray: function (obj) {
+        var array = [];
+        if (obj && obj.constructor == Object) {
+          for (var key in obj) {
+            array.push(obj[key])
+          }
+        }
+        return array;
+      }
+    },
+    functions: {
+      next: function () {
+        this.month = this.month + 1;
+        if (this.month > 11) {
+          this.month = 0;
+          this.year = this.year + 1;
+        }
+        this._drawMonth(this.year, this.month);
+      },
+      prev: function () {
+        this.month = this.month - 1;
+        if (this.month < 0) {
+          this.month = 11;
+          this.year = this.year - 1;
+        }
+        this._drawMonth(this.year, this.month);
+      },
+      paint: function (data) {
+        var currentTime = new Date();
+
+        this.data = data ? Object.assign({}, data) : Object.assign({}, this.data);
+
+        // Greater duration to smallest
+        if (data && data.events) {
+          this.data.events = this._toArray(data.events);
+
+          this.data.events.sort(function (a, b) {
+            return Number(b.duration) > Number(a.duration) ? 1 : -1;
+          });
+        }
+
+        this.data.events = !this.data.events ? [] : this.data.events;
+
+        // Assign defaults to events
+        var event;
+        for (var i = 0; i < this.data.events.length; i++) {
+          event = this.data.events[i];
+
+          // uuid
+          event.id = !event.id ? this._uuid() : event.id;
+
+          if (!event.color) {
+            event.color = this.colors[this.currentColor];
+            this.currentColor++;
+            if (this.currentColor >= this.colors.length) {
+              this.currentColor = 0;
+            }
+          }
+        }
+
+        // Paint
+        this.year = this.data.year || this.year || currentTime.getFullYear();
+        this.month = this.data.month || this.month || currentTime.getMonth();
+
+        this.data = this.data || data;
+
+        this._drawMonth(this.year, this.month, this.weekStart);
+      }
+    },
+    onCreated: function () {
+      eon.createCallback("onEventClick", this);
+    },
+    onTransformed: function () {
+      // Will draw on resize
+    },
+    onResize: function () {
+      // TODO - check height changes too
+      if (this._prevWidth && this._prevWidth !== this.offsetWidth) {
+        this.paint();
+        this._prevWidth = this.offsetWidth;
+      }
+      this._prevWidth = this.offsetWidth;
+    }
+  });
+</script>
