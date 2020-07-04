@@ -102,6 +102,11 @@ module.exports = {
       runs: "task9 task10",
       runp: "task11 task12",
       after: "1"
+    },
+    "task14": {
+      use: async function () {
+        console.log("task14");        
+      }
     }
   }
 }

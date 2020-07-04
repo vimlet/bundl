@@ -673,16 +673,40 @@ module.exports = {
 };
 ```
 
+```javascript
+module.exports = {
+  clean: true,
+  output: {
+    "build/": {
+      input: {
+        "src/parse/": {
+          parse: true
+        }
+      }
+    }
+  },
+  tasks: {
+    tsc: {
+      order: 0,
+      use: async function (previousUse) {
+        await bundl.run.exec("npx tsc");
+        return previousUse;
+      }
+    },
+  }
+};
+```
+
 
 ### How to run a task
 
 * Command line:
 
-`bundl run "taskId"`
+`bundl --run "taskId"`
 
 Following the previous example:
 ```
-bundl run "task3"
+bundl --run "task3"
 ```
 Will run task1 and then task2 in a parallel way.
 

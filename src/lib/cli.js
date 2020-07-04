@@ -37,7 +37,7 @@ module.exports = async function () {
         let watchPath = cli.result.watch || config.watch;
         let run = cli.result.run;
 
-        if (run) {
+        if (run) {          
           await pack.runTask(loadash.cloneDeep(config), run);
         } else {
           await pack.build(loadash.cloneDeep(config));
