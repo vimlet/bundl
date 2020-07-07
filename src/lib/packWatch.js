@@ -240,6 +240,26 @@ function addOrderedToMatch(config, newOutput, newTask) {
   }
 }
 
+// @function addTasksWatch (private) @param config @param filePath @param newTask
+module.exports.addTasksWatch = function(config, filePath, newTask){
+  if (config.tasks) {
+    for (var taskKey in config.tasks) {
+      if ("watch" in config.tasks[taskKey]) {
+        var watch = config.tasks[taskKey].watch;
+        if(!Array.isArray(watch)){
+          watch = [watch];
+        }
+        watch.forEach(element=>{
+          if (glob.match(filePath, element).length > 0) {            
+            newTask[taskKey] = config.tasks[taskKey];
+            newTask[taskKey]._force = true;
+          }
+        });
+      }
+    }
+  }
+};
+
 
 // @function matchSingleConfig (public) [Check whether an input match with modified file] @param inputs @param matches @param filePath @param outputKey
 module.exports.matchSingleConfig = function (inputs, matches, filePath, outputKey) {

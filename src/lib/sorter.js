@@ -64,6 +64,10 @@ function sortTaskObject(config, obj, element, sorted) {
         } else if ("after" in obj) {
             var doAfter = obj.after.split(" ");
             sorted.list.after[obj.id] = doAfter;
+        }else if("_force" in obj){         
+            var currentOrder = 0;
+            sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
+            sorted.list.sorted[currentOrder].push(obj.id);
         }
     }
     sorted.data[obj.id] = {

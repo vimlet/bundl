@@ -1,0 +1,16 @@
+{
+  "name": "test-run",
+  "private": true,
+  "version": "0.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node  ../../../../src/index.js",
+    "bundl": "npx bundl",
+    "bundl:watch": "npx bundl --watch input"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@vimlet/bundl": "file:../../"
+  }
+}

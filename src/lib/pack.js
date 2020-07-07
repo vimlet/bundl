@@ -231,7 +231,7 @@ module.exports.buildSingle = async function (config, filePath, event) {
         packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
       } else {
         config.output[outputKey].forEach(function (cOut) {
-          var inputs = cOut.input;
+          var inputs = cOut.input;          
           packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
         });
       }
@@ -275,6 +275,7 @@ module.exports.buildSingle = async function (config, filePath, event) {
     }
     var newTask = {};
     packWatch.addOrderedToMatch(config, newOutput, newTask);
+    packWatch.addTasksWatch(config, filePath, newTask);    
     // Add before after items
     var tempBefAft = {
       output: {},
@@ -300,7 +301,7 @@ module.exports.buildSingle = async function (config, filePath, event) {
       newTask[taskKey] = config.tasks[taskKey];
     }
     config.tasks = newTask;
-    config.output = newOutput;
+    config.output = newOutput;    
     await pack(config);
     resolve();
   });

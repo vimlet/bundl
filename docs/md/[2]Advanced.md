@@ -104,7 +104,7 @@ output: {
 |**parse**|Enable [Meta](https://github.com/vimlet/vimlet-meta) template syntax parsing. Note that meta runs on each single file individually even when enabling parse at output object, it only means that meta will run for every file.|
 |**order**|Specify an order and make it works synchronously with other ordered entries. Non-ordered keys will be processed at the end in asynchronous way.|
 |**id**|Identification for hashes and other parse functions.|
-|**use**|`function(entry){return entry;}` Use custom code to modify the output.|
+|**use**|`function(entry, bundl){return entry;}` Use custom code to modify the output.|
 |**input**|A string or a configuration object for the input files.|
 |**before**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished before given ids object.|
 |**after**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished after given ids object.|
@@ -175,7 +175,7 @@ When using object as value, following parameters are available:
 |Property|Description|
 |--------|-----------|
 |**parse**|Run meta for given key.|
-|**use**|`function(entry){return entry;}` Use custom code to modify the file.|
+|**use**|`function(entry, bundl){return entry;}` Use custom code to modify the file.|
 |**read**|If set to false, file content will not be read. Useful when reading it by other means in `use` function.|
 
 *Example:*
@@ -645,12 +645,13 @@ module.exports = {
 
 |Property|Description|
 |--------|-----------|
-|**use**|`function(previousUse){return result;}` Use custom code. In case of an array of functions `previousUse` is the return of the previous function in the array.|
+|**use**|`function(previousUse, bundl){return result;}` Use custom code. In case of an array of functions `previousUse` is the return of the previous function in the array.|
 |**order**|Specify an order and make it works synchronously with other ordered entries. Ordered tasks will be triggered on build.|
 |**before**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished before given ids object. This key will also trigger the task.|
 |**after**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished after given ids object. This key will also trigger the task.|
 |**runp**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched paralleled. `runp` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
 |**runs**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched sequentially. `runs` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
+|**watch**|A string or an array of strings for path to be watching. If any file within the path is modified during watch mode this task will be triggered|
 
 
 ```javascript
@@ -696,6 +697,24 @@ module.exports = {
   }
 };
 ```
+
+```javascript
+module.exports = {
+  "outputBase": "output",
+  "inputBase": "input",
+  "clean": true,
+  "log": true,
+  tasks:{    
+    auto: {
+      watch:"copy/**",
+      use: async function (previousUse, bundl) {
+        console.log("Triggered while modifying files at copy folder");     
+      }
+    }, 
+  }
+};
+```
+
 
 
 ### How to run a task

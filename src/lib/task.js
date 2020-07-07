@@ -52,7 +52,10 @@ async function processRunS(config, taskObject) {
 }
 
 // @function process (public) [Process given task object] @param config @param taskObject
-module.exports.process = async (config, taskObject) => {
+module.exports.process = async (config, taskObject) => {  
+  if (!("log" in config) || config.log) {
+    console.log("Tasks: " + taskObject.id);
+  }
   content = await processUse(taskObject);
   await processRun(config, taskObject);
 };
