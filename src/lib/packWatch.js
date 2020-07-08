@@ -198,16 +198,67 @@ function addToItsPlace(config, tempBefAft, key) {
 }
 
 
-// @function addOrderedTaskToMatch (public) [Add items with order to match] @param config @param newTask
-module.exports.addOrderedTaskToMatch = function (config, newTask) {  
-    if (config.tasks) {
-      for (var taskKey in config.tasks) {
+// @function addSortedTaskToMatch (public) [Add items with order to match] @param config @param filepath @param newTask
+module.exports.addSortedTaskToMatch = function (config, filePath, newTask) {
+  if (config.tasks) {
+    for (var taskKey in config.tasks) {
+      if ("watch" in config.tasks[taskKey]) {
+        var watch = config.tasks[taskKey].watch;
+        if (!Array.isArray(watch)) {
+          watch = [watch];
+        }
+        watch.forEach(element => {
+          if (glob.match(filePath, element).length > 0) {
+            // newTask[taskKey] = config.tasks[taskKey];
+            // newTask[taskKey]._force = true;
+            if ("order" in config.tasks[taskKey]) {
+              newTask[taskKey] = config.tasks[taskKey];
+            } else if ("before" in config.tasks[taskKey] || "after" in config.tasks[taskKey]) {
+              newTask[taskKey] = config.tasks[taskKey];
+            }
+          }
+        });
+      } else {
         if ("order" in config.tasks[taskKey]) {
+          newTask[taskKey] = config.tasks[taskKey];
+        } else if ("before" in config.tasks[taskKey] || "after" in config.tasks[taskKey]) {
           newTask[taskKey] = config.tasks[taskKey];
         }
       }
     }
+  }
 }
+
+// // @function addBeforeAfterTasksToMatch (public) [Add tasks with before or after to match] @param config @param tempBefAft @param key
+// module.exports.addBeforeAfterTasksToMatch = function (config, newTask) {
+//   if (config.tasks) {
+//     for (var taskKey in config.tasks) {
+//       if ("before" in config.tasks[taskKey] || "after" in config.tasks[taskKey]) {
+//         newTask[taskKey] = config.tasks[taskKey];
+//       }
+//     }
+//   }
+// }
+
+// // @function addTasksWatch (private) @param config @param filePath @param newTask
+// module.exports.addTasksWatch = function (config, filePath, newTask) {
+//   if (config.tasks) {
+//     for (var taskKey in config.tasks) {
+//       if ("watch" in config.tasks[taskKey]) {
+//         var watch = config.tasks[taskKey].watch;
+//         if (!Array.isArray(watch)) {
+//           watch = [watch];
+//         }
+//         watch.forEach(element => {
+//           if (glob.match(filePath, element).length > 0) {
+//             newTask[taskKey] = config.tasks[taskKey];
+//             newTask[taskKey]._force = true;
+//           }
+//         });
+//       }
+//     }
+//   }
+// };
 
 // The following method is used to add only those tasks which are affected by any ordered input
 // // @function addOrderedTaskToMatch (public) [Add items with order to match] @param config @param newOutput @param newTask
@@ -252,27 +303,8 @@ module.exports.addOrderedTaskToMatch = function (config, newTask) {
 //   }
 // }
 
-// @function addTasksWatch (private) @param config @param filePath @param newTask
-module.exports.addTasksWatch = function(config, filePath, newTask){
-  if (config.tasks) {
-    for (var taskKey in config.tasks) {
-      if ("watch" in config.tasks[taskKey]) {
-        var watch = config.tasks[taskKey].watch;
-        if(!Array.isArray(watch)){
-          watch = [watch];
-        }
-        watch.forEach(element=>{
-          if (glob.match(filePath, element).length > 0) {            
-            newTask[taskKey] = config.tasks[taskKey];
-            newTask[taskKey]._force = true;
-          }
-        });
-      }
-    }
-  }
-};
 // @function addTasksRunOnBuild (private) [Add tasks which has the option runOnBuild] @param config @param filePath @param newTask
-module.exports.addTasksRunOnBuild = function(config, filePath, newTask){
+module.exports.addTasksRunOnBuild = function (config, filePath, newTask) {
   if (config.tasks) {
     for (var taskKey in config.tasks) {
       if ("runOnBuild" in config.tasks[taskKey] && config.tasks[taskKey].runOnBuild) {
@@ -286,7 +318,7 @@ module.exports.addTasksRunOnBuild = function(config, filePath, newTask){
 
 // @function matchSingleConfig (public) [Check whether an input match with modified file] @param inputs @param matches @param filePath @param outputKey
 module.exports.matchSingleConfig = function (inputs, matches, filePath, outputKey) {
-  for (var inputKey in inputs) {    
+  for (var inputKey in inputs) {
     if (typeof inputs[inputKey] === "object" &&
       !Array.isArray(inputs[inputKey]) && "watch" in inputs[inputKey]) {
       if (glob.match(filePath, inputs[inputKey].watch).length > 0) {

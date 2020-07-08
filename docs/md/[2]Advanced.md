@@ -651,7 +651,7 @@ module.exports = {
 |**after**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished after given ids object. This key will also trigger the task.|
 |**runp**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched paralleled. `runp` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
 |**runs**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched sequentially. `runs` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
-|**watch**|A string or an array of strings for path to be watching. If any file within the path is modified during watch mode this task will be triggered|
+|**watch**|A string or an array of strings for path to be watching. During watch mode, the task will only be triggered if the modified file match|
 |**runOnBuild**|A boolean which if set to true makes the task to run when building. It works on watch mode also|
 
 

@@ -92,7 +92,7 @@ async function build(config, sorted, objs) {
 // @function buildObj (private) [Build an obj] @param config @param sorted @param key
 async function buildObj(config, sorted, key) {
   return new Promise(async (resolve, reject) => {
-    var obj = sorted.data[key].obj;
+    var obj = sorted.data[key].obj;    
     try {
       switch (obj._type) {
         case "task":
@@ -164,7 +164,8 @@ async function process(config, sorted, key) {
   return new Promise(async (resolve, reject) => {
     if (sorted.data[key]) {
       if (sorted.data[key].status === "object") {
-        if ("_waitFor" in sorted.data[key]) {
+        sorted.data[key].status = "triggered";
+        if ("_waitFor" in sorted.data[key]) {          
           await waitForOthers(config, sorted, key);
         }
         var obj = sorted.data[key].obj;
@@ -180,7 +181,7 @@ async function process(config, sorted, key) {
             currentPromise = transform.process(config, obj, sorted.meta);
             break;
         }
-        sorted.data[key].status = "triggered";
+        // sorted.data[key].status = "triggered";
         sorted.data[key].promise = currentPromise;
         resolve(currentPromise);
       } else {
@@ -196,18 +197,9 @@ async function process(config, sorted, key) {
 async function waitForOthers(config, sorted, key) {
   return new Promise(async (resolve, reject) => {
     await Promise.all(sorted.data[key]._waitFor.map(async waitFor => {
-
-
       if (sorted.data[waitFor] && sorted.data[waitFor].status === "object") {
-        // if (sorted.data[waitFor].status === "object") {
-
         await buildObj(config, sorted, waitFor);
-
-
       } else if (sorted.data[waitFor] && sorted.data[waitFor].status === "triggered") {
-        // } else if (sorted.data[waitFor].status === "triggered") {
-
-
         await sorted.data[waitFor].promise;
       }
     }));
@@ -231,7 +223,7 @@ module.exports.buildSingle = async function (config, filePath, event) {
         packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
       } else {
         config.output[outputKey].forEach(function (cOut) {
-          var inputs = cOut.input;          
+          var inputs = cOut.input;
           packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
         });
       }
@@ -274,10 +266,11 @@ module.exports.buildSingle = async function (config, filePath, event) {
       }
     }
     var newTask = {};
-    packWatch.addOrderedTaskToMatch(config, newTask);
+    packWatch.addSortedTaskToMatch(config, filePath, newTask);
     // packWatch.addOrderedTaskToMatch(config, newOutput, newTask); // Used to add only those tasks affected by the file changed
-    packWatch.addTasksWatch(config, filePath, newTask);    
-    packWatch.addTasksRunOnBuild(config, filePath, newTask);    
+    // packWatch.addBeforeAfterTasksToMatch(config, newTask);
+    // packWatch.addTasksWatch(config, filePath, newTask);    
+    packWatch.addTasksRunOnBuild(config, filePath, newTask);
     // Add before after items
     var tempBefAft = {
       output: {},
@@ -293,9 +286,9 @@ module.exports.buildSingle = async function (config, filePath, event) {
     for (var key in tempBefAft.output) {
       packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
     }
-    for (var key in tempBefAft.task) {
-      packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
-    }
+    // for (var key in tempBefAft.task) {
+    //   packWatch.addBeforeAfterToMatch(config, tempBefAft, key);
+    // }
     for (var outKey in tempBefAft.output) {
       newOutput[outKey] = tempBefAft.output[outKey];
     }
@@ -303,7 +296,7 @@ module.exports.buildSingle = async function (config, filePath, event) {
       newTask[taskKey] = config.tasks[taskKey];
     }
     config.tasks = newTask;
-    config.output = newOutput;    
+    config.output = newOutput;
     await pack(config);
     resolve();
   });

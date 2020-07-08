@@ -6,7 +6,7 @@ module.exports = {
   "log": true,
   "output": {
     "build.js": {
-      "id": "build",
+      "id": "build1",
       "input": {
         "js/**": {
           use: async function (entry, bundl){
@@ -16,13 +16,24 @@ module.exports = {
       use: async function (entry, bundl){ 
         return entry;
       }
+    },
+    "test.js": {
+      "input": {
+        "js/**": true
+      }
     }
   },
   tasks:{    
-    auto: {
-      after: "build",
+    after: {
+      after: "build1",
       use: async function (previousUse, bundl) {
-        console.log("Should be called auto");     
+        console.log("Should be called after");     
+      }
+    }, 
+    before: {
+      before: "build1",
+      use: async function (previousUse, bundl) {
+        console.log("Should be called before");     
       }
     },    
     notTriggered: {
@@ -31,6 +42,7 @@ module.exports = {
       }
     }, 
     watch: {
+      order:1,
       watch:"copy/**",
       use: async function (previousUse, bundl) {
         console.log("Should be called watch");     

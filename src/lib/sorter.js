@@ -24,11 +24,15 @@ module.exports.process = function (config) {
 function processBefore(sorted) {    
     for (key in sorted.list.before) {
         sorted.list.before[key].forEach(beforeItem => {
-            if(!sorted.data[beforeItem]){
-                throw new Error("Looking for an id that doesn't exists. Id: " + beforeItem);
+            if(!sorted.data[beforeItem]){                
+                var currentOrder = 0;
+                sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
+                sorted.list.sorted[currentOrder].push(key);
+                // throw new Error("Looking for an id that doesn't exists. Id: " + beforeItem);
+            }else{
+                sorted.data[beforeItem]._waitFor = sorted.data[beforeItem]._waitFor || [];
+                sorted.data[beforeItem]._waitFor.push(key);
             }
-            sorted.data[beforeItem]._waitFor = sorted.data[beforeItem]._waitFor || [];
-            sorted.data[beforeItem]._waitFor.push(key);
         });
     }
 }
