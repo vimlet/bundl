@@ -652,6 +652,7 @@ module.exports = {
 |**runp**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched paralleled. `runp` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
 |**runs**|A string of one task id or as many task ids as you pleased separated by spaces. Given ids will be launched sequentially. `runs` won't trigger itself. It needs to be triggered manually or sorted to auto launch on build.|
 |**watch**|A string or an array of strings for path to be watching. If any file within the path is modified during watch mode this task will be triggered|
+|**runOnBuild**|A boolean which if set to true makes the task to run when building. It works on watch mode also|
 
 
 ```javascript
@@ -709,6 +710,23 @@ module.exports = {
       watch:"copy/**",
       use: async function (previousUse, bundl) {
         console.log("Triggered while modifying files at copy folder");     
+      }
+    }, 
+  }
+};
+```
+
+```javascript
+module.exports = {
+  "outputBase": "output",
+  "inputBase": "input",
+  "clean": true,
+  "log": true,
+  tasks:{    
+    auto: {
+      runOnBuild:true,
+      use: async function (previousUse, bundl) {
+        console.log("Triggered any time that the build runs.");     
       }
     }, 
   }

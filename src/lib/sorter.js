@@ -68,6 +68,10 @@ function sortTaskObject(config, obj, element, sorted) {
             var currentOrder = 0;
             sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
             sorted.list.sorted[currentOrder].push(obj.id);
+        }else if("runOnBuild" in obj){         
+            var currentOrder = 0;
+            sorted.list.sorted[currentOrder] = sorted.list.sorted[currentOrder] || [];
+            sorted.list.sorted[currentOrder].push(obj.id);
         }
     }
     sorted.data[obj.id] = {

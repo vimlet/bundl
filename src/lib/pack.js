@@ -274,8 +274,10 @@ module.exports.buildSingle = async function (config, filePath, event) {
       }
     }
     var newTask = {};
-    packWatch.addOrderedToMatch(config, newOutput, newTask);
+    packWatch.addOrderedTaskToMatch(config, newTask);
+    // packWatch.addOrderedTaskToMatch(config, newOutput, newTask); // Used to add only those tasks affected by the file changed
     packWatch.addTasksWatch(config, filePath, newTask);    
+    packWatch.addTasksRunOnBuild(config, filePath, newTask);    
     // Add before after items
     var tempBefAft = {
       output: {},

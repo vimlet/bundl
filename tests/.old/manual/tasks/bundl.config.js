@@ -30,10 +30,22 @@ module.exports = {
         console.log("Should not be called");        
       }
     }, 
-    secondary: {
+    watch: {
       watch:"copy/**",
       use: async function (previousUse, bundl) {
-        console.log("Should be called secondary");     
+        console.log("Should be called watch");     
+      }
+    },
+    order: {
+      order:1,
+      use: async function (previousUse, bundl) {
+        console.log("Should be called order");     
+      }
+    }, 
+    runOnBuild: {
+      runOnBuild:true,
+      use: async function (previousUse, bundl) {
+        console.log("Should be called runOnBuild");     
       }
     }, 
   }

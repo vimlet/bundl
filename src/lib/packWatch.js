@@ -198,47 +198,59 @@ function addToItsPlace(config, tempBefAft, key) {
 }
 
 
-// @function addOrderedToMatch (public) [Add items with order to match] @param config @param newOutput @param newTask
-module.exports.addOrderedToMatch = function (config, newOutput, newTask) {
-  for (var key in newOutput) {
-    if (Array.isArray(newOutput[key])) {
-      newOutput[key].forEach(nO => {
-        if ("order" in nO) {
-          addOrderedToMatch(config, newOutput, newTask);
+// @function addOrderedTaskToMatch (public) [Add items with order to match] @param config @param newTask
+module.exports.addOrderedTaskToMatch = function (config, newTask) {  
+    if (config.tasks) {
+      for (var taskKey in config.tasks) {
+        if ("order" in config.tasks[taskKey]) {
+          newTask[taskKey] = config.tasks[taskKey];
         }
-      });
-    } else {
-      if ("order" in newOutput[key]) {
-        addOrderedToMatch(config, newOutput, newTask);
       }
     }
-  }
 }
 
-// @function addOrderedToMatch (private) [Add ordered to match if key has order] @param config @param newOutput @param newTask
-function addOrderedToMatch(config, newOutput, newTask) {
-  for (var outKey in config.output) {
-    if (Array.isArray(config.output[outKey])) {
-      config.output[outKey].forEach(cO => {
-        if ("order" in cO) {
-          newOutput[outKey] = newOutput[outKey] || [];
-          newOutput[outKey].push(cO);
-        }
-      });
-    } else {
-      if ("order" in config.output[outKey]) {
-        newOutput[outKey] = config.output[outKey];
-      }
-    }
-  }
-  if (config.tasks) {
-    for (var taskKey in config.tasks) {
-      if ("order" in config.tasks[taskKey]) {
-        newTask[taskKey] = config.tasks[taskKey];
-      }
-    }
-  }
-}
+// The following method is used to add only those tasks which are affected by any ordered input
+// // @function addOrderedTaskToMatch (public) [Add items with order to match] @param config @param newOutput @param newTask
+// module.exports.addOrderedTaskToMatch = function (config, newOutput, newTask) {
+//   for (var key in newOutput) {
+//     if (Array.isArray(newOutput[key])) {
+//       newOutput[key].forEach(nO => {
+//         if ("order" in nO) {
+//           addOrderedTaskToMatch(config, newOutput, newTask);
+//         }
+//       });
+//     } else {
+//       if ("order" in newOutput[key]) {
+//         addOrderedTaskToMatch(config, newOutput, newTask);
+//       }
+//     }
+//   }
+// }
+
+// // @function addOrderedTaskToMatch (private) [Add ordered to match if key has order] @param config @param newOutput @param newTask
+// function addOrderedTaskToMatch(config, newOutput, newTask) {
+//   for (var outKey in config.output) {
+//     if (Array.isArray(config.output[outKey])) {
+//       config.output[outKey].forEach(cO => {
+//         if ("order" in cO) {
+//           newOutput[outKey] = newOutput[outKey] || [];
+//           newOutput[outKey].push(cO);
+//         }
+//       });
+//     } else {
+//       if ("order" in config.output[outKey]) {
+//         newOutput[outKey] = config.output[outKey];
+//       }
+//     }
+//   }
+//   if (config.tasks) {
+//     for (var taskKey in config.tasks) {
+//       if ("order" in config.tasks[taskKey]) {
+//         newTask[taskKey] = config.tasks[taskKey];
+//       }
+//     }
+//   }
+// }
 
 // @function addTasksWatch (private) @param config @param filePath @param newTask
 module.exports.addTasksWatch = function(config, filePath, newTask){
@@ -255,6 +267,17 @@ module.exports.addTasksWatch = function(config, filePath, newTask){
             newTask[taskKey]._force = true;
           }
         });
+      }
+    }
+  }
+};
+// @function addTasksRunOnBuild (private) [Add tasks which has the option runOnBuild] @param config @param filePath @param newTask
+module.exports.addTasksRunOnBuild = function(config, filePath, newTask){
+  if (config.tasks) {
+    for (var taskKey in config.tasks) {
+      if ("runOnBuild" in config.tasks[taskKey] && config.tasks[taskKey].runOnBuild) {
+        newTask[taskKey] = config.tasks[taskKey];
+        newTask[taskKey]._force = true;
       }
     }
   }
