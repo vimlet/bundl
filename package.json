@@ -37,7 +37,7 @@
     "@vimlet/meta": "2.4.6",
     "md5": "2.2.1",
     "rimraf": "2.6.3",
-    "lodash": "4.17.15",
+    "lodash": "4.17.19",
     "semver": "6.3.0"
   },
   "devDependencies": {
