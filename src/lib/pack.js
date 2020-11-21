@@ -271,6 +271,7 @@ module.exports.buildSingle = async function (config, filePath, event) {
           newOutput[match] = [];
           config.output[match].forEach(function (cOut) {
             for (var inputkey in cOut.input) {
+              matches[match] = Array.isArray(matches[match]) ? matches[match] : [matches[match]];
               matches[match].forEach(matchInput => {
                 if (matchInput == inputkey) {
                   newOutput[match].push(cOut);
