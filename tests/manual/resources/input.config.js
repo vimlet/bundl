@@ -5,8 +5,7 @@ module.exports = {
         "output/allTogether.txt": {
             input: {
                 "input/**": true
-            },
-            keepSort: true
+            }
         }
     }
 }
