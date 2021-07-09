@@ -109,7 +109,7 @@ module.exports.process = async (config, outputObject, meta) => {
   let outputParent = path.dirname(outputPath).replace(/\\/g, "/");
   let inputsObject = outputObject.input;
   let files = await util.filesByMatches(await util.getInputMatches(inputsObject, {
-    path: config.inputBase
+    path: config.inputBase, keepSort:outputObject.keepSort
   }), inputsObject);  
   // Process input
   files = await processInputUse(inputsObject, files);

@@ -108,6 +108,7 @@ output: {
 |**input**|A string or a configuration object for the input files.|
 |**before**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished before given ids object.|
 |**after**|A string of one id or as many ids as you pleased separated by spaces. Current object will be finished after given ids object.|
+|**keepSort**|Process files sorted alphabetically and folders last|
 
 *Example:*
 ```[javascript]

@@ -82,14 +82,14 @@ function processOutputNameReplace(outputObject, outputPath) {
 // @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param cwdFilePath @param outputParse @param meta
 async function processInputMeta(file, inputsObject, cwdFilePath, outputParse, meta) {
   if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) || outputParse) {
-    var data = {__meta: meta};    
-    if(outputParse && typeof outputParse  === "object"){
-      for(var key in outputParse){
+    var data = { __meta: meta };
+    if (outputParse && typeof outputParse === "object") {
+      for (var key in outputParse) {
         data[key] = outputParse[key];
       }
     }
-    if(inputsObject[file.pattern].parse && typeof inputsObject[file.pattern].parse  === "object"){
-      for(var key in inputsObject[file.pattern].parse){
+    if (inputsObject[file.pattern].parse && typeof inputsObject[file.pattern].parse === "object") {
+      for (var key in inputsObject[file.pattern].parse) {
         data[key] = inputsObject[file.pattern].parse[key];
       }
     }
@@ -131,7 +131,7 @@ module.exports.process = async (config, outputEntry, meta) => {
         parse: outputEntry.parse,
         outputParent: outputParent,
         outputPath: usedData.path,
-        content: usedData.content || file.content
+        content: usedData.content || file.content,
       };
       resolve(result);
     }));
