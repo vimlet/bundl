@@ -188,7 +188,7 @@ async function process(config, sorted, key) {
         var currentPromise;
         switch (obj._type) {
           case "task":
-            await task.process(config, obj);
+            await task.process(config, obj, sorted.meta);
             break;
           case "copy":
             currentPromise = copy.process(config, obj, sorted.meta);
