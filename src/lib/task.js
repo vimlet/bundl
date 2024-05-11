@@ -8,7 +8,6 @@ async function processUse(taskObject, meta) {
 
     if (meta) {
       bundl.getHash = function (id) {
-        console.log("meta",meta);
         if (meta && meta[id] && meta[id].hash) {
           return meta[id].hash;
         }
