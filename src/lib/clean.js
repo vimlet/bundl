@@ -18,7 +18,7 @@ module.exports = async (config, options) => {
         await cleanWatch(config, options);
       }
     }
-  } else if (config.clean) {    
+  } else if (config.clean) {
     if (!Array.isArray(config.clean)) {
       config.clean = [config.clean];
     }
@@ -37,7 +37,7 @@ module.exports = async (config, options) => {
 async function cleanWatch(config, options) {
   if (options) {
     if (options.matches && options.filePath) {
-      for (const outMatch of options.matches) {
+      for (const outMatch of Array.isArray(options.matches) ? options.matches : []) {
         if (outMatch.endsWith("**")) {
           var inputs = config.output[outMatch].input;
           var currentInput;
