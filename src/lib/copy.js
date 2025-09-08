@@ -80,7 +80,7 @@ function processOutputNameReplace(outputObject, outputPath) {
 }
 
 // @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param cwdFilePath @param outputParse @param meta
-async function processInputMeta(file, inputsObject, cwdFilePath, outputParse, meta) {
+async function processInputMeta(file, inputsObject, cwdFilePath, outputParse, meta, config) {
   if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) || outputParse) {
     var data = { __meta: meta };
     if (outputParse && typeof outputParse === "object") {
@@ -95,7 +95,8 @@ async function processInputMeta(file, inputsObject, cwdFilePath, outputParse, me
     }
     content = await parse(file.content.toString(), {
       basePath: path.dirname(cwdFilePath).replace(/\\/g, "/"),
-      data: data
+      data: data,
+      errorManaging: config.errorManaging || "strict"
     });
     return content;
   } else {
@@ -114,7 +115,7 @@ module.exports.process = async (config, outputEntry, meta) => {
   await Promise.all(files.map(async file => {
     var cwdFilePath = file.file;
     file = await processInputUse(inputsObject, file);
-    file.content = await processInputMeta(file, inputsObject, cwdFilePath, outputEntry.parse, meta);
+    file.content = await processInputMeta(file, inputsObject, cwdFilePath, outputEntry.parse, meta, config);
     let subPath;
     if (path.basename(file.pattern) == file.pattern) {
       subPath = file.path.substring(0);

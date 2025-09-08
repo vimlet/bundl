@@ -25,15 +25,15 @@ async function processInputUse(inputsObject, files) {
 }
 
 // @function processInputJoin (private) [Join given files content for output] @param files @param inputsObject @param meta @param outputParse
-async function processInputJoin(files, inputsObject, meta, outputParse) {
+async function processInputJoin(files, inputsObject, meta, outputParse, config) {
   return await files.reduce(async (total, current, index, array) => {
-    current.content = await processInputMeta(current, inputsObject, meta, outputParse);
+    current.content = await processInputMeta(current, inputsObject, meta, outputParse), config;
     return await total + current.content + (index < (array.length - 1) ? "\n" : "");
   }, "");
 }
 
 // @function processInputMeta (private) [Process meta] @para, file @param inputsObject @param meta @param outputParse
-async function processInputMeta(file, inputsObject, meta, outputParse) {
+async function processInputMeta(file, inputsObject, meta, outputParse, config) {
   if ((typeof inputsObject[file.pattern] === "object" && !Array.isArray(inputsObject[file.pattern]) && inputsObject[file.pattern].parse) || outputParse) {
     var data = { __meta: meta };
     if (outputParse && typeof outputParse === "object") {
@@ -46,9 +46,11 @@ async function processInputMeta(file, inputsObject, meta, outputParse) {
         data[key] = inputsObject[file.pattern].parse[key];
       }
     }
+    
     content = await parse(file.content.toString(), {
       data: data,
-      basePath: path.dirname(file.path).replace(/\\/g, "/")
+      basePath: path.dirname(file.path).replace(/\\/g, "/"),
+      errorManaging: config.errorManaging || "strict"
     });
     return content;
   } else {
@@ -114,7 +116,7 @@ module.exports.process = async (config, outputObject, meta) => {
   }), inputsObject);
   // Process input
   files = await processInputUse(inputsObject, files);
-  let content = await processInputJoin(files, inputsObject, meta, outputObject.parse);
+  let content = await processInputJoin(files, inputsObject, meta, outputObject.parse, config);
   // Process output
   content = await processOutputUse(outputObject, outputPath, content);
   // Enable hashing support
