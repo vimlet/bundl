@@ -27,7 +27,7 @@ async function processInputUse(inputsObject, files) {
 // @function processInputJoin (private) [Join given files content for output] @param files @param inputsObject @param meta @param outputParse
 async function processInputJoin(files, inputsObject, meta, outputParse, config) {
   return await files.reduce(async (total, current, index, array) => {
-    current.content = await processInputMeta(current, inputsObject, meta, outputParse), config;
+    current.content = await processInputMeta(current, inputsObject, meta, outputParse, config);
     return await total + current.content + (index < (array.length - 1) ? "\n" : "");
   }, "");
 }
