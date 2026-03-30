@@ -9,8 +9,19 @@ module.exports.getInputMatches = async (inputsObject, options) => {
   var filesObj = await glob.files(inputPatterns, options);
 
   if (options.keepSort) {
-    filesObj.sort((a, b) => (a.match < b.match) ? 1 : -1);
-    filesObj.sort((a, b) => ((a.match.match(/\//g) || []).length > (b.match.match(/\//g) || []).length) ? 1 : -1);
+    // filesObj.sort((a, b) => (a.match < b.match) ? 1 : -1);
+    // filesObj.sort((a, b) => ((a.match.match(/\//g) || []).length > (b.match.match(/\//g) || []).length) ? 1 : -1);
+
+    // Folder first, then alphabetical
+    filesObj.sort((a, b) => {
+      const depthA = (a.match.match(/\//g) || []).length;
+      const depthB = (b.match.match(/\//g) || []).length;
+      if (depthA !== depthB) return depthB - depthA;
+      return a.match.localeCompare(b.match);
+    });
+
+    // Alphabetical. folder deep doesn't mind.
+    // filesObj.sort((a, b) => (a.match > b.match) ? 1 : (a.match < b.match) ? -1 : 0);
   }
 
   return filesObj;

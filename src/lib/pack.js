@@ -104,7 +104,8 @@ async function buildObj(config, sorted, key) {
     try {
       switch (obj._type) {
         case "task":
-          await process(config, sorted, key);
+          var current = await process(config, sorted, key);
+          
           sorted.data[key].status = "solved";
           break;
         case "copy":
@@ -188,7 +189,7 @@ async function process(config, sorted, key) {
         var currentPromise;
         switch (obj._type) {
           case "task":
-            await task.process(config, obj, sorted.meta);
+            currentPromise = await task.process(config, obj, sorted.meta);
             break;
           case "copy":
             currentPromise = copy.process(config, obj, sorted.meta);
@@ -236,11 +237,11 @@ module.exports.buildSingle = async function (config, filePath, event) {
     for (var outputKey in config.output) {
       if (!Array.isArray(config.output[outputKey])) {
         var inputs = config.output[outputKey].input;
-        packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
+        packWatch.matchSingleConfig(inputs, matches, filePath, outputKey, config);
       } else {
         config.output[outputKey].forEach(function (cOut) {
           var inputs = cOut.input;
-          packWatch.matchSingleConfig(inputs, matches, filePath, outputKey);
+          packWatch.matchSingleConfig(inputs, matches, filePath, outputKey, config);
         });
       }
     }

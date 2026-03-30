@@ -68,4 +68,12 @@ module.exports.process = async (config, taskObject, meta) => {
   }
   content = await processUse(taskObject, meta);
   await processRun(config, taskObject);
+
+  
+  return {
+    id: taskObject.id,
+    outputPath: taskObject.id,
+    content: "",
+    parse: false
+  };
 };

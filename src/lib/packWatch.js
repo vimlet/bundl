@@ -317,8 +317,10 @@ module.exports.addTasksRunOnBuild = function (config, filePath, newTask) {
 
 
 // @function matchSingleConfig (public) [Check whether an input match with modified file] @param inputs @param matches @param filePath @param outputKey
-module.exports.matchSingleConfig = function (inputs, matches, filePath, outputKey) {
+module.exports.matchSingleConfig = function (inputs, matches, filePath, outputKey, config) {
+
   for (var inputKey in inputs) {
+
     if (typeof inputs[inputKey] === "object" &&
       !Array.isArray(inputs[inputKey]) && "watch" in inputs[inputKey]) {
       if (glob.match(filePath, inputs[inputKey].watch).length > 0) {
@@ -329,4 +331,19 @@ module.exports.matchSingleConfig = function (inputs, matches, filePath, outputKe
       matches[outputKey].push(inputKey);
     }
   }
+
+  var outputItems = Array.isArray(config.output[outputKey]) ? config.output[outputKey] : [config.output[outputKey]];
+  outputItems.forEach(outputItem => {
+
+    var watchPatterns = outputItem.watch;
+    if (watchPatterns) {
+      const patterns = Array.isArray(watchPatterns) ? watchPatterns : [watchPatterns];
+      patterns.forEach(pattern => {
+        if (glob.match(filePath, pattern).length > 0 && !matches[outputKey]) {
+          matches[outputKey] = Object.keys(outputItem.input)[0];
+        }
+      });
+    }
+  });
+
 }
